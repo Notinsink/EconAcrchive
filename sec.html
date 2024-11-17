@@ -97,6 +97,9 @@
     <div class="message" id="message"></div>
   </div>
 
+  <!-- Audio Elements -->
+  <audio id="spinSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio> <!-- Replace with actual slot machine sound -->
+
   <script>
     const symbols = ['7', '🍒', '🍋', '🍊', '🍓', '🍉', '💎', '🍀'];
 
@@ -121,6 +124,10 @@
       const result = document.getElementById("result");
       const message = document.getElementById("message");
       const rating = document.getElementById("rating");
+
+      // Play spin sound
+      const spinSound = document.getElementById("spinSound");
+      spinSound.play();
 
       // Spin the reels
       const symbol1 = getRandomSymbol();
