@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Functional Roulette Wheel</title>
+  <title>Roulette Wheel with Ball Animation</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -101,8 +101,14 @@
     let currentAngle = 0;
     let spinSpeed = 0;
 
+    let ballAngle = 0;
+    let ballSpeed = 0;
+    let ballRadius = wheelRadius - 30;
+
     function drawWheel() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw wheel segments
       segments.forEach((segment, index) => {
         const startAngle = currentAngle + index * segmentAngle;
         const endAngle = startAngle + segmentAngle;
@@ -132,12 +138,24 @@
       ctx.arc(wheelRadius, wheelRadius, 50, 0, 2 * Math.PI);
       ctx.fillStyle = '#FFD700';
       ctx.fill();
+
+      // Draw ball
+      const ballX = wheelRadius + ballRadius * Math.cos(ballAngle);
+      const ballY = wheelRadius + ballRadius * Math.sin(ballAngle);
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, 10, 0, 2 * Math.PI);
+      ctx.fillStyle = '#000';
+      ctx.fill();
     }
 
     function spinWheel() {
-      if (spinSpeed > 0.1) {
+      if (spinSpeed > 0.1 || ballSpeed > 0.01) {
         currentAngle += spinSpeed;
-        spinSpeed *= 0.98;
+        ballAngle -= ballSpeed;
+
+        spinSpeed *= 0.98; // Gradually slow down the wheel
+        ballSpeed *= 0.97; // Gradually slow down the ball
+
         drawWheel();
         requestAnimationFrame(spinWheel);
       } else {
@@ -145,12 +163,12 @@
           ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) / segmentAngle
         ) % totalSegments;
         resultDisplay.textContent = `The ball landed on ${segments[winningIndex].number}!`;
-        spinSpeed = 0;
       }
     }
 
     spinButton.addEventListener('click', () => {
-      spinSpeed = Math.random() * 0.5 + 0.2;
+      spinSpeed = Math.random() * 0.3 + 0.1;
+      ballSpeed = Math.random() * 0.5 + 0.2;
       resultDisplay.textContent = 'Spinning...';
       spinWheel();
     });
