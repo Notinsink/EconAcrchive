@@ -3,217 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enhanced Casino Roulette</title>
+  <title>Roulette Wheel</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      background: #0b0c10;
-      color: #ffffff;
-    }
-
-    h1 {
-      margin-top: 20px;
-    }
-
-    .roulette-container {
-      position: relative;
-      width: 400px;
-      height: 400px;
-      margin: 50px auto;
-      border: 10px solid #333;
-      border-radius: 50%;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-      background: radial-gradient(circle, #333 20%, #0b0c10 100%);
-    }
-
-    .wheel {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 380px;
-      height: 380px;
-      border-radius: 50%;
-      transform-origin: center;
-      background: conic-gradient(
-        red 0% 10%, black 10% 20%, red 20% 30%, black 30% 40%, 
-        red 40% 50%, black 50% 60%, red 60% 70%, black 70% 80%, 
-        red 80% 90%, black 90% 100%
-      );
-      animation: none;
-    }
-
-    .numbers {
-      position: absolute;
-      width: 360px;
-      height: 360px;
-      top: 20px;
-      left: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
-      border-radius: 50%;
-      transform-origin: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #333;
     }
 
-    .number {
-      position: absolute;
-      font-size: 14px;
-      font-weight: bold;
+    .roulette-container {
       text-align: center;
-      width: 30px;
-      height: 30px;
-      line-height: 30px;
+    }
+
+    canvas {
+      border: 5px solid #000;
       border-radius: 50%;
-      color: gold;
-      border: 1px solid #fff;
-      transform-origin: 50% 180px;
-    }
-
-    .number.red {
-      background-color: red;
-    }
-
-    .number.black {
-            background-color: black;
-    }
-
-    .number.green {
-      background-color: green;
-    }
-
-    .outer-numbers {
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      top: 0;
-      left: 0;
-      border-radius: 50%;
-    }
-
-    .outer-number {
-      position: absolute;
-      font-size: 12px;
-      font-weight: bold;
-      text-align: center;
-      color: gold;
-      transform-origin: 50% 200px;
-    }
-
-    .pointer {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 30px solid #e67e22;
+      background-color: #aa0000;
     }
 
     button {
       margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
+      background-color: #007bff;
+      color: white;
       border: none;
       border-radius: 5px;
-      background: #27ae60;
-      color: #fff;
       cursor: pointer;
     }
 
     button:hover {
-      background: #2ecc71;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(var(--spin-degrees));
-      }
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-  <h1>Casino Roulette with Outer Numbers</h1>
   <div class="roulette-container">
-    <div class="wheel" id="wheel"></div>
-    <div class="numbers" id="numbers"></div>
-    <div class="outer-numbers" id="outerNumbers"></div>
-    <div class="pointer"></div>
+    <canvas id="rouletteCanvas" width="500" height="500"></canvas>
+    <button id="spinButton">Spin</button>
   </div>
-  <button onclick="spinWheel()">Spin</button>
-  <p id="result"></p>
-
   <script>
-    const wheel = document.getElementById("wheel");
-    const numbersDiv = document.getElementById("numbers");
-    const outerNumbersDiv = document.getElementById("outerNumbers");
-    const result = document.getElementById("result");
-
+    const canvas = document.getElementById('rouletteCanvas');
+    const ctx = canvas.getContext('2d');
+    const spinButton = document.getElementById('spinButton');
     const segments = [
-      { number: 0, color: "green" },
-      { number: 32, color: "red" }, { number: 15, color: "black" }, 
-      { number: 19, color: "red" }, { number: 4, color: "black" }, 
-      { number: 21, color: "red" }, { number: 2, color: "black" }, 
-      { number: 25, color: "red" }, { number: 17, color: "black" }, 
-      { number: 34, color: "red" }, { number: 6, color: "black" }, 
-      { number: 27, color: "red" }, { number: 13, color: "black" }, 
-      { number: 36, color: "red" }, { number: 11, color: "black" }, 
-      { number: 30, color: "red" }, { number: 8, color: "black" }, 
-      { number: 23, color: "red" }, { number: 10, color: "black" }, 
-      { number: 5, color: "red" }, { number: 24, color: "black" }, 
-      { number: 16, color: "red" }, { number: 33, color: "black" }, 
-      { number: 1, color: "red" }, { number: 20, color: "black" }, 
-      { number: 14, color: "red" }, { number: 31, color: "black" }, 
-      { number: 9, color: "red" }, { number: 22, color: "black" }, 
-      { number: 18, color: "red" }, { number: 29, color: "black" }, 
-      { number: 7, color: "red" }, { number: 28, color: "black" }, 
-      { number: 12, color: "red" }, { number: 35, color: "black" }, 
-      { number: 3, color: "red" }, { number: 26, color: "black" }
+      { number: 0, color: 'green' },
+      { number: 32, color: 'red' },
+      { number: 15, color: 'black' },
+      { number: 19, color: 'red' },
+      { number: 4, color: 'black' },
+      { number: 21, color: 'red' },
+      { number: 2, color: 'black' },
+      { number: 25, color: 'red' },
+      { number: 17, color: 'black' },
+      { number: 34, color: 'red' },
+      { number: 6, color: 'black' },
+      { number: 27, color: 'red' },
+      { number: 13, color: 'black' },
+      { number: 36, color: 'red' },
+      { number: 11, color: 'black' },
+      { number: 30, color: 'red' },
+      { number: 8, color: 'black' },
+      { number: 23, color: 'red' },
+      { number: 10, color: 'black' },
+      { number: 5, color: 'red' },
+      { number: 24, color: 'black' },
+      { number: 16, color: 'red' },
+      { number: 33, color: 'black' },
+      { number: 1, color: 'red' },
+      { number: 20, color: 'black' },
+      { number: 14, color: 'red' },
+      { number: 31, color: 'black' },
+      { number: 9, color: 'red' },
+      { number: 22, color: 'black' },
+      { number: 18, color: 'red' },
+      { number: 29, color: 'black' },
+      { number: 7, color: 'red' },
+      { number: 28, color: 'black' },
+      { number: 12, color: 'red' },
+      { number: 35, color: 'black' },
+      { number: 3, color: 'red' },
+      { number: 26, color: 'black' }
     ];
+    const totalSegments = segments.length;
+    const wheelRadius = canvas.width / 2;
 
-    const outerNumbers = Array.from({ length: 10 }, (_, i) => 10 + i * 10);
+    let startAngle = 0;
+    let currentAngle = 0;
+    let spinSpeed = 0;
 
-    // Generate inner numbers
-    segments.forEach((segment, index) => {
-      const angle = index * (360 / segments.length) - 90;
-      const numberDiv = document.createElement("div");
-      numberDiv.classList.add("number", segment.color);
-      numberDiv.style.transform = `rotate(${angle}deg) translateX(-50%) translateY(-50%) rotate(${-angle}deg)`;
-      numberDiv.textContent = segment.number;
-      numbersDiv.appendChild(numberDiv);
-    });
+    // Draw the roulette wheel
+    function drawWheel() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      segments.forEach((segment, index) => {
+        const angle = (2 * Math.PI) / totalSegments;
+        const segmentAngle = startAngle + index * angle;
 
-    // Generate outer numbers
-    outerNumbers.forEach((outerNumber, index) => {
-      const angle = index * (360 / outerNumbers.length) - 90;
-      const outerNumberDiv = document.createElement("div");
-      outerNumberDiv.classList.add("outer-number");
-      outerNumberDiv.style.transform = `rotate(${angle}deg) translateX(-50%) translateY(-50%) rotate(${-angle}deg)`;
-      outerNumberDiv.textContent = outerNumber;
-      outerNumbersDiv.appendChild(outerNumberDiv);
-    });
+        // Draw segment
+        ctx.beginPath();
+        ctx.moveTo(wheelRadius, wheelRadius);
+        ctx.arc(
+          wheelRadius,
+          wheelRadius,
+          wheelRadius,
+          segmentAngle,
+          segmentAngle + angle
+        );
+        ctx.closePath();
+        ctx.fillStyle = segment.color;
+        ctx.fill();
+        ctx.stroke();
 
-    function spinWheel() {
-      const randomIndex = Math.floor(Math.random() * segments.length);
-      const degrees = 360 * 5 + randomIndex * (360 / segments.length); // 5 full rotations + random stop
-
-      wheel.style.animation = "none
-              wheel.offsetHeight; // Trigger reflow to reset animation
-      wheel.style.animation = `spin 3s ease-out`;
-      wheel.style.setProperty("--spin-degrees", `${degrees}deg`);
-
-      setTimeout(() => {
-        const selectedSegment = segments[randomIndex];
-        result.textContent = `Result: ${selectedSegment.number} (${selectedSegment.color})`;
-      }, 3000); // Wait for the spin animation to complete
+        // Draw number
+        ctx.save();
+        ctx.translate(wheelRadius, wheelRadius);
+        ctx.rotate(segmentAngle + angle / 2);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 15px Arial';
+        ctx.fillText(segment.number, wheelRadius * 0.75, 5);
+        ctx.restore();
+      });
     }
+
+    // Spin the wheel
+    function spinWheel() {
+      if (spinSpeed > 0.1) {
+        currentAngle += spinSpeed;
+        spinSpeed *= 0.98; // Slow down gradually
+        startAngle = currentAngle % (2 * Math.PI);
+        drawWheel();
+        requestAnimationFrame(spinWheel);
+      } else {
+        spinSpeed = 0;
+      }
+    }
+
+    spinButton.addEventListener('click', () => {
+      spinSpeed = Math.random() * 0.3 + 0.2; // Random speed
+      spinWheel();
+    });
+
+    drawWheel();
   </script>
 </body>
 </html>
