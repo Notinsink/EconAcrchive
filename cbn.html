@@ -135,13 +135,29 @@
 
     // Draw the central golden hub and spinning arms
     function drawCentralHub() {
-      // Central circle
+      // Outer gold circle
       ctx.beginPath();
       ctx.arc(wheelRadius, wheelRadius, 50, 0, 2 * Math.PI);
       ctx.fillStyle = '#FFD700'; // Gold color
       ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.stroke();
+
+      // Inner black circle
+      ctx.beginPath();
+      ctx.arc(wheelRadius, wheelRadius, 30, 0, 2 * Math.PI);
+      ctx.fillStyle = '#000'; // Black color
+      ctx.fill();
+
+      // Smallest golden circle
+      ctx.beginPath();
+      ctx.arc(wheelRadius, wheelRadius, 15, 0, 2 * Math.PI);
+      ctx.fillStyle = '#FFD700';
+      ctx.fill();
+
+      // Pin (small black circle in the middle)
+      ctx.beginPath();
+      ctx.arc(wheelRadius, wheelRadius, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = '#000';
+      ctx.fill();
 
       // Spinning arms
       for (let i = 0; i < 3; i++) {
@@ -156,12 +172,6 @@
         ctx.lineWidth = 5;
         ctx.stroke();
       }
-
-      // Inner circle
-      ctx.beginPath();
-      ctx.arc(wheelRadius, wheelRadius, 15, 0, 2 * Math.PI);
-      ctx.fillStyle = '#000';
-      ctx.fill();
     }
 
     // Spin the wheel
