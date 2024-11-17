@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roulette Wheel with Ball Animation</title>
+  <title>Roulette Wheel with Ball Animation and Sound</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -47,11 +47,13 @@
     <button id="spinButton">Spin</button>
     <p id="result" style="margin-top: 20px; font-size: 18px;"></p>
   </div>
+  <audio id="spinSound" src="https://www.soundjay.com/button/sounds/button-20.mp3"></audio>
   <script>
     const canvas = document.getElementById('rouletteCanvas');
     const ctx = canvas.getContext('2d');
     const spinButton = document.getElementById('spinButton');
     const resultDisplay = document.getElementById('result');
+    const spinSound = document.getElementById('spinSound');
 
     const segments = [
       { number: '0', color: 'green' },
@@ -149,16 +151,21 @@
     }
 
     function spinWheel() {
-      if (spinSpeed > 0.1 || ballSpeed > 0.01) {
+      if (spinSpeed > 0.005 || ballSpeed > 0.002) {
         currentAngle += spinSpeed;
         ballAngle -= ballSpeed;
 
-        spinSpeed *= 0.98; // Gradually slow down the wheel
-        ballSpeed *= 0.97; // Gradually slow down the ball
+        spinSpeed *= 0.99; // Gradually slow down the wheel
+        ballSpeed *= 0.98; // Gradually slow down the ball
 
         drawWheel();
         requestAnimationFrame(spinWheel);
       } else {
+        // Stop spinning sound
+        spinSound.pause();
+        spinSound.currentTime = 0;
+
+        // Determine the winning segment
         const winningIndex = Math.floor(
           ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) / segmentAngle
         ) % totalSegments;
@@ -167,8 +174,13 @@
     }
 
     spinButton.addEventListener('click', () => {
-      spinSpeed = Math.random() * 0.3 + 0.1;
-      ballSpeed = Math.random() * 0.5 + 0.2;
+      spinSpeed = Math.random() * 0.2 + 0.1;
+      ballSpeed = Math.random() * 0.3 + 0.15;
+
+      // Play spinning sound in loop
+      spinSound.loop = true;
+      spinSound.play();
+
       resultDisplay.textContent = 'Spinning...';
       spinWheel();
     });
