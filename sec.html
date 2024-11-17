@@ -1,144 +1,152 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Securities and Exchange Commission Nigeria - Wikipedia</title>
-<style>
-body {
-font-family: Arial, sans-serif;
-line-height: 1.6;
-margin: 0;
-padding: 0;
-background-color: #f4f4f4;
-}
-.container {
-width: 80%;
-margin: auto;
-overflow: hidden;
-background: #fff;
-padding: 20px;
-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-h1, h2, h3 {
-color: #333;
-}
-a {
-color: #0645ad;
-text-decoration: none;
-}
-a:hover {
-text-decoration: underline;
-}
-ul {
-list-style-type: disc;
-padding-left: 20px;
-}
-table {
-width: 100%;
-border-collapse: collapse;
-margin: 20px 0;
-}
-table, th, td {
-border: 1px solid #ddd;
-}
-th, td {
-padding: 8px;
-text-align: left;
-}
-th {
-background-color: #f2f2f2;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the Ball Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #282c34;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 500px;
+            height: 600px;
+            background: #111;
+            border: 2px solid #fff;
+            overflow: hidden;
+        }
+
+        .paddle {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 15px;
+            background: #f39c12;
+            border-radius: 5px;
+        }
+
+        .ball {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #e74c3c;
+            border-radius: 50%;
+        }
+
+        .score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            color: red;
+            text-align: center;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-<h1>Securities and Exchange Commission (SEC) Nigeria</h1>
+    <div class="game-container">
+        <div class="score">Score: 0</div>
+        <div class="game-over">Game Over!<br>Refresh to Play Again</div>
+        <div class="paddle"></div>
+        <div class="ball"></div>
+    </div>
 
-<h2>Overview</h2>
-<p>The <a href="https://en.wikipedia.org/wiki/Securities_and_Exchange_Commission_(Nigeria)" target="_blank">Securities and Exchange Commission (SEC) Nigeria</a> is the regulatory body responsible for overseeing the securities industry in Nigeria. It was established to protect investors, maintain fair, orderly, and efficient markets, and facilitate capital formation. The SEC is headquartered in Abuja, the capital city of Nigeria, and operates under the Securities and Exchange Commission Act.</p>
+    <script>
+        // Game variables
+        const gameContainer = document.querySelector('.game-container');
+        const paddle = document.querySelector('.paddle');
+        const ball = document.querySelector('.ball');
+        const scoreDisplay = document.querySelector('.score');
+        const gameOverDisplay = document.querySelector('.game-over');
 
-<h2>History</h2>
-<p>The SEC Nigeria was established in response to the need for a regulatory body to oversee the securities market in Nigeria. It was created to ensure the protection of investors and the integrity of the securities market. For more details, visit the <a href="https://en.wikipedia.org/wiki/Securities_and_Exchange_Commission_(Nigeria)#History" target="_blank">History of the Securities and Exchange Commission Nigeria</a>.</p>
+        let paddlePosition = 200;
+        let ballX = Math.random() * 480;
+        let ballY = 50;
+        let ballSpeedX = 2;
+        let ballSpeedY = 3;
+        let score = 0;
+        let gameRunning = true;
 
-<h2>Structure and Operations</h2>
+        // Move paddle with keyboard
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft' && paddlePosition > 0) {
+                paddlePosition -= 20;
+            } else if (event.key === 'ArrowRight' && paddlePosition < 400) {
+                paddlePosition += 20;
+            }
+            paddle.style.left = paddlePosition + 'px';
+        });
 
-<p>The SEC Nigeria operates through several departments and units, each responsible for different aspects of the commission's functions. The commission is governed by a Board of Commissioners, which includes the Chairman, the Director-General, and other members appointed by the President of Nigeria. The SEC's key functions include:</p>
-<ul>
-<li><strong><a href="https://en.wikipedia.org/wiki/Securities_regulation" target="_blank">Regulation of Securities</a></strong>: Overseeing the issuance and trading of securities to ensure compliance with regulations.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Investor_protection" target="_blank">Investor Protection</a></strong>: Implementing measures to protect investors from fraudulent practices.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Market_surveillance" target="_blank">Market Surveillance</a></strong>: Monitoring market activities to detect and prevent market manipulation and other illegal activities.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Enforcement" target="_blank">Enforcement</a></strong>: Enforcing securities laws and taking action against violators.</li>
-</ul>
+        // Game loop
+        function updateGame() {
+            if (!gameRunning) return;
 
-<h2>Key Functions</h2>
-<p>The SEC Nigeria has several key functions that are critical to the stability and growth of Nigeria's securities market. These functions include:</p>
-<ul>
-<li><strong><a href="https://en.wikipedia.org/wiki/Securities_regulation" target="_blank">Regulation of Securities</a></strong>: The SEC oversees the issuance and trading of securities to ensure compliance with regulations.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Investor_protection" target="_blank">Investor Protection</a></strong>: The SEC implements measures to protect investors from fraudulent practices.</li>
+            // Move ball
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
 
-<li><strong><a href="https://en.wikipedia.org/wiki/Market_surveillance" target="_blank">Market Surveillance</a></strong>: The SEC monitors market activities to detect and prevent market manipulation and other illegal activities.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Enforcement" target="_blank">Enforcement</a></strong>: The SEC enforces securities laws and takes action against violators.</li>
-</ul>
+            // Bounce ball off walls
+            if (ballX <= 0 || ballX >= 480) ballSpeedX *= -1;
+            if (ballY <= 0) ballSpeedY *= -1;
 
-<h2>Recent Developments</h2>
-<p>In recent years, the SEC Nigeria has undertaken several initiatives to enhance market integrity, promote investor confidence, and support the development of the securities market. These include:</p>
-<ul>
-<li><strong><a href="https://en.wikipedia.org/wiki/Corporate_governance" target="_blank">Corporate Governance</a></strong>: Promoting good corporate governance practices among listed companies.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Financial_literacy" target="_blank">Financial Literacy</a></strong>: Implementing programs to educate investors and the public about the securities market.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Financial_technology" target="_blank">Technology Adoption</a></strong>: Encouraging the adoption of technology to improve market efficiency and transparency.</li>
-</ul>
+            // Detect collision with paddle
+            const ballBottom = ballY + 20;
+            const paddleTop = 580;
+            const ballCenter = ballX + 10;
+            const paddleLeft = paddlePosition;
+            const paddleRight = paddlePosition + 100;
 
-<h2>External Links</h2>
-<p>For more detailed information, you can visit the following links:</p>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Securities_and_Exchange_Commission_(Nigeria)" target="_blank">Securities and Exchange Commission Nigeria Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Securities_regulation" target="_blank">Securities Regulation Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Investor_protection" target="_blank">Investor Protection Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Market_surveillance" target="_blank">Market Surveillance Wikipedia Page</a></li>
+            if (ballBottom >= paddleTop && ballCenter >= paddleLeft && ballCenter <= paddleRight) {
+                ballSpeedY *= -1;
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+            }
 
-<li><a href="https://en.wikipedia.org/wiki/Enforcement" target="_blank">Enforcement Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Corporate_governance" target="_blank">Corporate Governance Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Financial_literacy" target="_blank">Financial Literacy Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Financial_technology" target="_blank">Financial Technology Wikipedia Page</a></li>
-</ul>
+            // Detect game over
+            if (ballY > 600) {
+                gameRunning = false;
+                gameOverDisplay.style.display = 'block';
+            }
 
-<h2>References</h2>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Securities_and_Exchange_Commission_(Nigeria)#History" target="_blank">History of the Securities and Exchange Commission Nigeria</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Securities_regulation" target="_blank">Securities Regulation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Investor_protection" target="_blank">Investor Protection</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Market_surveillance" target="_blank">Market Surveillance</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Enforcement" target="_blank">Enforcement</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Corporate_governance" target="_blank">Corporate Governance</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Financial_literacy" target="_blank">Financial Literacy</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Financial_technology" target="_blank">Financial Technology</a></li>
-</ul>
+            // Update ball position
+            ball.style.left = ballX + 'px';
+            ball.style.top = ballY + 'px';
 
-<h2>Information Box</h2>
-<table>
-<tr>
-<th>Type</th>
-<td>Regulatory Body</td>
-</tr>
-<tr>
-<th>Location</th>
-<td>Abuja, Federal Capital Territory, Nigeria</td>
-</tr>
-<tr>
-<th>Founded</th>
-<td>1979</td>
-</tr>
-<tr>
-<th>Chairman</th>
-<td>Lamido Yuguda</td>
-</tr>
-<tr>
-<th>Website</th>
-<td><a href="https://en.wikipedia.org/wiki/Securities_and_Exchange_Commission_(Nigeria)" target="_blank">sec.gov.ng</a></td>
-</tr>
-</table>
-</div>
+            // Loop the game
+            requestAnimationFrame(updateGame);
+        }
+
+        // Start the game
+        updateGame();
+    </script>
 </body>
 </html>
