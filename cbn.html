@@ -42,7 +42,7 @@
         red 40% 50%, black 50% 60%, red 60% 70%, black 70% 80%, 
         red 80% 90%, black 90% 100%
       );
-      animation: spin 0s ease-in-out forwards;
+      animation: none;
     }
 
     .numbers {
@@ -61,9 +61,24 @@
     .number {
       position: absolute;
       color: white;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: bold;
-      transform-origin: 50% 200px;
+      text-align: center;
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      border-radius: 50%;
+      background-color: black;
+      border: 1px solid #fff;
+      transform-origin: 50% 180px;
+    }
+
+    .number.red {
+      background-color: red;
+    }
+
+    .number.green {
+      background-color: green;
     }
 
     .pointer {
@@ -118,31 +133,51 @@
     const numbersDiv = document.getElementById("numbers");
     const result = document.getElementById("result");
 
-    // Numbers on the roulette wheel
-    const numbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+    // Numbers and colors on the roulette wheel
+    const segments = [
+      { number: 0, color: "green" },
+      { number: 32, color: "red" }, { number: 15, color: "black" }, 
+      { number: 19, color: "red" }, { number: 4, color: "black" }, 
+      { number: 21, color: "red" }, { number: 2, color: "black" }, 
+      { number: 25, color: "red" }, { number: 17, color: "black" }, 
+      { number: 34, color: "red" }, { number: 6, color: "black" }, 
+      { number: 27, color: "red" }, { number: 13, color: "black" }, 
+      { number: 36, color: "red" }, { number: 11, color: "black" }, 
+      { number: 30, color: "red" }, { number: 8, color: "black" }, 
+      { number: 23, color: "red" }, { number: 10, color: "black" }, 
+      { number: 5, color: "red" }, { number: 24, color: "black" }, 
+      { number: 16, color: "red" }, { number: 33, color: "black" }, 
+      { number: 1, color: "red" }, { number: 20, color: "black" }, 
+      { number: 14, color: "red" }, { number: 31, color: "black" }, 
+      { number: 9, color: "red" }, { number: 22, color: "black" }, 
+      { number: 18, color: "red" }, { number: 29, color: "black" }, 
+      { number: 7, color: "red" }, { number: 28, color: "black" }, 
+      { number: 12, color: "red" }, { number: 35, color: "black" }, 
+      { number: 3, color: "red" }, { number: 26, color: "black" }
+    ];
 
-    // Generate numbers around the wheel
-    numbers.forEach((number, index) => {
-      const angle = (index * (360 / numbers.length)) - 90; // Offset to start at the top
+    // Generate numbers on the wheel
+    segments.forEach((segment, index) => {
+      const angle = (index * (360 / segments.length)) - 90;
       const numberDiv = document.createElement("div");
-      numberDiv.classList.add("number");
+      numberDiv.classList.add("number", segment.color);
       numberDiv.style.transform = `rotate(${angle}deg) translateX(-50%) translateY(-50%) rotate(${-angle}deg)`;
-      numberDiv.innerText = number;
+      numberDiv.textContent = segment.number;
       numbersDiv.appendChild(numberDiv);
     });
 
     function spinWheel() {
-      const randomIndex = Math.floor(Math.random() * numbers.length);
-      const degrees = 360 * 3 + (randomIndex * (360 / numbers.length)); // 3 full spins + stop at segment
+      const randomIndex = Math.floor(Math.random() * segments.length);
+      const degrees = 360 * 5 + (randomIndex * (360 / segments.length)); // 5 full spins + stop at segment
       wheel.style.setProperty("--spin-degrees", `${degrees}deg`);
-            // Show result after spin animation
+      wheel.style.animation = "spin 3s ease-out forwards";
+
+      // Display result after spin
       setTimeout(() => {
-        const winningNumber = numbers[randomIndex];
+        const winningNumber = segments[randomIndex].number;
         result.textContent = `The wheel stopped at: ${winningNumber}`;
-      }, 3000); // Wait for the animation to finish
+      }, 3000);
     }
   </script>
 </body>
 </html>
-      wheel.style.animation = "spin 3s ease-out forwards"
-      
