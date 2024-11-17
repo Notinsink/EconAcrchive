@@ -1,120 +1,83 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roulette Game</title>
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Roulette Layout</title>
+  <style>
     body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background-color: #222;
-        color: #fff;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
     }
-
-    .roulette-container {
-        background-color: #444;
-        border: 5px solid #000;
-        border-radius: 10px;
-        padding: 20px;
-        width: 400px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    .layout {
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: repeat(18, 50px);
+      gap: 5px;
+      max-width: 900px;
     }
-
-    .roulette-wheel {
-        position: relative;
-        width: 300px;
-        height: 300px;
-        border: 10px solid #000;
-        border-radius: 50%;
-        margin: 0 auto;
-        background: conic-gradient(
-            red 0% 10%, black 10% 20%, red 20% 30%, black 30% 40%, red 40% 50%, black 50% 60%, red 60% 70%, black 70% 80%, red 80% 90%, black 90% 100%
-        );
+    .number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #fff;
     }
-
-    .roulette-wheel::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 20px;
-        height: 20px;
-        background-color: gold;
-        border-radius: 50%;
-        z-index: 1;
-    }
-
-    .ball {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 20px;
-        height: 20px;
-        background-color: white;
-        border-radius: 50%;
-        z-index: 2;
-    }
-
-    .spin-button {
-        padding: 10px 20px;
-        font-size: 1em;
-        cursor: pointer;
-        background-color: #ffcc00;
-        border: none;
-        border-radius: 5px;
-        box-shadow: 0 5px #cc9900;
-        margin-top: 20px;
-    }
-
-    .spin-button:active {
-        box-shadow: 0 2px #cc9900;
-        transform: translateY(3px);
-    }
-
-    .result {
-```baby shark do do do do do
-      font-size: 1.5em;
-        margin-top: 20px;
-    }
-</style>
+    .odd { background: #e74c3c; } /* Red for Odd */
+    .even { background: #2ecc71; } /* Green for Even */
+    .zero { background: #27ae60; } /* Green for Zero */
+  </style>
 </head>
 <body>
-<div class="roulette-container">
-    <div class="roulette-wheel" id="rouletteWheel">
-        <div class="ball" id="ball"></div>
-    </div>
-    <button class="spin-button" id="spinButton">Spin</button>
-    <p class="result" id="result"></p>
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const ball = document.getElementById('ball');
-        const spinButton = document.getElementById('spinButton');
-        const result = document.getElementById('result');
-
-        spinButton.addEventListener('click', () => {
-            const randomDegree = Math.floor(Math.random() * 360);
-            const spinDuration = 5000; // 5 seconds
-
-            ball.style.transition = `transform ${spinDuration}ms ease-out`;
-            ball.style.transform = `rotate(${randomDegree}deg)`;
-
-            setTimeout(() => {
-                const winningNumber = Math.floor(randomDegree / 36);
-                result.textContent = `Winning Number: ${winningNumber}`;
-            }, spinDuration);
-        });
-    });
-</script>
+  <h1>Custom Roulette Layout</h1>
+  <h3>Odd Numbers (Red) & Even Numbers (Green)</h3>
+  <div class="layout">
+    <!-- Odd Numbers -->
+    <div class="number odd">1</div>
+    <div class="number odd">3</div>
+    <div class="number odd">5</div>
+    <div class="number odd">7</div>
+    <div class="number odd">9</div>
+    <div class="number odd">11</div>
+    <div class="number odd">13</div>
+    <div class="number odd">15</div>
+    <div class="number odd">17</div>
+    <div class="number odd">19</div>
+    <div class="number odd">21</div>
+    <div class="number odd">23</div>
+    <div class="number odd">25</div>
+    <div class="number odd">27</div>
+    <div class="number odd">29</div>
+    <div class="number odd">31</div>
+    <div class="number odd">33</div>
+    <div class="number odd">35</div>
+    
+    <!-- Even Numbers -->
+    <div class="number even">2</div>
+    <div class="number even">4</div>
+    <div class="number even">6</div>
+    <div class="number even">8</div>
+    <div class="number even">10</div>
+    <div class="number even">12</div>
+    <div class="number even">14</div>
+    <div class="number even">16</div>
+    <div class="number even">18</div>
+    <div class="number even">20</div>
+    <div class="number even">22</div>
+    <div class="number even">24</div>
+    <div class="number even">26</div>
+    <div class="number even">28</div>
+    <div class="number even">30</div>
+    <div class="number even">32</div>
+    <div class="number even">34</div>
+    <div class="number even">36</div>
+    
+    <!-- Zero -->
+    <div class="number zero">0</div>
+  </div>
 </body>
 </html>
