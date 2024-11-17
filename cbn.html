@@ -2,145 +2,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Central Bank of Nigeria - Wikipedia</title>
-<style>
-body {
-font-family: Arial, sans-serif;
-line-height: 1.6;
-margin: 0;
-padding: 0;
-background-color: #f4f4f4;
-}
-.container {
-width: 80%;
-margin: auto;
-overflow: hidden;
-background: #fff;
-padding: 20px;
-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-h1, h2, h3 {
-color: #333;
-}
-a {
-color: #0645ad;
-text-decoration: none;
-}
-a:hover {
-text-decoration: underline;
-}
-ul {
-list-style-type: disc;
-padding-left: 20px;
-}
-table {
-width: 100%;
-border-collapse: collapse;
-margin: 20px 0;
-}
-table, th, td {
-border: 1px solid #ddd;
-}
-th, td {
-padding: 8px;
-text-align: left;
-}
-th {
-background-color: #f2f2f2;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Roulette</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background: #2c3e50;
+      color: #ecf0f1;
+    }
+
+    .roulette-container {
+      margin: 50px auto;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 10px solid #34495e;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wheel {
+      width: 300px;
+      height: 300px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: conic-gradient(
+        red 0% 12.5%, 
+        black 12.5% 25%, 
+        red 25% 37.5%, 
+        black 37.5% 50%, 
+        red 50% 62.5%, 
+        black 62.5% 75%, 
+        red 75% 87.5%, 
+        black 87.5% 100%
+      );
+      transform-origin: center;
+      animation: spin 0s ease-in-out forwards;
+    }
+
+    .pointer {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 30px solid #e74c3c;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #27ae60;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2ecc71;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(var(--spin-degrees));
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-<h1>Central Bank of Nigeria (CBN)</h1>
+  <h1>Roulette Game</h1>
+  <div class="roulette-container">
+    <div class="wheel" id="wheel"></div>
+    <div class="pointer"></div>
+  </div>
+  <button onclick="spinWheel()">Spin</button>
+  <p id="result"></p>
 
-<h2>Overview</h2>
-<p>The <a href="https://en.wikipedia.org/wiki/Central_Bank_of_Nigeria" target="_blank">Central Bank of Nigeria (CBN)</a> is the central bank and apex monetary authority of Nigeria. It was established by the CBN Act of 1958 and commenced operations on July 1, 1959. The CBN is headquartered in Abuja, the capital city of Nigeria, and it is responsible for ensuring monetary and price stability, issuing currency, managing the country's foreign reserves, and overseeing the financial sector.</p>
+  <script>
+    const wheel = document.getElementById("wheel");
+    const result = document.getElementById("result");
+    const segments = ["1", "2", "3", "4", "5", "6", "7", "8"]; // Wheel segments
 
-<h2>History</h2>
-<p>The CBN was established in response to the need for a central banking institution to regulate the financial system in Nigeria. The bank commenced operations on July 1, 1959, following the enactment of the CBN Act of 1958. For more details, visit the <a href="https://en.wikipedia.org/wiki/Central_Bank_of_Nigeria#History" target="_blank">History of the Central Bank of Nigeria</a>.</p>
-
-<h2>Structure and Operations</h2>
-  <p>The CBN operates through several departments and units, each responsible for different aspects of the bank's functions. The bank is governed by a Board of Directors, which includes the Governor, four Deputy Governors, and other members appointed by the President of Nigeria. The CBN's key functions include:</p>
-<ul>
-<li><strong><a href="https://en.wikipedia.org/wiki/Monetary_policy_of_Nigeria" target="_blank">Monetary Policy</a></strong>: Formulating and implementing monetary policy to achieve price stability.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Nigerian_naira" target="_blank">Currency Issuance</a></strong>: Issuing and managing the Nigerian Naira (₦).</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Financial_regulation" target="_blank">Financial Sector Supervision</a></strong>: Regulating and supervising financial institutions to ensure stability.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Foreign_exchange_reserves" target="_blank">Foreign Reserves Management</a></strong>: Managing Nigeria's foreign exchange reserves.</li>
-</ul>
-
-<h2>Key Functions</h2>
-<p>The CBN has several key functions that are critical to the stability and growth of Nigeria's economy. These functions include:</p>
-<ul>
-<li><strong><a href="https://en.wikipedia.org/wiki/Monetary_policy_of_Nigeria" target="_blank">Monetary Policy</a></strong>: The CBN formulates and implements monetary policy to achieve price stability and support economic growth.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Nigerian_naira" target="_blank">Currency Issuance</a></strong>: The CBN is responsible for issuing and managing the Nigerian Naira (₦).</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Financial_regulation" target="_blank">Financial Sector Supervision</a></strong>: The CBN regulates and supervises financial institutions to ensure the stability and soundness of the financial system.</li>
-  <li><strong><a href="https://en.wikipedia.org/wiki/Foreign_exchange_reserves" target="_blank">Foreign Reserves Management</a></strong>: The CBN manages Nigeria's foreign exchange reserves to ensure liquidity and support the country's international trade and investment.</li>
-</ul>
-
-<h2>Recent Developments</h2>
-<p>In recent years, the CBN has undertaken several initiatives to enhance financial inclusion, promote economic stability, and support sustainable development. These include:</p>
-<ul>
-<li><strong><a href="https://en.wikipedia.org/wiki/Cashless_society" target="_blank">Cashless Policy</a></strong>: Promoting electronic payments and reducing the reliance on cash transactions.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Financial_inclusion" target="_blank">Financial Inclusion Strategy</a></strong>: Implementing policies to increase access to financial services for the unbanked population.</li>
-<li><strong><a href="https://en.wikipedia.org/wiki/Development_finance" target="_blank">Development Finance Initiatives</a></strong>: Providing funding and support for key sectors such as agriculture, manufacturing, and small and medium-sized enterprises (SMEs).</li>
-</ul>
-
-<h2>External Links</h2>
-<p>For more detailed information, you can visit the following links:</p>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Central_Bank_of_Nigeria" target="_blank">Central Bank of Nigeria Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Monetary_policy_of_Nigeria" target="_blank">Monetary Policy of Nigeria Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Nigerian_naira" target="_blank">Nigerian Naira Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Financial_regulation" target="_blank">Financial Regulation Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Foreign_exchange_reserves" target="_blank">Foreign Exchange Reserves Wikipedia Page</a></li>
-  ```[]
-<li><a href="https://en.wikipedia.org/wiki/Cashless_society" target="_blank">Cashless Society Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Financial_inclusion" target="_blank">Financial Inclusion Wikipedia Page</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Development_finance" target="_blank">Development Finance Wikipedia Page</a></li>
-</ul>
-
-<h2>References</h2>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Central_Bank_of_Nigeria#History" target="_blank">History of the Central Bank of Nigeria</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Monetary_policy_of_Nigeria" target="_blank">Monetary Policy of Nigeria</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Nigerian_naira" target="_blank">Nigerian Naira</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Financial_regulation" target="_blank">Financial Regulation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Foreign_exchange_reserves" target="_blank">Foreign Exchange Reserves</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Cashless_society" target="_blank">Cashless Society</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Financial_inclusion" target="_blank">Financial Inclusion</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Development_finance" target="_blank">Development Finance</a></li>
-</ul>
-
-<h2>Information Box</h2>
-<table>
-<tr>
-<th>Type</th>
-<td>Central Bank</td>
-</tr>
-<tr>
-<th>Location</th>
-<td>Abuja, Federal Capital Territory, Nigeria</td>
-</tr>
-<tr>
-<th>Founded</th>
-<td>1958</td>
-</tr>
-<tr>
-<th>Governor</th>
-<td>Godwin Emefiele</td>
-</tr>
-<tr>
-<th>Currency</th>
-<td>Naira (₦)</td>
-</tr>
-<tr>
-<th>Website</th>
-<td><a href="https://en.wikipedia.org/wiki/Central_Bank_of_Nigeria" target="_blank">cbn.gov.ng</a></td>
-</tr>
-</table>
-</div>
+    function spinWheel() {
+      const randomSegment = Math.floor(Math.random() * segments.length);
+      const degrees = 360 * 3 + (randomSegment * (360 / segments.length)); // 3 full spins + segment
+      wheel.style.setProperty("--spin-degrees", `${degrees}deg`);
+      wheel.style.animation = "spin 3s ease-out forwards";
+      
+      // Show result after spin animation
+      setTimeout(() => {
+        result.textContent = `The wheel stopped at: ${segments[randomSegment]}`;
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
