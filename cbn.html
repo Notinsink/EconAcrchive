@@ -1,155 +1,120 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Roulette Game</title>
-  <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roulette Game</title>
+<style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #222;
-      color: #fff;
-      margin: 0;
-      padding: 0;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #222;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
+
+    .roulette-container {
+        background-color: #444;
+        border: 5px solid #000;
+        border-radius: 10px;
+        padding: 20px;
+        width: 400px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
     .roulette-wheel {
-      margin: 20px auto;
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      border: 5px solid #fff;
-      position: relative;
-      background: radial-gradient(circle, #444 0%, #222 100%);
+        position: relative;
+        width: 300px;
+        height: 300px;
+        border: 10px solid #000;
+        border-radius: 50%;
+        margin: 0 auto;
+        background: conic-gradient(
+            red 0% 10%, black 10% 20%, red 20% 30%, black 30% 40%, red 40% 50%, black 50% 60%, red 60% 70%, black 70% 80%, red 80% 90%, black 90% 100%
+        );
     }
+
+    .roulette-wheel::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        background-color: gold;
+        border-radius: 50%;
+        z-index: 1;
+    }
+
     .ball {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #fff;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        border-radius: 50%;
+        z-index: 2;
     }
-    .bets {
-      margin: 20px;
+
+    .spin-button {
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+        background-color: #ffcc00;
+        border: none;
+        border-radius: 5px;
+        box-shadow: 0 5px #cc9900;
+        margin-top: 20px;
     }
-    .bets button {
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 16px;
-      border: none;
-      background: #e74c3c;
-      color: #fff;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s ease;
+
+    .spin-button:active {
+        box-shadow: 0 2px #cc9900;
+        transform: translateY(3px);
     }
-    .bets button:hover {
-      background: #c0392b;
-    }
+
     .result {
-      margin: 20px;
-      font-size: 20px;
-      font-weight: bold;
+```baby shark do do do do do
+      font-size: 1.5em;
+        margin-top: 20px;
     }
-    .layout {
-      margin: 20px auto;
-      display: grid;
-      grid-template-columns: repeat(18, 50px);
-      gap: 5px;
-      max-width: 900px;
-    }
-    .number {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      font-weight: bold;
-      color: #fff;
-    }
-    .odd { background: #e74c3c; } /* Red for Odd */
-    .even { background: #2ecc71; } /* Green for Even */
-    .zero { background: #27ae60; } /* Green for Zero */
-  </style>
+</style>
 </head>
 <body>
-  <h1>Interactive Roulette Game</h1>
-  <div class="roulette-wheel" id="roulette">
-    <div class="ball" id="ball"></div>
-  </div>
-  
-  <h2>Place Your Bets</h2>
-  <div class="bets">
-    <button onclick="placeBet('odd')">Odd</button>
-    <button onclick="placeBet('even')">Even</button>
-    <button onclick="placeBet('red')">Red</button>
-    <button onclick="placeBet('black')">Black</button>
-  </div>
-  
-  <button onclick="spinRoulette()">Spin Roulette</button>
-  
-  <div class="result" id="result">Place your bet and spin the wheel!</div>
+<div class="roulette-container">
+    <div class="roulette-wheel" id="rouletteWheel">
+        <div class="ball" id="ball"></div>
+    </div>
+    <button class="spin-button" id="spinButton">Spin</button>
+    <p class="result" id="result"></p>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ball = document.getElementById('ball');
+        const spinButton = document.getElementById('spinButton');
+        const result = document.getElementById('result');
 
-  <script>
-    // All roulette numbers
-    const numbers = [
-      { value: 0, color: 'green' },
-      { value: 1, color: 'red' }, { value: 2, color: 'black' },
-      { value: 3, color: 'red' }, { value: 4, color: 'black' },
-      { value: 5, color: 'red' }, { value: 6, color: 'black' },
-      { value: 7, color: 'red' }, { value: 8, color: 'black' },
-      { value: 9, color: 'red' }, { value: 10, color: 'black' },
-      { value: 11, color: 'black' }, { value: 12, color: 'red' },
-      { value: 13, color: 'black' }, { value: 14, color: 'red' },
-      { value: 15, color: 'black' }, { value: 16, color: 'red' },
-      { value: 17, color: 'black' }, { value: 18, color: 'red' },
-      { value: 19, color: 'red' }, { value: 20, color: 'black' },
-      { value: 21, color: 'red' }, { value: 22, color: 'black' },
-      { value: 23, color: 'red' }, { value: 24, color: 'black' },
-      { value: 25, color: 'red' }, { value: 26, color: 'black' },
-      { value: 27, color: 'red' }, { value: 28, color: 'black' },
-      { value: 29, color: 'black' }, { value: 30, color: 'red' },
-      { value: 31, color: 'black' }, { value: 32, color: 'red' },
-      { value: 33, color: 'black' }, { value: 34, color: 'red' },
-      { value: 35, color: 'black' }, { value: 36, color: 'red' }
-    ];
+        spinButton.addEventListener('click', () => {
+            const randomDegree = Math.floor(Math.random() * 360);
+            const spinDuration = 5000; // 5 seconds
 
-    let currentBet = null;
+            ball.style.transition = `transform ${spinDuration}ms ease-out`;
+            ball.style.transform = `rotate(${randomDegree}deg)`;
 
-    function placeBet(bet) {
-      currentBet = bet;
-      document.getElementById('result').innerText = `You placed a bet on ${bet.toUpperCase()}`;
-    }
-
-    function spinRoulette() {
-      const spinTime = Math.random() * 3000 + 2000; // Spin time between 2s to 5s
-      const wheel = document.getElementById('roulette');
-      const ball = document.getElementById('ball');
-      
-      wheel.style.animation = `spin ${spinTime / 1000}s linear`;
-      
-      setTimeout(() => {
-        const randomIndex = Math.floor(Math.random() * numbers.length);
-        const result = numbers[randomIndex];
-        checkWin(result);
-      }, spinTime);
-    }
-
-    function checkWin(result) {
-      let win = false;
-      
-      if (currentBet === 'odd' && result.value % 2 !== 0) win = true;
-      if (currentBet === 'even' && result.value % 2 === 0) win = true;
-      if (currentBet === result.color) win = true;
-
-      document.getElementById('result').innerText = win
-        ? `You win! The ball landed on ${result.value} (${result.color.toUpperCase()})`
-        : `You lose! The ball landed on ${result.value} (${result.color.toUpperCase()})`;
-    }
-  </script>
+            setTimeout(() => {
+                const winningNumber = Math.floor(randomDegree / 36);
+                result.textContent = `Winning Number: ${winningNumber}`;
+            }, spinDuration);
+        });
+    });
+</script>
 </body>
 </html>
