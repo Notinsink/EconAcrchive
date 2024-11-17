@@ -1,60 +1,81 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Roulette</title>
+  <title>Casino Roulette</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 0;
-      background: #2c3e50;
-      color: #ecf0f1;
+      background: #0b0c10;
+      color: #ffffff;
+    }
+
+    h1 {
+      margin-top: 20px;
     }
 
     .roulette-container {
-      margin: 50px auto;
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      border: 10px solid #34495e;
       position: relative;
-      overflow: hidden;
+      width: 400px;
+      height: 400px;
+      margin: 50px auto;
+      border: 10px solid #333;
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+      background: radial-gradient(circle, #e74c3c 20%, #333 20%, #333 40%, #000 40%);
     }
 
     .wheel {
-      width: 300px;
-      height: 300px;
       position: absolute;
-      top: 0;
-      left: 0;
-      background: conic-gradient(
-        red 0% 12.5%, 
-        black 12.5% 25%, 
-        red 25% 37.5%, 
-        black 37.5% 50%, 
-        red 50% 62.5%, 
-        black 62.5% 75%, 
-        red 75% 87.5%, 
-        black 87.5% 100%
-      );
+      top: 10px;
+      left: 10px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
       transform-origin: center;
+      background: conic-gradient(
+        red 0% 10%, black 10% 20%, red 20% 30%, black 30% 40%, 
+        red 40% 50%, black 50% 60%, red 60% 70%, black 70% 80%, 
+        red 80% 90%, black 90% 100%
+      );
       animation: spin 0s ease-in-out forwards;
+    }
+
+    .numbers {
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      transform-origin: center;
+    }
+
+    .number {
+      position: absolute;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      transform-origin: 50% 200px;
     }
 
     .pointer {
       position: absolute;
-      top: -15px;
+      top: -20px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 30px solid #e74c3c;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid #e67e22;
     }
 
     button {
@@ -83,9 +104,10 @@
   </style>
 </head>
 <body>
-  <h1>Roulette Game</h1>
+  <h1>Casino Roulette</h1>
   <div class="roulette-container">
     <div class="wheel" id="wheel"></div>
+    <div class="numbers" id="numbers"></div>
     <div class="pointer"></div>
   </div>
   <button onclick="spinWheel()">Spin</button>
@@ -93,20 +115,34 @@
 
   <script>
     const wheel = document.getElementById("wheel");
+    const numbersDiv = document.getElementById("numbers");
     const result = document.getElementById("result");
-    const segments = ["1", "2", "3", "4", "5", "6", "7", "8"]; // Wheel segments
+
+    // Numbers on the roulette wheel
+    const numbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+
+    // Generate numbers around the wheel
+    numbers.forEach((number, index) => {
+      const angle = (index * (360 / numbers.length)) - 90; // Offset to start at the top
+      const numberDiv = document.createElement("div");
+      numberDiv.classList.add("number");
+      numberDiv.style.transform = `rotate(${angle}deg) translateX(-50%) translateY(-50%) rotate(${-angle}deg)`;
+      numberDiv.innerText = number;
+      numbersDiv.appendChild(numberDiv);
+    });
 
     function spinWheel() {
-      const randomSegment = Math.floor(Math.random() * segments.length);
-      const degrees = 360 * 3 + (randomSegment * (360 / segments.length)); // 3 full spins + segment
+      const randomIndex = Math.floor(Math.random() * numbers.length);
+      const degrees = 360 * 3 + (randomIndex * (360 / numbers.length)); // 3 full spins + stop at segment
       wheel.style.setProperty("--spin-degrees", `${degrees}deg`);
-      wheel.style.animation = "spin 3s ease-out forwards";
-      
-      // Show result after spin animation
+            // Show result after spin animation
       setTimeout(() => {
-        result.textContent = `The wheel stopped at: ${segments[randomSegment]}`;
-      }, 3000);
+        const winningNumber = numbers[randomIndex];
+        result.textContent = `The wheel stopped at: ${winningNumber}`;
+      }, 3000); // Wait for the animation to finish
     }
   </script>
 </body>
 </html>
+      wheel.style.animation = "spin 3s ease-out forwards"
+      
