@@ -3,54 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slot Machine</title>
+  <title>Casino Slot Machine</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
-      background-color: #222;
+      background: #333;
     }
 
     .slot-machine {
       text-align: center;
-      border: 2px solid #fff;
-      padding: 20px;
+      background: #1c1c1c;
       border-radius: 10px;
-      background-color: #333;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
 
     .reels {
       display: flex;
-      justify-content: space-around;
+      justify-content: center;
       margin-bottom: 20px;
     }
 
     .reel {
-      width: 60px;
-      height: 60px;
-      background-color: #444;
+      width: 80px;
+      height: 120px;
+      margin: 0 10px;
+      background: #222;
       border-radius: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
       color: white;
-      font-size: 24px;
+      font-size: 36px;
       font-weight: bold;
-      margin: 0 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
 
     #spinButton {
       background-color: #28a745;
       color: white;
-      padding: 10px 20px;
+      padding: 15px 30px;
+      font-size: 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 18px;
+      margin-top: 20px;
       transition: background-color 0.3s;
     }
 
@@ -61,19 +64,32 @@
     .result {
       margin-top: 20px;
       color: white;
+      font-size: 24px;
     }
 
     .result p {
-      font-size: 20px;
+      margin: 0;
     }
 
     #message {
-      font-size: 18px;
       color: gold;
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    /* Animation for the spinning reels */
+    @keyframes spin {
+      0% { transform: translateY(0); }
+      25% { transform: translateY(-120px); }
+      50% { transform: translateY(0); }
+      75% { transform: translateY(-120px); }
+      100% { transform: translateY(0); }
     }
   </style>
 </head>
 <body>
+
   <div class="slot-machine">
     <div class="reels">
       <div class="reel" id="reel-1">7</div>
@@ -91,21 +107,31 @@
     // Array of symbols that the slot machine can display
     const symbols = ['7', '🍒', '🍋', '🍊', '🍉', '💎'];
 
-    // Function to spin the reels
+    // Function to generate a random symbol from the symbols array
+    function getRandomSymbol() {
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+
+    // Function to spin the reels with an animation
     function spinReels() {
       let result = [];
       for (let i = 1; i <= 3; i++) {
-        let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-        document.getElementById('reel-' + i).textContent = randomSymbol;
-        result.push(randomSymbol);
+        const reel = document.getElementById('reel-' + i);
+        reel.style.animation = 'spin 0.5s ease-in-out';
+        setTimeout(() => {
+          reel.style.animation = '';
+          const randomSymbol = getRandomSymbol();
+          reel.textContent = randomSymbol;
+          result.push(randomSymbol);
+        }, 500); // Sync the reel update after the animation
       }
       return result;
     }
 
-    // Function to determine if all symbols match (win condition)
+    // Function to check if all symbols match (win condition)
     function checkWin(result) {
       if (result[0] === result[1] && result[1] === result[2]) {
-        return 'You Win!';
+        return 'Congratulations, You Win!';
       } else {
         return 'Try Again!';
       }
@@ -119,5 +145,6 @@
       document.getElementById('message').textContent = winMessage;
     });
   </script>
+
 </body>
 </html>
