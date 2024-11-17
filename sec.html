@@ -1,167 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casino Slot Machine</title>
-  <style>
-    /* General Styles */
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #000;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Machine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
 
-    #game {
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      background: linear-gradient(135deg, #222, #444);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 0px 15px 5px #ffcc00;
-    }
+        .slot-machine {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-      text-shadow: 0px 0px 10px #ffcc00;
-    }
+        .reel {
+            width: 100px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            border: 3px solid #fff;
+            border-radius: 10px;
+            background-color: #222;
+            overflow: hidden;
+            position: relative;
+        }
 
-    #player-info {
-      margin-bottom: 20px;
-      font-size: 1.2rem;
-    }
+        .symbol {
+            font-size: 3rem;
+            transition: transform 0.4s ease-in-out;
+        }
 
-    #slot-reel {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #111;
-      border: 5px solid #ffcc00;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 20px;
-    }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
 
-    #slot-reel span {
-      font-size: 3rem;
-      margin: 0 5px;
-      color: #fff;
-      text-shadow: 0px 0px 5px #ffcc00;
-    }
+        button:hover {
+            background-color: #218838;
+        }
 
-    #spin-button {
-      font-size: 1.5rem;
-      padding: 10px 20px;
-      background: linear-gradient(135deg, #ff9900, #ff6600);
-      border: none;
-      border-radius: 10px;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0px 0px 10px #ffcc00;
-    }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #f39c12;
+        }
 
-    #spin-button:hover {
-      background: linear-gradient(135deg, #ff6600, #ff9900);
-    }
-
-    #spin-button:active {
-      transform: scale(0.98);
-    }
-
-    #winner-message {
-      margin-top: 20px;
-      font-size: 1.2rem;
-      color: #ffcc00;
-      font-weight: bold;
-    }
-  </style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div id="game">
-    <h1>🎰 Casino Slot Machine 🎰</h1>
-    <div id="player-info">
-      <p>Player 1 Coins: <span id="coins1">100</span></p>
-      <p>Player 2 Coins: <span id="coins2">100</span></p>
-      <p>Current Turn: <span id="current-turn">Player 1</span></p>
+    <h1>🎰 Slot Machine 🎰</h1>
+    <div class="slot-machine">
+        <div class="reel">
+            <span class="symbol">🍒</span>
+            <span class="symbol">🍋</span>
+            <span class="symbol">🍇</span>
+            <span class="symbol">🍉</span>
+            <span class="symbol">🍒</span>
+        </div>
+        <div class="reel">
+            <span class="symbol">🍒</span>
+            <span class="symbol">🍋</span>
+            <span class="symbol">🍇</span>
+            <span class="symbol">🍉</span>
+            <span class="symbol">🍒</span>
+        </div>
+        <div class="reel">
+            <span class="symbol">🍒</span>
+            <span class="symbol">🍋</span>
+            <span class="symbol">🍇</span>
+            <span class="symbol">🍉</span>
+            <span class="symbol">🍒</span>
+        </div>
     </div>
-    <div id="slot-reel">
-      <span id="slot1">🍒</span>
-      <span id="slot2">🍋</span>
-      <span id="slot3">💎</span>
-    </div>
-    <button id="spin-button">SPIN!</button>
-    <div id="winner-message"></div>
-  </div>
+    <button id="spin">Spin</button>
+    <div class="message hidden" id="resultMessage">You won! 🎉</div>
 
-  <script>
-    let coins1 = 100;
-    let coins2 = 100;
-    let currentPlayer = 1;
-    const emojis = ["🍒", "🍋", "⭐", "💎", "🍊", "🍇", "🎲"];
+    <script>
+        const spinButton = document.getElementById('spin');
+        const resultMessage = document.getElementById('resultMessage');
 
-    document.getElementById("spin-button").addEventListener("click", () => {
-      // Spin the slot machine
-      const slot1 = randomEmoji();
-      const slot2 = randomEmoji();
-      const slot3 = randomEmoji();
+        const reelSymbols = ['🍒', '🍋', '🍇', '🍉'];
+        
+        // Function to simulate spinning
+        function spinReels() {
+            const reels = document.querySelectorAll('.reel');
+            reels.forEach(reel => {
+                let symbols = reel.querySelectorAll('.symbol');
+                let randomIndex = Math.floor(Math.random() * symbols.length);
+                // Animate the spin by rotating the symbols
+                reel.style.animation = 'spin 1s ease-out';
+                setTimeout(() => {
+                    reel.style.animation = 'none';
+                    setTimeout(() => {
+                        symbols.forEach((symbol, index) => {
+                            symbol.style.transform = `translateY(-${randomIndex * 120}px)`;
+                        });
+                    }, 50);
+                }, 1000);
+            });
+            checkWin();
+        }
 
-      document.getElementById("slot1").textContent = slot1;
-      document.getElementById("slot2").textContent = slot2;
-      document.getElementById("slot3").textContent = slot3;
+        // Function to check if the user has won
+        function checkWin() {
+            const reels = document.querySelectorAll('.reel');
+            const firstSymbols = [...reels[0].querySelectorAll('.symbol')];
+            const secondSymbols = [...reels[1].querySelectorAll('.symbol')];
+            const thirdSymbols = [...reels[2].querySelectorAll('.symbol')];
+            
+            let allSymbolsMatch = firstSymbols.every((symbol, index) => 
+                symbol.innerText === secondSymbols[index].innerText &&
+                symbol.innerText === thirdSymbols[index].innerText
+            );
 
-      // Check win condition
-      let win = checkWin(slot1, slot2, slot3);
-      if (win) {
-        document.getElementById("winner-message").textContent = `🎉 Player ${currentPlayer} wins this round! 🎉`;
-        if (currentPlayer === 1) coins1 += 20;
-        else coins2 += 20;
-      } else {
-        document.getElementById("winner-message").textContent = `😢 Player ${currentPlayer} loses 10 coins.`;
-        if (currentPlayer === 1) coins1 -= 10;
-        else coins2 -= 10;
-      }
+            if (allSymbolsMatch) {
+                resultMessage.textContent = 'You won! 🎉';
+            } else {
+                resultMessage.textContent = 'Try again! 💸';
+            }
+            resultMessage.classList.remove('hidden');
+        }
 
-      // Update UI
-      document.getElementById("coins1").textContent = coins1;
-      document.getElementById("coins2").textContent = coins2;
+        spinButton.addEventListener('click', () => {
+            resultMessage.classList.add('hidden');
+            spinReels();
+        });
 
-      // Switch turn
-      currentPlayer = currentPlayer === 1 ? 2 : 1;
-      document.getElementById("current-turn").textContent = `Player ${currentPlayer}`;
-
-      // Check for game over
-      if (coins1 <= 0 || coins2 <= 0) {
-        const winner = coins1 > 0 ? "Player 1" : "Player 2";
-        alert(`Game Over! 🎉 ${winner} wins! 🎉`);
-        resetGame();
-      }
-    });
-
-    function randomEmoji() {
-      return emojis[Math.floor(Math.random() * emojis.length)];
-    }
-
-    function checkWin(s1, s2, s3) {
-      return s1 === s2 && s2 === s3;
-    }
-
-    function resetGame() {
-      coins1 = 100;
-      coins2 = 100;
-      currentPlayer = 1;
-      document.getElementById("coins1").textContent = coins1;
-      document.getElementById("coins2").textContent = coins2;
-      document.getElementById("current-turn").textContent = `Player ${currentPlayer}`;
-      document.getElementById("winner-message").textContent = "";
-    }
-  </script>
+        // Keyframe animation for the spin
+        document.styleSheets[0].insertRule(`
+            @keyframes spin {
+                0% {
+                    transform: rotateX(0deg);
+                }
+                100% {
+                    transform: rotateX(360deg);
+                }
+            }
+        `);
+    </script>
 </body>
 </html>
