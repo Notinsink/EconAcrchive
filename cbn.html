@@ -128,6 +128,40 @@
         ctx.fillText(segment.number, wheelRadius * 0.75, 5);
         ctx.restore();
       });
+
+      // Draw the central hub
+      drawCentralHub();
+    }
+
+    // Draw the central golden hub and spinning arms
+    function drawCentralHub() {
+      // Central circle
+      ctx.beginPath();
+      ctx.arc(wheelRadius, wheelRadius, 50, 0, 2 * Math.PI);
+      ctx.fillStyle = '#FFD700'; // Gold color
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.stroke();
+
+      // Spinning arms
+      for (let i = 0; i < 3; i++) {
+        const armAngle = (i * (2 * Math.PI)) / 3 + currentAngle;
+        ctx.beginPath();
+        ctx.moveTo(wheelRadius, wheelRadius);
+        ctx.lineTo(
+          wheelRadius + Math.cos(armAngle) * 70,
+          wheelRadius + Math.sin(armAngle) * 70
+        );
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+      }
+
+      // Inner circle
+      ctx.beginPath();
+      ctx.arc(wheelRadius, wheelRadius, 15, 0, 2 * Math.PI);
+      ctx.fillStyle = '#000';
+      ctx.fill();
     }
 
     // Spin the wheel
