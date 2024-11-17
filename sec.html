@@ -1,192 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casino Slots: Dungeons & Gains</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: radial-gradient(circle, #0c0f38, #030518);
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casino Slot Machine</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-        .game-container {
-            width: 90%;
-            max-width: 600px;
-            padding: 20px;
-            background: #1b1b3a;
-            border: 3px solid #ffd700;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
-            text-align: center;
-        }
+    #game {
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      background: linear-gradient(135deg, #222, #444);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 15px 5px #ffcc00;
+    }
 
-        h1 {
-            color: #ffd700;
-            text-shadow: 2px 2px #000;
-        }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      text-shadow: 0px 0px 10px #ffcc00;
+    }
 
-        .slot-machine {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-        }
+    #player-info {
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
 
-        .slot {
-            width: 80px;
-            height: 80px;
-            background: #333;
-            border: 3px solid #ffd700;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            color: #ffd700;
-            font-weight: bold;
-        }
+    #slot-reel {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      border: 5px solid #ffcc00;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
 
-        .spin-btn {
-            padding: 15px 30px;
-            background: #e63946;
-            color: #fff;
-            border: 2px solid #d62828;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: transform 0.2s, background 0.2s;
-        }
+    #slot-reel span {
+      font-size: 3rem;
+      margin: 0 5px;
+      color: #fff;
+      text-shadow: 0px 0px 5px #ffcc00;
+    }
 
-        .spin-btn:hover {
-            background: #a4161a;
-            transform: scale(1.1);
-        }
+    #spin-button {
+      font-size: 1.5rem;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #ff9900, #ff6600);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0px 0px 10px #ffcc00;
+    }
 
-        .coin {
-            display: inline-block;
-            padding: 10px 20px;
-            background: radial-gradient(circle, #ffd700, #c29a1e);
-            border: 2px solid #a67c00;
-            border-radius: 15px;
-            color: #000;
-            font-weight: bold;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-        }
+    #spin-button:hover {
+      background: linear-gradient(135deg, #ff6600, #ff9900);
+    }
 
-        .log {
-            background: #0b0b16;
-            padding: 15px;
-            border: 1px solid #ffd700;
-            border-radius: 10px;
-            color: #fff;
-            max-height: 200px;
-            overflow-y: auto;
-            text-align: left;
-        }
+    #spin-button:active {
+      transform: scale(0.98);
+    }
 
-        .game-over {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #ffd700;
-        }
-    </style>
+    #winner-message {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #ffcc00;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-
-            <h2>Your Wealth: <span id="wealth" class="coin">1000</span></h2>
-        <div class="slot-machine">
-            <div class="slot" id="slot1">🎲</div>
-            <div class="slot" id="slot2">🎲</div>
-            <div class="slot" id="slot3">🎲</div>
-        </div>
-        <button id="spin" class="spin-btn">Spin</button>
-        <div class="log">
-            <p>Welcome to the casino! Spin to test your luck.</p>
-        </div>
-        <div class="game-over" id="gameOverMessage" style="display: none;">
-            Game Over! Share your results with your opponent.
-        </div>
+  <div id="game">
+    <h1>🎰 Casino Slot Machine 🎰</h1>
+    <div id="player-info">
+      <p>Player 1 Coins: <span id="coins1">100</span></p>
+      <p>Player 2 Coins: <span id="coins2">100</span></p>
+      <p>Current Turn: <span id="current-turn">Player 1</span></p>
     </div>
+    <div id="slot-reel">
+      <span id="slot1">🍒</span>
+      <span id="slot2">🍋</span>
+      <span id="slot3">💎</span>
+    </div>
+    <button id="spin-button">SPIN!</button>
+    <div id="winner-message"></div>
+  </div>
 
-    <script>
-        let wealth = 1000;
+  <script>
+    let coins1 = 100;
+    let coins2 = 100;
+    let currentPlayer = 1;
+    const emojis = ["🍒", "🍋", "⭐", "💎", "🍊", "🍇", "🎲"];
 
-        const wealthDisplay = document.getElementById("wealth");
-        const slot1 = document.getElementById("slot1");
-        const slot2 = document.getElementById("slot2");
-        const slot3 = document.getElementById("slot3");
-        const log = document.querySelector(".log");
-        const spinButton = document.getElementById("spin");
-        const gameOverMessage = document.getElementById("gameOverMessage");
+    document.getElementById("spin-button").addEventListener("click", () => {
+      // Spin the slot machine
+      const slot1 = randomEmoji();
+      const slot2 = randomEmoji();
+      const slot3 = randomEmoji();
 
-        const symbols = ["🍒", "🍋", "🍊", "⭐", "💎", "7️⃣"];
+      document.getElementById("slot1").textContent = slot1;
+      document.getElementById("slot2").textContent = slot2;
+      document.getElementById("slot3").textContent = slot3;
 
-        function addLog(message) {
-            const p = document.createElement("p");
-            p.textContent = message;
-            log.appendChild(p);
-            log.scrollTop = log.scrollHeight;
-        }
+      // Check win condition
+      let win = checkWin(slot1, slot2, slot3);
+      if (win) {
+        document.getElementById("winner-message").textContent = `🎉 Player ${currentPlayer} wins this round! 🎉`;
+        if (currentPlayer === 1) coins1 += 20;
+        else coins2 += 20;
+      } else {
+        document.getElementById("winner-message").textContent = `😢 Player ${currentPlayer} loses 10 coins.`;
+        if (currentPlayer === 1) coins1 -= 10;
+        else coins2 -= 10;
+      }
 
-        function updateWealth(amount) {
-            wealth += amount;
-            wealthDisplay.textContent = wealth;
-        }
+      // Update UI
+      document.getElementById("coins1").textContent = coins1;
+      document.getElementById("coins2").textContent = coins2;
 
-        function rollSlots() {
-            return symbols[Math.floor(Math.random() * symbols.length)];
-        }
+      // Switch turn
+      currentPlayer = currentPlayer === 1 ? 2 : 1;
+      document.getElementById("current-turn").textContent = `Player ${currentPlayer}`;
 
-        function spinSlots() {
-            // Simulate spinning slots
-            const result1 = rollSlots();
-            const result2 = rollSlots();
-            const result3 = rollSlots();
+      // Check for game over
+      if (coins1 <= 0 || coins2 <= 0) {
+        const winner = coins1 > 0 ? "Player 1" : "Player 2";
+        alert(`Game Over! 🎉 ${winner} wins! 🎉`);
+        resetGame();
+      }
+    });
 
-            slot1.textContent = result1;
-            slot2.textContent = result2;
-            slot3.textContent = result3;
+    function randomEmoji() {
+      return emojis[Math.floor(Math.random() * emojis.length)];
+    }
 
-            // Determine outcomes
-            if (result1 === result2 && result2 === result3) {
-                // Jackpot: All three match
-                const jackpot = 500;
-                addLog(`🎉 Jackpot! You won ${jackpot} coins!`);
-                updateWealth(jackpot);
-            } else if (result1 === result2 || result2 === result3 || result1 === result3) {
-                // Partial match: Two match
-                const win = 200;
-                addLog(`✨ Nice! Two matches. You won ${win} coins.`);
-                updateWealth(win);
-            } else {
-                // No match: Lose coins
-                const loss = -100;
-                addLog(`😢 No match. You lost ${Math.abs(loss)} coins.`);
-                updateWealth(loss);
-            }
+    function checkWin(s1, s2, s3) {
+      return s1 === s2 && s2 === s3;
+    }
 
-            // Check if wealth is below 0
-            if (wealth <= 0) {
-                spinButton.disabled = true;
-                gameOverMessage.style.display = "block";
-                addLog("Game Over! You ran out of coins.");
-            }
-        }
-
-        spinButton.addEventListener("click", spinSlots);
-    </script>
+    function resetGame() {
+      coins1 = 100;
+      coins2 = 100;
+      currentPlayer = 1;
+      document.getElementById("coins1").textContent = coins1;
+      document.getElementById("coins2").textContent = coins2;
+      document.getElementById("current-turn").textContent = `Player ${currentPlayer}`;
+      document.getElementById("winner-message").textContent = "";
+    }
+  </script>
 </body>
 </html>
-    <div class="game-container">
-        <h1>Casino Slots: Dungeons & Gains</h1>
-        <h2>Your Wealth: <span id="wealth" class="coin
