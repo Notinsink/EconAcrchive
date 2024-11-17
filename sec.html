@@ -1,124 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slot Machine</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slot Machine</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #2d2d2d;
+      color: white;
+      text-align: center;
+      padding-top: 50px;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #222;
-        }
+    .slot-machine {
+      display: inline-block;
+      background-color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+    }
 
-        .slot-machine {
-            background-color: #333;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            text-align: center;
-            width: 300px;
-        }
+    .reels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
 
-        .slot-display {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+    .reel {
+      width: 80px;
+      height: 100px;
+      background-color: #222;
+      border: 2px solid #fff;
+      font-size: 30px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+      color: #f0f0f0;
+    }
 
-        .slot-value {
-            font-size: 60px;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #fff;
-            margin: 0 5px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
+    .button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
 
-        button {
-            background-color: #f4c542;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+    .button:hover {
+      background-color: #218838;
+    }
 
-        button:hover {
-            background-color: #f1a93d;
-        }
+    .result {
+      margin-top: 20px;
+      font-size: 25px;
+      font-weight: bold;
+      color: #ffd700;
+    }
 
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #fff;
-        }
-    </style>
+    .message {
+      font-size: 18px;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+  </style>
 </head>
 <body>
-    <div class="slot-machine">
-        <div class="slot-display">
-            <div class="slot-value" id="slot1">🍒</div>
-            <div class="slot-value" id="slot2">🍒</div>
-            <div class="slot-value" id="slot3">🍒</div>
-        </div>
-        <div class="buttons">
-            <button id="pull-lever">Pull Lever</button>
-        </div>
-        <div class="result" id="result"></div>
+
+  <div class="slot-machine">
+    <div class="reels">
+      <div class="reel" id="reel1">7</div>
+      <div class="reel" id="reel2">7</div>
+      <div class="reel" id="reel3">7</div>
     </div>
+    <button class="button" onclick="spin()">SPIN</button>
+    <div class="result" id="result">Good Luck!</div>
+    <div class="message" id="message"></div>
+  </div>
 
-    <script>
-        const symbols = ["🍒", "🍋", "🍊", "🍉", "🍇", "🍓"];
-        const slot1 = document.getElementById("slot1");
-        const slot2 = document.getElementById("slot2");
-        const slot3 = document.getElementById("slot3");
-        const pullLeverButton = document.getElementById("pull-lever");
-        const result = document.getElementById("result");
+  <script>
+    const symbols = ['7', '🍒', '🍋', '🍊', '🍓', '🍉', '💎', '🍀'];
 
-        function getRandomSymbol() {
-            const randomIndex = Math.floor(Math.random() * symbols.length);
-            return symbols[randomIndex];
-        }
+    function getRandomSymbol() {
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
 
-        function updateSlots() {
-            slot1.textContent = getRandomSymbol();
-            slot2.textContent = getRandomSymbol();
-            slot3.textContent = getRandomSymbol();
-        }
+    function spin() {
+      const reel1 = document.getElementById("reel1");
+      const reel2 = document.getElementById("reel2");
+      const reel3 = document.getElementById("reel3");
+      const result = document.getElementById("result");
+      const message = document.getElementById("message");
 
-        function checkResult() {
-            if (slot1.textContent === slot2.textContent && slot2.textContent === slot3.textContent) {
-                result.textContent = "You win!";
-                result.style.color = "green";
-            } else {
-                result.textContent = "Try again!";
-                result.style.color = "red";
-            }
-        }
+      // Spin the reels
+      reel1.innerHTML = getRandomSymbol();
+      reel2.innerHTML = getRandomSymbol();
+      reel3.innerHTML = getRandomSymbol();
 
-        pullLeverButton.addEventListener("click", () => {
-            pullLeverButton.disabled = true;  // Disable the button while the slots are spinning
-            result.textContent = "";
-            setTimeout(() => {
-                updateSlots();
-                checkResult();
-                pullLeverButton.disabled = false; // Re-enable the button after the result
-            }, 1000); // Simulate the time delay for the mechanical spin
-        });
-    </script>
+      // Check for a win
+      if (reel1.innerHTML === reel2.innerHTML && reel2.innerHTML === reel3.innerHTML) {
+        result.innerHTML = "YOU WIN!";
+        message.innerHTML = "🎉 Jackpot! 🎉";
+        message.style.color = "#FFD700"; // Gold
+      } else {
+        result.innerHTML = "TRY AGAIN!";
+        message.innerHTML = "Better luck next time!";
+        message.style.color = "#FF5733"; // Red
+      }
+    }
+  </script>
+
 </body>
 </html>
