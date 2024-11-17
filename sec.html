@@ -3,30 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dungeons & Gains: Strategic Casino Edition</title>
+    <title>Casino Slots: Dungeons & Gains</title>
     <style>
-        /* General styling */
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background: radial-gradient(circle, #1b1b2f, #000);
-            color: #f0e68c;
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #0c0f38, #030518);
+            color: #fff;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow: hidden;
         }
 
         .game-container {
-            max-width: 800px;
             width: 90%;
+            max-width: 600px;
             padding: 20px;
-            background: #2a2a40;
-            border: 3px solid gold;
+            background: #1b1b3a;
+            border: 3px solid #ffd700;
             border-radius: 15px;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
             text-align: center;
         }
 
@@ -35,51 +33,43 @@
             text-shadow: 2px 2px #000;
         }
 
-        .player-section {
+        .slot-machine {
             display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .slot {
+            width: 80px;
+            height: 80px;
+            background: #333;
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
+            font-size: 24px;
+            color: #ffd700;
+            font-weight: bold;
         }
 
-        .player-face {
-            width: 60px;
-            height: 60px;
-            background: #ffd700;
-            border: 3px solid #000;
-            border-radius: 50%;
-            position: relative;
+        .spin-btn {
+            padding: 15px 30px;
+            background: #e63946;
+            color: #fff;
+            border: 2px solid #d62828;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: transform 0.2s, background 0.2s;
         }
 
-        .player-face::before,
-        .player-face::after {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background: #000;
-            border-radius: 50%;
-            position: absolute;
-            top: 20%;
-        }
-
-        .player-face::before {
-            left: 20%;
-        }
-
-        .player-face::after {
-            right: 20%;
-        }
-
-        .player-face.mouth::after {
-            width: 30px;
-            height: 15px;
-            background: none;
-            border: 2px solid #000;
-            border-radius: 0 0 50% 50%;
-            position: absolute;
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
+        .spin-btn:hover {
+            background: #a4161a;
+            transform: scale(1.1);
         }
 
         .coin {
@@ -93,34 +83,6 @@
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
         }
 
-        .actions {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .actions button {
-            padding: 10px 20px;
-            background: #e63946;
-            color: #fff;
-            border: 2px solid #d62828;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .actions button:disabled {
-            background: #aaa;
-            cursor: not-allowed;
-        }
-
-        .actions button:hover {
-            background: #a4161a;
-            transform: scale(1.1);
-        }
-
         .log {
             background: #0b0b16;
             padding: 15px;
@@ -132,121 +94,99 @@
             text-align: left;
         }
 
-        .winner {
-            font-size: 24px;
-            color: #ffd700;
+        .game-over {
             margin-top: 20px;
+            font-size: 18px;
+            color: #ffd700;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>Dungeons & Gains: Strategic Casino Edition</h1>
-        <div class="player-section">
-            <div>
-                <div class="player-face"></div>
-                <h2>Player 1: <span id="player1-wealth" class="coin">1000</span></h2>
-            </div>
-            <div>
-                <div class="player-face"></div>
-                <h2>Player 2: <span id="player2-wealth" class="coin">1000</span></h2>
-            </div>
-        </div>
 
-        <div class="actions">
-            <button id="invest">Invest</button>
-            <button id="save">Save</button>
-            <button id="spend">Spend</button>
-            <button id="sell">Sell</button>
+            <h2>Your Wealth: <span id="wealth" class="coin">1000</span></h2>
+        <div class="slot-machine">
+            <div class="slot" id="slot1">🎲</div>
+            <div class="slot" id="slot2">🎲</div>
+            <div class="slot" id="slot3">🎲</div>
         </div>
-
+        <button id="spin" class="spin-btn">Spin</button>
         <div class="log">
-            <p>Welcome to the game!</p>
+            <p>Welcome to the casino! Spin to test your luck.</p>
         </div>
-
-        <div class="winner"></div>
+        <div class="game-over" id="gameOverMessage" style="display: none;">
+            Game Over! Share your results with your opponent.
+        </div>
     </div>
 
     <script>
-        let currentPlayer = 1;
-        let player1Wealth = 1000;
-        let player2Wealth = 1000;
-        let multiplier = { 1: 1, 2: 1 };
-        const rounds = 10;
-        let currentRound = 1;
+        let wealth = 1000;
 
-        const player1Display = document.getElementById('player1-wealth');
-        const player2Display = document.getElementById('player2-wealth');
-        const log = document.querySelector('.log');
-        const winnerDisplay = document.querySelector('.winner');
-        const actions = document.querySelectorAll('.actions button');
+        const wealthDisplay = document.getElementById("wealth");
+        const slot1 = document.getElementById("slot1");
+        const slot2 = document.getElementById("slot2");
+        const slot3 = document.getElementById("slot3");
+        const log = document.querySelector(".log");
+        const spinButton = document.getElementById("spin");
+        const gameOverMessage = document.getElementById("gameOverMessage");
+
+        const symbols = ["🍒", "🍋", "🍊", "⭐", "💎", "7️⃣"];
 
         function addLog(message) {
-            const p = document.createElement('p');
+            const p = document.createElement("p");
             p.textContent = message;
             log.appendChild(p);
             log.scrollTop = log.scrollHeight;
         }
 
-        function updateWealth() {
-            player1Display.textContent = player1Wealth;
-            player2Display.textContent = player2Wealth;
+        function updateWealth(amount) {
+            wealth += amount;
+            wealthDisplay.textContent = wealth;
         }
 
-        function rollDice() {
-            return Math.floor(Math.random() * 6) + 1;
+        function rollSlots() {
+            return symbols[Math.floor(Math.random() * symbols.length)];
         }
 
-        function performAction(action) {
-            const dice = rollDice();
-            let change = 0;
+        function spinSlots() {
+            // Simulate spinning slots
+            const result1 = rollSlots();
+            const result2 = rollSlots();
+            const result3 = rollSlots();
 
-            if (action === 'invest') {
-                change = dice <= 3 ? -100 * dice * multiplier[currentPlayer] : 50 * dice * multiplier[currentPlayer];
-                addLog(`Player ${currentPlayer} rolled ${dice} and ${change > 0 ? 'gained' : 'lost'} ${Math.abs(change)} coins.`);
-            } else if (action === 'save') {
-                change = 100 * multiplier[currentPlayer];
-                addLog(`Player ${currentPlayer} saved ${change} coins.`);
-            } else if (action === 'spend') {
-                change = -200;
-                multiplier[currentPlayer] = 1.5;
-                addLog(`Player ${currentPlayer} spent 200 coins for a multiplier.`);
-            } else if (action === 'sell') {
-                change = 150;
-                multiplier[currentPlayer] = 1;
-                addLog(`Player ${currentPlayer} sold their multiplier for 150 coins.`);
+            slot1.textContent = result1;
+            slot2.textContent = result2;
+            slot3.textContent = result3;
+
+            // Determine outcomes
+            if (result1 === result2 && result2 === result3) {
+                // Jackpot: All three match
+                const jackpot = 500;
+                addLog(`🎉 Jackpot! You won ${jackpot} coins!`);
+                updateWealth(jackpot);
+            } else if (result1 === result2 || result2 === result3 || result1 === result3) {
+                // Partial match: Two match
+                const win = 200;
+                addLog(`✨ Nice! Two matches. You won ${win} coins.`);
+                updateWealth(win);
+            } else {
+                // No match: Lose coins
+                const loss = -100;
+                addLog(`😢 No match. You lost ${Math.abs(loss)} coins.`);
+                updateWealth(loss);
             }
 
-            if (currentPlayer === 1) player1Wealth += change;
-            else player2Wealth += change;
-
-            multiplier[currentPlayer] = action === 'spend' ? 1.5 : 1;
-            updateWealth();
-            nextTurn();
+            // Check if wealth is below 0
+            if (wealth <= 0) {
+                spinButton.disabled = true;
+                gameOverMessage.style.display = "block";
+                addLog("Game Over! You ran out of coins.");
+            }
         }
 
-        function nextTurn() {
-            currentPlayer = currentPlayer === 1 ? 2 : 1;
-            currentRound += currentPlayer === 1 ? 1 : 0;
-            if (currentRound > rounds) endGame();
-        }
-
-        function endGame() {
-            actions.forEach((button) => (button.disabled = true));
-            winnerDisplay.textContent = `Game Over! Winner: ${
-                player1Wealth > player2Wealth
-                    ? 'Player 1'
-                    : player2Wealth > player1Wealth
-                    ? 'Player 2'
-                    : 'Tie!'
-            }`;
-        }
-
-        actions.forEach((button) => {
-            button.addEventListener('click', (event) => performAction(event.target.id));
-        });
-
-        addLog(`Player 1's turn.`);
+        spinButton.addEventListener("click", spinSlots);
     </script>
 </body>
 </html>
+    <div class="game-container">
+        <h1>Casino Slots: Dungeons & Gains</h1>
+        <h2>Your Wealth: <span id="wealth" class="coin
