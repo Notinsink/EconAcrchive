@@ -70,6 +70,31 @@
             text-align: center;
             display: none;
         }
+
+        .controls {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .button {
+            width: 50%;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .button:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -78,6 +103,10 @@
         <div class="game-over">Game Over!<br>Refresh to Play Again</div>
         <div class="paddle"></div>
         <div class="ball"></div>
+        <div class="controls">
+            <div class="button" id="left-button">◀ Left</div>
+            <div class="button" id="right-button">▶ Right</div>
+        </div>
     </div>
 
     <script>
@@ -87,6 +116,8 @@
         const ball = document.querySelector('.ball');
         const scoreDisplay = document.querySelector('.score');
         const gameOverDisplay = document.querySelector('.game-over');
+        const leftButton = document.getElementById('left-button');
+        const rightButton = document.getElementById('right-button');
 
         let paddlePosition = 200;
         let ballX = Math.random() * 480;
@@ -104,6 +135,21 @@
                 paddlePosition += 20;
             }
             paddle.style.left = paddlePosition + 'px';
+        });
+
+        // Move paddle with touch controls
+        leftButton.addEventListener('touchstart', () => {
+            if (paddlePosition > 0) {
+                paddlePosition -= 20;
+                paddle.style.left = paddlePosition + 'px';
+            }
+        });
+
+        rightButton.addEventListener('touchstart', () => {
+            if (paddlePosition < 400) {
+                paddlePosition += 20;
+                paddle.style.left = paddlePosition + 'px';
+            }
         });
 
         // Game loop
