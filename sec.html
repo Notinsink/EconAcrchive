@@ -3,196 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catch the Ball Game</title>
+    <title>Dungeons & Gains: Casino Edition</title>
     <style>
-        * {
+        /* General styling */
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: radial-gradient(circle, #1b1b2f, #000);
+            color: #f0e68c;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #282c34;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: white;
-            font-family: Arial, sans-serif;
             overflow: hidden;
         }
 
         .game-container {
-            position: relative;
-            width: 500px;
-            height: 600px;
-            background: #111;
-            border: 2px solid #fff;
-            overflow: hidden;
-        }
-
-        .paddle {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 15px;
-            background: #f39c12;
-            border-radius: 5px;
-        }
-
-        .ball {
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 20px;
-            background: #e74c3c;
-            border-radius: 50%;
-        }
-
-        .score {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 20px;
-        }
-
-        .game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 30px;
-            color: red;
+            max-width: 800px;
+            width: 90%;
+            padding: 20px;
+            background: #2a2a40;
+            border: 3px solid gold;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
             text-align: center;
-            display: none;
         }
 
-        .controls {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
+        h1 {
+            color: #ffd700;
+            text-shadow: 2px 2px #000;
+        }
+
+        .player-section {
             display: flex;
+            align-items: center;
             justify-content: space-between;
+            margin-bottom: 20px;
         }
 
-        .button {
-            width: 50%;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 20px;
+        .player-section h2 {
+            margin: 0;
+        }
+
+        .player-face {
+            width: 60px;
+            height: 60px;
+            background: #ffd700;
+            border: 3px solid #000;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .player-face::before,
+        .player-face::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 20%;
+        }
+
+        .player-face::before {
+            left: 20%;
+        }
+
+        .player-face::after {
+            right: 20%;
+        }
+
+        .player-face.mouth::after {
+            width: 30px;
+            height: 15px;
+            background: none;
+            border: 2px solid #000;
+            border-radius: 0 0 50% 50%;
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .coin {
+            display: inline-block;
+            padding: 10px 20px;
+            background: radial-gradient(circle, #ffd700, #c29a1e);
+            border: 2px solid #a67c00;
+            border-radius: 15px;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .actions {
             display: flex;
             justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .button:active {
-            background: rgba(255, 255, 255, 0.2);
+        .actions button {
+            padding: 10px 20px;
+            background: #e63946;
+            color: #fff;
+            border: 2px solid #d62828;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .actions button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        .actions button:hover {
+            background: #a4161a;
+            transform: scale(1.1);
+        }
+
+        .log {
+            background: #0b0b16;
+            padding: 15px;
+            border: 1px solid #ffd700;
+            border-radius: 10px;
+            color: #fff;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .winner {
+            font-size: 24px;
+            color: #ffd700;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <div class="score">Score: 0</div>
-        <div class="game-over">Game Over!<br>Refresh to Play Again</div>
-        <div class="paddle"></div>
-        <div class="ball"></div>
-        <div class="controls">
-            <div class="button" id="left-button">◀ Left</div>
-            <div class="button" id="right-button">▶ Right</div>
+        <h1>Dungeons & Gains: Casino Edition</h1>
+        <div class="player-section">
+            <div>
+                <div class="player-face"></div>
+                <h2>Player 1: <span id="player1-wealth" class="coin">1000</span></h2>
+            </div>
+            <div>
+                <div class="player-face"></div>
+                <h2>Player 2: <span id="player2-wealth" class="coin">1000</span></h2>
+            </div>
         </div>
+
+        <div class="actions">
+            <button id="invest">Invest</button>
+            <button id="save">Save</button>
+            <button id="spend">Spend</button>
+        </div>
+
+        <div class="log">
+            <p>Welcome to the game!</p>
+        </div>
+
+        <div class="winner"></div>
     </div>
 
     <script>
         // Game variables
-        const gameContainer = document.querySelector('.game-container');
-        const paddle = document.querySelector('.paddle');
-        const ball = document.querySelector('.ball');
-        const scoreDisplay = document.querySelector('.score');
-        const gameOverDisplay = document.querySelector('.game-over');
-        const leftButton = document.getElementById('left-button');
-        const rightButton = document.getElementById('right-button');
+        let currentPlayer = 1;
+        let player1Wealth = 1000;
+        let player2Wealth = 1000;
+        const rounds = 10;
+        let currentRound = 1;
 
-        let paddlePosition = 200;
-        let ballX = Math.random() * 480;
-        let ballY = 50;
-        let ballSpeedX = 2;
-        let ballSpeedY = 3;
-        let score = 0;
-        let gameRunning = true;
+        // DOM elements
+        const player1Display = document.getElementById('player1-wealth');
+        const player2Display = document.getElementById('player2-wealth');
+        const log = document.querySelector('.log');
+        const winnerDisplay = document.querySelector('.winner');
+        const actions = document.querySelectorAll('.actions button');
 
-        // Move paddle with keyboard
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'ArrowLeft' && paddlePosition > 0) {
-                paddlePosition -= 20;
-            } else if (event.key === 'ArrowRight' && paddlePosition < 400) {
-                paddlePosition += 20;
-            }
-            paddle.style.left = paddlePosition + 'px';
-        });
-
-        // Move paddle with touch controls
-        leftButton.addEventListener('touchstart', () => {
-            if (paddlePosition > 0) {
-                paddlePosition -= 20;
-                paddle.style.left = paddlePosition + 'px';
-            }
-        });
-
-        rightButton.addEventListener('touchstart', () => {
-            if (paddlePosition < 400) {
-                paddlePosition += 20;
-                paddle.style.left = paddlePosition + 'px';
-            }
-        });
-
-        // Game loop
-        function updateGame() {
-            if (!gameRunning) return;
-
-            // Move ball
-            ballX += ballSpeedX;
-            ballY += ballSpeedY;
-
-            // Bounce ball off walls
-            if (ballX <= 0 || ballX >= 480) ballSpeedX *= -1;
-            if (ballY <= 0) ballSpeedY *= -1;
-
-            // Detect collision with paddle
-            const ballBottom = ballY + 20;
-            const paddleTop = 580;
-            const ballCenter = ballX + 10;
-            const paddleLeft = paddlePosition;
-            const paddleRight = paddlePosition + 100;
-
-            if (ballBottom >= paddleTop && ballCenter >= paddleLeft && ballCenter <= paddleRight) {
-                ballSpeedY *= -1;
-                score++;
-                scoreDisplay.textContent = `Score: ${score}`;
-            }
-
-            // Detect game over
-            if (ballY > 600) {
-                gameRunning = false;
-                gameOverDisplay.style.display = 'block';
-            }
-
-            // Update ball position
-            ball.style.left = ballX + 'px';
-            ball.style.top = ballY + 'px';
-
-            // Loop the game
-            requestAnimationFrame(updateGame);
+        // Add log entry
+        function addLog(message) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            log.appendChild(p);
+            log.scrollTop = log.scrollHeight;
         }
 
-        // Start the game
-        updateGame();
+        // Update player wealth display
+        function updateWealth() {
+            player1Display.textContent = player1Wealth;
+            player2Display.textContent = player2Wealth;
+        }
+
+        // Random dice roll (1-6)
+        function rollDice() {
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        // Perform an action
+        function performAction(action) {
+            const dice = rollDice();
+            let change = 0;
+
+            if (action === 'invest') {
+                change = dice * 50; // Gain or lose based on dice
+                if (dice <= 3) change *= -1;
+                addLog(`Player ${currentPlayer} rolled ${dice}. ${change > 0 ? 'Gained' : 'Lost'} ${Math.abs(change)} coins.`);
+            } else if (action === 'save') {
+                change = 50 + dice * 10; // Consistent gain
+                addLog(`Player ${currentPlayer} rolled ${dice}. Saved ${change} coins.`);
+            } else if (action === 'spend') {
+                change = -100; // Spend a fixed amount
+                addLog(`Player ${currentPlayer} spent 100 coins.`);
+            }
+
+            // Update player wealth
+            if (currentPlayer === 1) {
+                player1Wealth += change;
+            } else {
+                player2Wealth += change;
+            }
+
+            updateWealth();
+            nextTurn();
+        }
+
+        // Switch to the next player's turn
+        function nextTurn() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            currentRound += currentPlayer === 1 ? 1 : 0;
+
+            if (currentRound > rounds) {
+                endGame();
+            } else {
+                addLog(`Player ${currentPlayer}'s turn.`);
+            }
+        }
+
+        // End the game
+        function endGame() {
+            actions.forEach((button) => (button.disabled = true));
+            let winner = '';
+            if (player1Wealth > player2Wealth) {
+                winner = 'Player 1';
+            } else if (player2Wealth > player1Wealth) {
+                winner = 'Player 2';
+            } else {
+                winner = 'No one, it\'s a tie!';
+            }
+            addLog('Game over!');
+            winnerDisplay.textContent = `Game Over! Winner: ${winner}`;
+        }
+
+        // Event listeners for actions
+        actions.forEach((button) => {
+            button.addEventListener('click', (event) => {
+                const action = event.target.id; // Get the action type
+                performAction(action);
+            });
+        });
+
+        // Initial setup
+        addLog(`Player 1's turn.`);
     </script>
 </body>
 </html>
