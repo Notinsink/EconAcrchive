@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dungeons & Gains: Casino Edition</title>
+    <title>Dungeons & Gains: Strategic Casino Edition</title>
     <style>
         /* General styling */
         body {
@@ -40,10 +40,6 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 20px;
-        }
-
-        .player-section h2 {
-            margin: 0;
         }
 
         .player-face {
@@ -145,7 +141,7 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>Dungeons & Gains: Casino Edition</h1>
+        <h1>Dungeons & Gains: Strategic Casino Edition</h1>
         <div class="player-section">
             <div>
                 <div class="player-face"></div>
@@ -161,6 +157,7 @@
             <button id="invest">Invest</button>
             <button id="save">Save</button>
             <button id="spend">Spend</button>
+            <button id="sell">Sell</button>
         </div>
 
         <div class="log">
@@ -171,21 +168,19 @@
     </div>
 
     <script>
-        // Game variables
         let currentPlayer = 1;
         let player1Wealth = 1000;
         let player2Wealth = 1000;
+        let multiplier = { 1: 1, 2: 1 };
         const rounds = 10;
         let currentRound = 1;
 
-        // DOM elements
         const player1Display = document.getElementById('player1-wealth');
         const player2Display = document.getElementById('player2-wealth');
         const log = document.querySelector('.log');
         const winnerDisplay = document.querySelector('.winner');
         const actions = document.querySelectorAll('.actions button');
 
-        // Add log entry
         function addLog(message) {
             const p = document.createElement('p');
             p.textContent = message;
@@ -193,81 +188,64 @@
             log.scrollTop = log.scrollHeight;
         }
 
-        // Update player wealth display
         function updateWealth() {
             player1Display.textContent = player1Wealth;
             player2Display.textContent = player2Wealth;
         }
 
-        // Random dice roll (1-6)
         function rollDice() {
             return Math.floor(Math.random() * 6) + 1;
         }
 
-        // Perform an action
         function performAction(action) {
             const dice = rollDice();
             let change = 0;
 
             if (action === 'invest') {
-                change = dice * 50; // Gain or lose based on dice
-                if (dice <= 3) change *= -1;
-                addLog(`Player ${currentPlayer} rolled ${dice}. ${change > 0 ? 'Gained' : 'Lost'} ${Math.abs(change)} coins.`);
+                change = dice <= 3 ? -100 * dice * multiplier[currentPlayer] : 50 * dice * multiplier[currentPlayer];
+                addLog(`Player ${currentPlayer} rolled ${dice} and ${change > 0 ? 'gained' : 'lost'} ${Math.abs(change)} coins.`);
             } else if (action === 'save') {
-                change = 50 + dice * 10; // Consistent gain
-                addLog(`Player ${currentPlayer} rolled ${dice}. Saved ${change} coins.`);
+                change = 100 * multiplier[currentPlayer];
+                addLog(`Player ${currentPlayer} saved ${change} coins.`);
             } else if (action === 'spend') {
-                change = -100; // Spend a fixed amount
-                addLog(`Player ${currentPlayer} spent 100 coins.`);
+                change = -200;
+                multiplier[currentPlayer] = 1.5;
+                addLog(`Player ${currentPlayer} spent 200 coins for a multiplier.`);
+            } else if (action === 'sell') {
+                change = 150;
+                multiplier[currentPlayer] = 1;
+                addLog(`Player ${currentPlayer} sold their multiplier for 150 coins.`);
             }
 
-            // Update player wealth
-            if (currentPlayer === 1) {
-                player1Wealth += change;
-            } else {
-                player2Wealth += change;
-            }
+            if (currentPlayer === 1) player1Wealth += change;
+            else player2Wealth += change;
 
+            multiplier[currentPlayer] = action === 'spend' ? 1.5 : 1;
             updateWealth();
             nextTurn();
         }
 
-        // Switch to the next player's turn
         function nextTurn() {
             currentPlayer = currentPlayer === 1 ? 2 : 1;
             currentRound += currentPlayer === 1 ? 1 : 0;
-
-            if (currentRound > rounds) {
-                endGame();
-            } else {
-                addLog(`Player ${currentPlayer}'s turn.`);
-            }
+            if (currentRound > rounds) endGame();
         }
 
-        // End the game
         function endGame() {
             actions.forEach((button) => (button.disabled = true));
-            let winner = '';
-            if (player1Wealth > player2Wealth) {
-                winner = 'Player 1';
-            } else if (player2Wealth > player1Wealth) {
-                winner = 'Player 2';
-            } else {
-                winner = 'No one, it\'s a tie!';
-            }
-            addLog('Game over!');
-            winnerDisplay.textContent = `Game Over! Winner: ${winner}`;
+            winnerDisplay.textContent = `Game Over! Winner: ${
+                player1Wealth > player2Wealth
+                    ? 'Player 1'
+                    : player2Wealth > player1Wealth
+                    ? 'Player 2'
+                    : 'Tie!'
+            }`;
         }
 
-        // Event listeners for actions
         actions.forEach((button) => {
-            button.addEventListener('click', (event) => {
-                const action = event.target.id; // Get the action type
-                performAction(action);
-            });
+            button.addEventListener('click', (event) => performAction(event.target.id));
         });
 
-        // Initial setup
         addLog(`Player 1's turn.`);
     </script>
 </body>
