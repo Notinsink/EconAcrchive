@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roulette Wheel</title>
+  <title>Functional Roulette Wheel</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,7 +12,8 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      background-color: #333;
+      background-color: #222;
+      color: white;
     }
 
     .roulette-container {
@@ -20,9 +21,8 @@
     }
 
     canvas {
-      border: 5px solid #000;
       border-radius: 50%;
-      background-color: #aa0000;
+      background-color: #fff;
     }
 
     button {
@@ -45,74 +45,72 @@
   <div class="roulette-container">
     <canvas id="rouletteCanvas" width="500" height="500"></canvas>
     <button id="spinButton">Spin</button>
+    <p id="result" style="margin-top: 20px; font-size: 18px;"></p>
   </div>
   <script>
     const canvas = document.getElementById('rouletteCanvas');
     const ctx = canvas.getContext('2d');
     const spinButton = document.getElementById('spinButton');
-    const segments = [
-      { number: 0, color: 'green' },
-      { number: 32, color: 'red' },
-      { number: 15, color: 'black' },
-      { number: 19, color: 'red' },
-      { number: 4, color: 'black' },
-      { number: 21, color: 'red' },
-      { number: 2, color: 'black' },
-      { number: 25, color: 'red' },
-      { number: 17, color: 'black' },
-      { number: 34, color: 'red' },
-      { number: 6, color: 'black' },
-      { number: 27, color: 'red' },
-      { number: 13, color: 'black' },
-      { number: 36, color: 'red' },
-      { number: 11, color: 'black' },
-      { number: 30, color: 'red' },
-      { number: 8, color: 'black' },
-      { number: 23, color: 'red' },
-      { number: 10, color: 'black' },
-      { number: 5, color: 'red' },
-      { number: 24, color: 'black' },
-      { number: 16, color: 'red' },
-      { number: 33, color: 'black' },
-      { number: 1, color: 'red' },
-      { number: 20, color: 'black' },
-      { number: 14, color: 'red' },
-      { number: 31, color: 'black' },
-      { number: 9, color: 'red' },
-      { number: 22, color: 'black' },
-      { number: 18, color: 'red' },
-      { number: 29, color: 'black' },
-      { number: 7, color: 'red' },
-      { number: 28, color: 'black' },
-      { number: 12, color: 'red' },
-      { number: 35, color: 'black' },
-      { number: 3, color: 'red' },
-      { number: 26, color: 'black' }
-    ];
-    const totalSegments = segments.length;
-    const wheelRadius = canvas.width / 2;
+    const resultDisplay = document.getElementById('result');
 
-    let startAngle = 0;
+    const segments = [
+      { number: '0', color: 'green' },
+      { number: '32', color: 'red' },
+      { number: '15', color: 'black' },
+      { number: '19', color: 'red' },
+      { number: '4', color: 'black' },
+      { number: '21', color: 'red' },
+      { number: '2', color: 'black' },
+      { number: '25', color: 'red' },
+      { number: '17', color: 'black' },
+      { number: '34', color: 'red' },
+      { number: '6', color: 'black' },
+      { number: '27', color: 'red' },
+      { number: '13', color: 'black' },
+      { number: '36', color: 'red' },
+      { number: '11', color: 'black' },
+      { number: '30', color: 'red' },
+      { number: '8', color: 'black' },
+      { number: '23', color: 'red' },
+      { number: '10', color: 'black' },
+      { number: '5', color: 'red' },
+      { number: '24', color: 'black' },
+      { number: '16', color: 'red' },
+      { number: '33', color: 'black' },
+      { number: '1', color: 'red' },
+      { number: '20', color: 'black' },
+      { number: '14', color: 'red' },
+      { number: '31', color: 'black' },
+      { number: '9', color: 'red' },
+      { number: '22', color: 'black' },
+      { number: '18', color: 'red' },
+      { number: '29', color: 'black' },
+      { number: '7', color: 'red' },
+      { number: '28', color: 'black' },
+      { number: '12', color: 'red' },
+      { number: '35', color: 'black' },
+      { number: '3', color: 'red' },
+      { number: '26', color: 'black' },
+      { number: '00', color: 'green' },
+    ];
+
+    const wheelRadius = canvas.width / 2;
+    const totalSegments = segments.length;
+    const segmentAngle = (2 * Math.PI) / totalSegments;
+
     let currentAngle = 0;
     let spinSpeed = 0;
 
-    // Draw the roulette wheel
     function drawWheel() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       segments.forEach((segment, index) => {
-        const angle = (2 * Math.PI) / totalSegments;
-        const segmentAngle = startAngle + index * angle;
+        const startAngle = currentAngle + index * segmentAngle;
+        const endAngle = startAngle + segmentAngle;
 
         // Draw segment
         ctx.beginPath();
         ctx.moveTo(wheelRadius, wheelRadius);
-        ctx.arc(
-          wheelRadius,
-          wheelRadius,
-          wheelRadius,
-          segmentAngle,
-          segmentAngle + angle
-        );
+        ctx.arc(wheelRadius, wheelRadius, wheelRadius, startAngle, endAngle);
         ctx.closePath();
         ctx.fillStyle = segment.color;
         ctx.fill();
@@ -121,74 +119,39 @@
         // Draw number
         ctx.save();
         ctx.translate(wheelRadius, wheelRadius);
-        ctx.rotate(segmentAngle + angle / 2);
+        ctx.rotate(startAngle + segmentAngle / 2);
         ctx.textAlign = 'center';
         ctx.fillStyle = 'white';
-        ctx.font = 'bold 15px Arial';
-        ctx.fillText(segment.number, wheelRadius * 0.75, 5);
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText(segment.number, wheelRadius * 0.85, 5);
         ctx.restore();
       });
 
-      // Draw the central hub
-      drawCentralHub();
-    }
-
-    // Draw the central golden hub and spinning arms
-    function drawCentralHub() {
-      // Outer gold circle
+      // Draw central hub
       ctx.beginPath();
       ctx.arc(wheelRadius, wheelRadius, 50, 0, 2 * Math.PI);
-      ctx.fillStyle = '#FFD700'; // Gold color
-      ctx.fill();
-
-      // Inner black circle
-      ctx.beginPath();
-      ctx.arc(wheelRadius, wheelRadius, 30, 0, 2 * Math.PI);
-      ctx.fillStyle = '#000'; // Black color
-      ctx.fill();
-
-      // Smallest golden circle
-      ctx.beginPath();
-      ctx.arc(wheelRadius, wheelRadius, 15, 0, 2 * Math.PI);
       ctx.fillStyle = '#FFD700';
       ctx.fill();
-
-      // Pin (small black circle in the middle)
-      ctx.beginPath();
-      ctx.arc(wheelRadius, wheelRadius, 5, 0, 2 * Math.PI);
-      ctx.fillStyle = '#000';
-      ctx.fill();
-
-      // Spinning arms
-      for (let i = 0; i < 3; i++) {
-        const armAngle = (i * (2 * Math.PI)) / 3 + currentAngle;
-        ctx.beginPath();
-        ctx.moveTo(wheelRadius, wheelRadius);
-        ctx.lineTo(
-          wheelRadius + Math.cos(armAngle) * 70,
-          wheelRadius + Math.sin(armAngle) * 70
-        );
-        ctx.strokeStyle = '#FFD700';
-        ctx.lineWidth = 5;
-        ctx.stroke();
-      }
     }
 
-    // Spin the wheel
     function spinWheel() {
       if (spinSpeed > 0.1) {
         currentAngle += spinSpeed;
-        spinSpeed *= 0.98; // Slow down gradually
-        startAngle = currentAngle % (2 * Math.PI);
+        spinSpeed *= 0.98;
         drawWheel();
         requestAnimationFrame(spinWheel);
       } else {
+        const winningIndex = Math.floor(
+          ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) / segmentAngle
+        ) % totalSegments;
+        resultDisplay.textContent = `The ball landed on ${segments[winningIndex].number}!`;
         spinSpeed = 0;
       }
     }
 
     spinButton.addEventListener('click', () => {
-      spinSpeed = Math.random() * 0.3 + 0.2; // Random speed
+      spinSpeed = Math.random() * 0.5 + 0.2;
+      resultDisplay.textContent = 'Spinning...';
       spinWheel();
     });
 
