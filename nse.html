@@ -3,199 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dungeons & Gains: Finance Edition</title>
+    <title>Kano Casino Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #1e1e2e;
-            color: #f5f5f5;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
-
-        .game-container {
-            max-width: 800px;
-            padding: 20px;
-            background: #282c34;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        h1 {
+            margin-top: 20px;
         }
-
-        .player-section {
-            margin-bottom: 20px;
-        }
-
-        .player-section h2 {
-            margin-bottom: 10px;
-        }
-
-        .actions {
-            display: flex;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
             gap: 10px;
+            max-width: 600px;
+            margin: 20px auto;
         }
-
-        .actions button {
-            padding: 10px;
+        .grid button {
+            background-color: #34495e;
+            color: #ecf0f1;
             border: none;
-            background: #4caf50;
-            color: #fff;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .grid button.selected {
+            background-color: #27ae60;
+        }
+        .grid button.matched {
+            background-color: #e74c3c;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .controls button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
         }
-
-        .actions button:disabled {
-            background: #888;
-            cursor: not-allowed;
+        .controls button:hover {
+            background-color: #2980b9;
         }
-
-        .log {
-            background: #111;
-            padding: 15px;
-            border-radius: 5px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .log p {
-            margin: 5px 0;
-        }
-
-        .winner {
-            font-size: 20px;
-            color: #ffc107;
+        .result {
             margin-top: 20px;
-            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>Dungeons & Gains: Finance Edition</h1>
-        <div class="player-section">
-            <h2>Player 1: <span id="player1-wealth">1000</span> coins</h2>
-        </div>
-        <div class="player-section">
-            <h2>Player 2: <span id="player2-wealth">1000</span> coins</h2>
-        </div>
-
-        <div class="actions">
-            <button id="invest">Invest</button>
-            <button id="save">Save</button>
-            <button id="spend">Spend</button>
-        </div>
-
-        <div class="log">
-            <p>Welcome to the game!</p>
-        </div>
-
-        <div class="winner"></div>
+    <h1>Kano Casino Game</h1>
+    <p>Select up to 10 numbers and click "Draw Numbers" to play!</p>
+    <div class="grid" id="numberGrid"></div>
+    <div class="controls">
+        <button id="drawButton">Draw Numbers</button>
+        <button id="resetButton">Reset</button>
     </div>
+    <div class="result" id="result"></div>
 
     <script>
-        // Game variables
-        let currentPlayer = 1;
-        let player1Wealth = 1000;
-        let player2Wealth = 1000;
-        const rounds = 10;
-        let currentRound = 1;
+        const grid = document.getElementById("numberGrid");
+        const resultDiv = document.getElementById("result");
+        const drawButton = document.getElementById("drawButton");
+        const resetButton = document.getElementById("resetButton");
 
-        // DOM elements
-        const player1Display = document.getElementById('player1-wealth');
-        const player2Display = document.getElementById('player2-wealth');
-        const log = document.querySelector('.log');
-        const winnerDisplay = document.querySelector('.winner');
-        const actions = document.querySelectorAll('.actions button');
+        const MAX_SELECTION = 10;
+        const TOTAL_NUMBERS = 50;
+        let selectedNumbers = [];
 
-        // Add log entry
-        function addLog(message) {
-            const p = document.createElement('p');
-            p.textContent = message;
-            log.appendChild(p);
-            log.scrollTop = log.scrollHeight;
+        // Create grid of numbers
+        for (let i = 1; i <= TOTAL_NUMBERS; i++) {
+            const button = document.createElement("button");
+            button.textContent = i;
+            button.addEventListener("click", () => toggleSelection(i, button));
+            grid.appendChild(button);
         }
 
-        // Update player wealth display
-        function updateWealth() {
-            player1Display.textContent = player1Wealth;
-            player2Display.textContent = player2Wealth;
-        }
-
-        // Random dice roll (1-6)
-        function rollDice() {
-            return Math.floor(Math.random() * 6) + 1;
-        }
-
-        // Perform an action
-        function performAction(action) {
-            const dice = rollDice();
-            let change = 0;
-
-            if (action === 'invest') {
-                change = dice * 50; // Gain or lose based on dice
-                if (dice <= 3) change *= -1;
-                addLog(`Player ${currentPlayer} rolled ${dice}. ${change > 0 ? 'Gained' : 'Lost'} ${Math.abs(change)} coins.`);
-            } else if (action === 'save') {
-                change = 50 + dice * 10; // Consistent gain
-                addLog(`Player ${currentPlayer} rolled ${dice}. Saved ${change} coins.`);
-            } else if (action === 'spend') {
-                change = -100
-                              change = -100; // Spend a fixed amount
-                addLog(`Player ${currentPlayer} spent 100 coins.`);
-            }
-
-            // Update player wealth
-            if (currentPlayer === 1) {
-                player1Wealth += change;
-            } else {
-                player2Wealth += change;
-            }
-
-            updateWealth();
-            nextTurn();
-        }
-
-        // Switch to the next player's turn
-        function nextTurn() {
-            currentPlayer = currentPlayer === 1 ? 2 : 1;
-            currentRound += currentPlayer === 1 ? 1 : 0;
-
-            if (currentRound > rounds) {
-                endGame();
-            } else {
-                addLog(`Player ${currentPlayer}'s turn.`);
+        function toggleSelection(number, button) {
+            if (selectedNumbers.includes(number)) {
+                // Deselect number
+                selectedNumbers = selectedNumbers.filter((n) => n !== number);
+                button.classList.remove("selected");
+            } else if (selectedNumbers.length < MAX_SELECTION) {
+                // Select number
+                selectedNumbers.push(number);
+                button.classList.add("selected");
             }
         }
 
-        // End the game
-        function endGame() {
-            actions.forEach((button) => (button.disabled = true));
-            let winner = '';
-            if (player1Wealth > player2Wealth) {
-                winner = 'Player 1';
-            } else if (player2Wealth > player1Wealth) {
-                winner = 'Player 2';
-            } else {
-                winner = 'No one, it\'s a tie!';
+        function drawNumbers() {
+            if (selectedNumbers.length === 0) {
+                alert("Please select at least one number to play!");
+                return;
             }
-            addLog('Game over!');
-            winnerDisplay.textContent = `Game Over! Winner: ${winner}`;
-        }
 
-        // Event listeners for actions
-        actions.forEach((button) => {
-            button.addEventListener('click', (event) => {
-                const action = event.target.id; // Get the action type
-                performAction(action);
+            // Generate 10 random numbers
+            const drawnNumbers = [];
+            while (drawnNumbers.length < 10) {
+                const randomNum = Math.floor(Math.random() * TOTAL_NUMBERS) + 1;
+                if (!drawnNumbers.includes(randomNum)) {
+                    drawnNumbers.push(randomNum);
+                }
+            }
+
+            // Highlight matched numbers and show result
+            let matches = 0;
+            Array.from(grid.children).forEach((button) => {
+                const number = parseInt(button.textContent, 10);
+                if (drawnNumbers.includes(number)) {
+                    button.classList.add("matched");
+                }
+                if (selectedNumbers.includes(number) && drawnNumbers.includes(number)) {
+                    matches++;
+                }
             });
-        });
 
-        // Initial setup
-        addLog(`Player 1's turn.`);
+            resultDiv.innerHTML = `
+                <p>Drawn Numbers: ${drawnNumbers.join(", ")}</p>
+                <p>You matched ${matches} ${matches === 1 ? "number" : "numbers"}!</p>
+            `;
+        }
+
+        function resetGame() {
+            selectedNumbers = [];
+            Array.from(grid.children).forEach((button) => {
+                button.classList.remove("selected", "matched");
+            });
+            resultDiv.innerHTML = "";
+        }
+
+        drawButton.addEventListener("click", drawNumbers);
+        resetButton.addEventListener("click", resetGame);
     </script>
 </body>
-</htm> 
+</html>
