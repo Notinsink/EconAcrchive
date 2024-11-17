@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casino Roulette</title>
+  <title>Enhanced Casino Roulette</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -77,11 +77,29 @@
     }
 
     .number.black {
-      background-color: black;
+            background-color: black;
     }
 
     .number.green {
       background-color: green;
+    }
+
+    .outer-numbers {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+    }
+
+    .outer-number {
+      position: absolute;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+      color: gold;
+      transform-origin: 50% 200px;
     }
 
     .pointer {
@@ -122,10 +140,11 @@
   </style>
 </head>
 <body>
-  <h1>Casino Roulette</h1>
+  <h1>Casino Roulette with Outer Numbers</h1>
   <div class="roulette-container">
     <div class="wheel" id="wheel"></div>
     <div class="numbers" id="numbers"></div>
+    <div class="outer-numbers" id="outerNumbers"></div>
     <div class="pointer"></div>
   </div>
   <button onclick="spinWheel()">Spin</button>
@@ -134,6 +153,7 @@
   <script>
     const wheel = document.getElementById("wheel");
     const numbersDiv = document.getElementById("numbers");
+    const outerNumbersDiv = document.getElementById("outerNumbers");
     const result = document.getElementById("result");
 
     const segments = [
@@ -158,7 +178,9 @@
       { number: 3, color: "red" }, { number: 26, color: "black" }
     ];
 
-    // Generate numbers
+    const outerNumbers = Array.from({ length: 10 }, (_, i) => 10 + i * 10);
+
+    // Generate inner numbers
     segments.forEach((segment, index) => {
       const angle = index * (360 / segments.length) - 90;
       const numberDiv = document.createElement("div");
@@ -168,18 +190,29 @@
       numbersDiv.appendChild(numberDiv);
     });
 
+    // Generate outer numbers
+    outerNumbers.forEach((outerNumber, index) => {
+      const angle = index * (360 / outerNumbers.length) - 90;
+      const outerNumberDiv = document.createElement("div");
+      outerNumberDiv.classList.add("outer-number");
+      outerNumberDiv.style.transform = `rotate(${angle}deg) translateX(-50%) translateY(-50%) rotate(${-angle}deg)`;
+      outerNumberDiv.textContent = outerNumber;
+      outerNumbersDiv.appendChild(outerNumberDiv);
+    });
+
     function spinWheel() {
       const randomIndex = Math.floor(Math.random() * segments.length);
       const degrees = 360 * 5 + randomIndex * (360 / segments.length); // 5 full rotations + random stop
 
-      wheel.style.animation = "none"; // Reset animation
-      wheel.offsetHeight; // Trigger reflow
+      wheel.style.animation = "none
+              wheel.offsetHeight; // Trigger reflow to reset animation
+      wheel.style.animation = `spin 3s ease-out`;
       wheel.style.setProperty("--spin-degrees", `${degrees}deg`);
-      wheel.style.animation = "spin 3s ease-out forwards";
 
       setTimeout(() => {
-        result.textContent = `The wheel stopped at: ${segments[randomIndex].number}`;
-      }, 3000);
+        const selectedSegment = segments[randomIndex];
+        result.textContent = `Result: ${selectedSegment.number} (${selectedSegment.color})`;
+      }, 3000); // Wait for the spin animation to complete
     }
   </script>
 </body>
