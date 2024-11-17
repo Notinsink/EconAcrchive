@@ -3,170 +3,197 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slot Machine</title>
+  <title>Casino Slot Machine</title>
   <style>
+    /* General Page Style */
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #333;
-      color: white;
+      background: radial-gradient(circle, #1e1e1e, #000);
+      color: #fff;
       text-align: center;
-      padding-top: 50px;
+      margin: 0;
+      padding: 0;
     }
 
+    /* Slot Machine Container */
     .slot-machine {
       display: inline-block;
-      background-color: #111;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
-      border: 5px solid gold;
+      background: linear-gradient(145deg, #333, #222);
+      border: 10px solid gold;
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+      padding: 30px;
+      margin-top: 50px;
     }
 
-    .rating {
-      font-size: 24px;
-      font-weight: bold;
-      color: gold;
-      margin-bottom: 30px;
-    }
-
+    /* Reels */
     .reels {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       margin-bottom: 20px;
     }
 
     .reel {
-      width: 90px;
-      height: 120px;
-      background-color: #222;
-      border: 3px solid gold;
-      font-size: 40px;
+      width: 100px;
+      height: 140px;
+      background: #000;
+      border: 5px solid gold;
+      border-radius: 10px;
+      font-size: 50px;
       font-weight: bold;
       display: flex;
       justify-content: center;
       align-items: center;
-      border-radius: 10px;
       color: #fff;
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
     }
 
+    /* Buttons */
     .button {
-      background-color: #28a745;
+      background-color: #ff7f50;
       color: white;
       border: none;
-      padding: 20px 40px;
-      font-size: 25px;
+      padding: 15px 30px;
+      font-size: 24px;
       cursor: pointer;
-      border-radius: 10px;
-      margin-top: 20px;
-      box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+      border-radius: 15px;
+      margin: 10px;
+      transition: 0.3s ease;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
     }
 
     .button:hover {
-      background-color: #218838;
+      background-color: #ff4500;
     }
 
-    .result {
-      margin-top: 30px;
-      font-size: 28px;
-      font-weight: bold;
-      color: #FFD700;
-    }
-
-    .message {
+    /* Bet System */
+    .bet {
       font-size: 20px;
-      color: #fff;
+      margin: 20px 0;
+    }
+
+    .bet-buttons {
       margin-top: 10px;
     }
 
+    .bet-button {
+      background: #444;
+      color: #fff;
+      border: 2px solid gold;
+      padding: 10px 20px;
+      margin: 0 5px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .bet-button:hover {
+      background: gold;
+      color: black;
+    }
+
+    /* Results */
+    .result {
+      font-size: 30px;
+      color: gold;
+      margin-top: 20px;
+    }
+
+    .credits {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #ffd700;
+    }
   </style>
 </head>
 <body>
-
   <div class="slot-machine">
-    <!-- Ratings Section -->
-    <div class="rating" id="rating">Rating: 0</div>
-    
+    <h1>🎰 Casino Slot Machine 🎰</h1>
     <div class="reels">
-      <div class="reel" id="reel1">7</div>
-      <div class="reel" id="reel2">7</div>
-      <div class="reel" id="reel3">7</div>
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">🍋</div>
+      <div class="reel" id="reel3">🍉</div>
     </div>
-    <button class="button" onclick="spin()">SPIN</button>
-    <div class="result" id="result">Good Luck!</div>
-    <div class="message" id="message"></div>
+    <div class="bet">
+      <span>Bet: <span id="currentBet">0</span> credits</span>
+      <div class="bet-buttons">
+        <button class="bet-button" onclick="adjustBet(10)">+10</button>
+        <button class="bet-button" onclick="adjustBet(50)">+50</button>
+        <button class="bet-button" onclick="setMaxBet()">Max Bet</button>
+      </div>
+    </div>
+    <button class="button" onclick="spinReels()">SPIN</button>
+    <div class="result" id="result"></div>
+    <div class="credits" id="credits">Credits: 100</div>
   </div>
 
+  <!-- Sounds -->
+  <audio id="spinSound" src="https://www.soundjay.com/button/switch-05a.mp3"></audio>
+  <audio id="winSound" src="https://www.soundjay.com/button/beep-03.wav"></audio>
+  <audio id="jackpotSound" src="https://www.soundjay.com/misc/success-fanfare.mp3"></audio>
+
   <script>
-    // Sound generation using Web Audio API
-    function playSpinSound() {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.type = 'triangle'; // Slot machine-style noise
-      oscillator.frequency.setValueAtTime(500, audioContext.currentTime); // Pitch
-      oscillator.frequency.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5); // Noise effect over time
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Volume control
+    let credits = 100;
+    let currentBet = 0;
 
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 0.5); // Length of sound
-    }
+    const symbols = ["🍒", "🍋", "🍉", "🍓", "🍇", "7", "🍀", "💎"];
+    const spinSound = document.getElementById("spinSound");
+    const winSound = document.getElementById("winSound");
+    const jackpotSound = document.getElementById("jackpotSound");
 
-    const symbols = ['7', '🍒', '🍋', '🍊', '🍓', '🍉', '💎', '🍀'];
-
-    function getRandomSymbol() {
-      return symbols[Math.floor(Math.random() * symbols.length)];
-    }
-
-    function calculateRating(symbol1, symbol2, symbol3) {
-      if (symbol1 === symbol2 && symbol2 === symbol3) {
-        return 100; // High rating for matching symbols
-      } else if (symbol1 === symbol2 || symbol2 === symbol3 || symbol1 === symbol3) {
-        return 50; // Medium rating for two matching symbols
-      } else {
-        return 0; // Low rating for non-matching symbols
+    function adjustBet(amount) {
+      if (credits - currentBet >= amount) {
+        currentBet += amount;
+        document.getElementById("currentBet").textContent = currentBet;
       }
     }
 
-    function spin() {
-      const reel1 = document.getElementById("reel1");
-      const reel2 = document.getElementById("reel2");
-      const reel3 = document.getElementById("reel3");
-      const result = document.getElementById("result");
-      const message = document.getElementById("message");
-      const rating = document.getElementById("rating");
+    function setMaxBet() {
+      currentBet = credits;
+      document.getElementById("currentBet").textContent = currentBet;
+    }
 
-      // Play slot machine spin sound
-      playSpinSound();
+    function spinReels() {
+      if (currentBet <= 0) {
+        alert("Please place a bet!");
+        return;
+      }
 
-      // Spin the reels
-      const symbol1 = getRandomSymbol();
-      const symbol2 = getRandomSymbol();
-      const symbol3 = getRandomSymbol();
+      spinSound.play();
 
-      reel1.innerHTML = symbol1;
-      reel2.innerHTML = symbol2;
-      reel3.innerHTML = symbol3;
+      const reel1 = symbols[Math.floor(Math.random() * symbols.length)];
+      const reel2 = symbols[Math.floor(Math.random() * symbols.length)];
+      const reel3 = symbols[Math.floor(Math.random() * symbols.length)];
 
-      // Calculate and display rating
-      const spinRating = calculateRating(symbol1, symbol2, symbol3);
-      rating.innerHTML = `Rating: ${spinRating}`;
+      document.getElementById("reel1").textContent = reel1;
+      document.getElementById("reel2").textContent = reel2;
+      document.getElementById("reel3").textContent = reel3;
 
-      // Check for a win
-      if (symbol1 === symbol2 && symbol2 === symbol3) {
-        result.innerHTML = "YOU WIN!";
-        message.innerHTML = "🎉 Jackpot! 🎉";
-        message.style.color = "#FFD700"; // Gold
+      calculateResult(reel1, reel2, reel3);
+    }
+
+    function calculateResult(r1, r2, r3) {
+      if (r1 === r2 && r2 === r3) {
+        jackpotSound.play();
+        credits += currentBet * 2;
+        document.getElementById("result").textContent = "🎉 JACKPOT! 🎉";
+      } else if (r1 === r2 || r2 === r3 || r1 === r3) {
+        winSound.play();
+        credits += currentBet;
+        document.getElementById("result").textContent = "🎉 You Win! 🎉";
       } else {
-        result.innerHTML = "TRY AGAIN!";
-        message.innerHTML = "Better luck next time!";
-        message.style.color = "#FF5733"; // Red
+        credits -= currentBet;
+        document.getElementById("result").textContent = "Try Again!";
+      }
+
+      currentBet = 0;
+      document.getElementById("credits").textContent = `Credits: ${credits}`;
+      document.getElementById("currentBet").textContent = currentBet;
+
+      if (credits <= 0) {
+        alert("Game Over! Refresh to restart.");
       }
     }
   </script>
-
 </body>
 </html>
