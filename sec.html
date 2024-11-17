@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #2d2d2d;
+      background-color: #333;
       color: white;
       text-align: center;
       padding-top: 50px;
@@ -15,10 +15,18 @@
 
     .slot-machine {
       display: inline-block;
-      background-color: #000;
+      background-color: #111;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+      border: 5px solid gold;
+    }
+
+    .rating {
+      font-size: 24px;
+      font-weight: bold;
+      color: gold;
+      margin-bottom: 30px;
     }
 
     .reels {
@@ -28,28 +36,30 @@
     }
 
     .reel {
-      width: 80px;
-      height: 100px;
+      width: 90px;
+      height: 120px;
       background-color: #222;
-      border: 2px solid #fff;
-      font-size: 30px;
+      border: 3px solid gold;
+      font-size: 40px;
       font-weight: bold;
       display: flex;
       justify-content: center;
       align-items: center;
-      border-radius: 5px;
-      color: #f0f0f0;
+      border-radius: 10px;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
     }
 
     .button {
       background-color: #28a745;
       color: white;
       border: none;
-      padding: 15px 25px;
-      font-size: 20px;
+      padding: 20px 40px;
+      font-size: 25px;
       cursor: pointer;
-      border-radius: 5px;
+      border-radius: 10px;
       margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
     }
 
     .button:hover {
@@ -57,14 +67,14 @@
     }
 
     .result {
-      margin-top: 20px;
-      font-size: 25px;
+      margin-top: 30px;
+      font-size: 28px;
       font-weight: bold;
-      color: #ffd700;
+      color: #FFD700;
     }
 
     .message {
-      font-size: 18px;
+      font-size: 20px;
       color: #fff;
       margin-top: 10px;
     }
@@ -74,6 +84,9 @@
 <body>
 
   <div class="slot-machine">
+    <!-- Ratings Section -->
+    <div class="rating" id="rating">Rating: 0</div>
+    
     <div class="reels">
       <div class="reel" id="reel1">7</div>
       <div class="reel" id="reel2">7</div>
@@ -91,20 +104,39 @@
       return symbols[Math.floor(Math.random() * symbols.length)];
     }
 
+    function calculateRating(symbol1, symbol2, symbol3) {
+      if (symbol1 === symbol2 && symbol2 === symbol3) {
+        return 100; // High rating for matching symbols
+      } else if (symbol1 === symbol2 || symbol2 === symbol3 || symbol1 === symbol3) {
+        return 50; // Medium rating for two matching symbols
+      } else {
+        return 0; // Low rating for non-matching symbols
+      }
+    }
+
     function spin() {
       const reel1 = document.getElementById("reel1");
       const reel2 = document.getElementById("reel2");
       const reel3 = document.getElementById("reel3");
       const result = document.getElementById("result");
       const message = document.getElementById("message");
+      const rating = document.getElementById("rating");
 
       // Spin the reels
-      reel1.innerHTML = getRandomSymbol();
-      reel2.innerHTML = getRandomSymbol();
-      reel3.innerHTML = getRandomSymbol();
+      const symbol1 = getRandomSymbol();
+      const symbol2 = getRandomSymbol();
+      const symbol3 = getRandomSymbol();
+
+      reel1.innerHTML = symbol1;
+      reel2.innerHTML = symbol2;
+      reel3.innerHTML = symbol3;
+
+      // Calculate and display rating
+      const spinRating = calculateRating(symbol1, symbol2, symbol3);
+      rating.innerHTML = `Rating: ${spinRating}`;
 
       // Check for a win
-      if (reel1.innerHTML === reel2.innerHTML && reel2.innerHTML === reel3.innerHTML) {
+      if (symbol1 === symbol2 && symbol2 === symbol3) {
         result.innerHTML = "YOU WIN!";
         message.innerHTML = "🎉 Jackpot! 🎉";
         message.style.color = "#FFD700"; // Gold
