@@ -152,3 +152,59 @@
       const n = matrix.length;
 
       for (let i = 0; i < n; i
+                   // Partial pivoting
+        let maxRow = i;
+        for (let k = i + 1; k < n; k++) {
+          if (Math.abs(matrix[k][i]) > Math.abs(matrix[maxRow][i])) {
+            maxRow = k;
+          }
+        }
+
+        // Swap rows
+        [matrix[i], matrix[maxRow]] = [matrix[maxRow], matrix[i]];
+        [constants[i], constants[maxRow]] = [constants[maxRow], constants[i]];
+
+        // Make all rows below this one 0 in the current column
+        for (let k = i + 1; k < n; k++) {
+          const factor = matrix[k][i] / matrix[i][i];
+          for (let j = i; j < n; j++) {
+            matrix[k][j] -= factor * matrix[i][j];
+          }
+          constants[k] -= factor * constants[i];
+        }
+      }
+
+      // Back substitution
+      const solutions = Array(n).fill(0);
+      for (let i = n - 1; i >= 0; i--) {
+        let sum = constants[i];
+        for (let j = i + 1; j < n; j++) {
+          sum -= matrix[i][j] * solutions[j];
+        }
+        solutions[i] = sum / matrix[i][i];
+      }
+
+      return solutions;
+    }
+
+    function runCode() {
+      const code = document.getElementById('code').value;
+      const outputDiv = document.getElementById('output');
+      const lines = code.split(';').map(line => line.trim()).filter(line => line.length > 0);
+      let output = '';
+
+      try {
+        lines.forEach(line => {
+          const result = parseLine(line);
+          if (result !== undefined) {
+            output += `${line} => ${JSON.stringify(result)}\n`;
+          }
+        });
+        outputDiv.textContent = output || 'Execution completed successfully!';
+      } catch (error) {
+        outputDiv.textContent = `Error: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
