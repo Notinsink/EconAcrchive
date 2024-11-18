@@ -3,189 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roulette Wheel with Ball Animation and Sound</title>
+  <title>Advanced Algebra Language</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      background-color: #f5f5f5;
       margin: 0;
-      background-color: #222;
-      color: white;
+      padding: 20px;
     }
-
-    .roulette-container {
-      text-align: center;
+    #container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-
-    canvas {
-      border-radius: 50%;
-      background-color: #fff;
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 10px;
+      font-family: monospace;
+      font-size: 14px;
     }
-
     button {
-      margin-top: 20px;
-      padding: 10px 20px;
+      padding: 10px 15px;
       font-size: 16px;
-      background-color: #007bff;
+      background-color: #007BFF;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #0056b3;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e8f8e8;
+      border: 1px solid #a4e3a4;
+      border-radius: 5px;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
-  <div class="roulette-container">
-    <canvas id="rouletteCanvas" width="500" height="500"></canvas>
-    <button id="spinButton">Spin</button>
-    <p id="result" style="margin-top: 20px; font-size: 18px;"></p>
+  <div id="container">
+    <h1>Advanced Algebra Language</h1>
+    <p>Type your commands or equations in the box below:</p>
+    <textarea id="code" placeholder="Example: x = 5; y = 10; result = sum(x, y);"></textarea>
+    <button onclick="runCode()">Run</button>
+    <div id="output"></div>
   </div>
-  <audio id="spinSound" src="https://www.soundjay.com/button/sounds/button-20.mp3"></audio>
+
   <script>
-    const canvas = document.getElementById('rouletteCanvas');
-    const ctx = canvas.getContext('2d');
-    const spinButton = document.getElementById('spinButton');
-    const resultDisplay = document.getElementById('result');
-    const spinSound = document.getElementById('spinSound');
+    const variables = {}; // Store variables
 
-    const segments = [
-      { number: '0', color: 'green' },
-      { number: '32', color: 'red' },
-      { number: '15', color: 'black' },
-      { number: '19', color: 'red' },
-      { number: '4', color: 'black' },
-      { number: '21', color: 'red' },
-      { number: '2', color: 'black' },
-      { number: '25', color: 'red' },
-      { number: '17', color: 'black' },
-      { number: '34', color: 'red' },
-      { number: '6', color: 'black' },
-      { number: '27', color: 'red' },
-      { number: '13', color: 'black' },
-      { number: '36', color: 'red' },
-      { number: '11', color: 'black' },
-      { number: '30', color: 'red' },
-      { number: '8', color: 'black' },
-      { number: '23', color: 'red' },
-      { number: '10', color: 'black' },
-      { number: '5', color: 'red' },
-      { number: '24', color: 'black' },
-      { number: '16', color: 'red' },
-      { number: '33', color: 'black' },
-      { number: '1', color: 'red' },
-      { number: '20', color: 'black' },
-      { number: '14', color: 'red' },
-      { number: '31', color: 'black' },
-      { number: '9', color: 'red' },
-      { number: '22', color: 'black' },
-      { number: '18', color: 'red' },
-      { number: '29', color: 'black' },
-      { number: '7', color: 'red' },
-      { number: '28', color: 'black' },
-      { number: '12', color: 'red' },
-      { number: '35', color: 'black' },
-      { number: '3', color: 'red' },
-      { number: '26', color: 'black' },
-      { number: '00', color: 'green' },
-    ];
-
-    const wheelRadius = canvas.width / 2;
-    const totalSegments = segments.length;
-    const segmentAngle = (2 * Math.PI) / totalSegments;
-
-    let currentAngle = 0;
-    let spinSpeed = 0;
-
-    let ballAngle = 0;
-    let ballSpeed = 0;
-    let ballRadius = wheelRadius - 30;
-
-    function drawWheel() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw wheel segments
-      segments.forEach((segment, index) => {
-        const startAngle = currentAngle + index * segmentAngle;
-        const endAngle = startAngle + segmentAngle;
-
-        // Draw segment
-        ctx.beginPath();
-        ctx.moveTo(wheelRadius, wheelRadius);
-        ctx.arc(wheelRadius, wheelRadius, wheelRadius, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fillStyle = segment.color;
-        ctx.fill();
-        ctx.stroke();
-
-        // Draw number
-        ctx.save();
-        ctx.translate(wheelRadius, wheelRadius);
-        ctx.rotate(startAngle + segmentAngle / 2);
-        ctx.textAlign = 'center';
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 14px Arial';
-        ctx.fillText(segment.number, wheelRadius * 0.85, 5);
-        ctx.restore();
-      });
-
-      // Draw central hub
-      ctx.beginPath();
-      ctx.arc(wheelRadius, wheelRadius, 50, 0, 2 * Math.PI);
-      ctx.fillStyle = '#FFD700';
-      ctx.fill();
-
-      // Draw ball
-      const ballX = wheelRadius + ballRadius * Math.cos(ballAngle);
-      const ballY = wheelRadius + ballRadius * Math.sin(ballAngle);
-      ctx.beginPath();
-      ctx.arc(ballX, ballY, 10, 0, 2 * Math.PI);
-      ctx.fillStyle = '#000';
-      ctx.fill();
-    }
-
-    function spinWheel() {
-      if (spinSpeed > 0.005 || ballSpeed > 0.002) {
-        currentAngle += spinSpeed;
-        ballAngle -= ballSpeed;
-
-        spinSpeed *= 0.99; // Gradually slow down the wheel
-        ballSpeed *= 0.98; // Gradually slow down the ball
-
-        drawWheel();
-        requestAnimationFrame(spinWheel);
+    function parseLine(line) {
+      line = line.trim();
+      if (line.includes('=')) {
+        // Handle variable assignment
+        const [left, right] = line.split('=').map(s => s.trim());
+        variables[left] = evaluate(right);
       } else {
-        // Stop spinning sound
-        spinSound.pause();
-        spinSound.currentTime = 0;
-
-        // Determine the winning segment
-        const winningIndex = Math.floor(
-          ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) / segmentAngle
-        ) % totalSegments;
-        resultDisplay.textContent = `The ball landed on ${segments[winningIndex].number}!`;
+        return evaluate(line); // Evaluate standalone expressions
       }
     }
 
-    spinButton.addEventListener('click', () => {
-      spinSpeed = Math.random() * 0.2 + 0.1;
-      ballSpeed = Math.random() * 0.3 + 0.15;
+    function evaluate(expression) {
+      // Replace variables in the expression
+      Object.keys(variables).forEach(key => {
+        const value = variables[key];
+        expression = expression.replace(new RegExp(`\\b${key}\\b`, 'g'), value);
+      });
 
-      // Play spinning sound in loop
-      spinSound.loop = true;
-      spinSound.play();
+      // Custom syntax for algebra functions
+      if (expression.startsWith('sum(')) {
+        const args = getArguments(expression);
+        return args.reduce((a, b) => a + b, 0);
+      } else if (expression.startsWith('product(')) {
+        const args = getArguments(expression);
+        return args.reduce((a, b) => a * b, 1);
+      } else if (expression.startsWith('square(')) {
+        const [num] = getArguments(expression);
+        return num * num;
+      } else if 
+            (expression.startsWith('squareRoot(')) {
+        const [num] = getArguments(expression);
+        return Math.sqrt(num);
+      } else if (expression.startsWith('solve(')) {
+        const args = expression.slice(6, -1).split(',').map(e => e.trim());
+        return solveSystemOfEquations(args);
+      } else {
+        // Evaluate as a plain mathematical expression
+        try {
+          return eval(expression); // Safe here due to prior validation
+        } catch (error) {
+          throw new Error(`Invalid expression: ${expression}`);
+        }
+      }
+    }
 
-      resultDisplay.textContent = 'Spinning...';
-      spinWheel();
-    });
+    function getArguments(expression) {
+      const argsString = expression.slice(expression.indexOf('(') + 1, -1);
+      return argsString.split(',').map(arg => parseFloat(arg.trim()));
+    }
 
-    drawWheel();
-  </script>
-</body>
-</html>
+    function solveSystemOfEquations(equations) {
+      // Parse the equations into a matrix
+      const matrix = [];
+      const constants = [];
+      const variablesList = [];
+
+      equations.forEach(eq => {
+        const [lhs, rhs] = eq.split('=').map(s => s.trim());
+        constants.push(parseFloat(rhs));
+
+        const row = [];
+        lhs.split(/[+\-]/).forEach(term => {
+          const variable = term.match(/[a-zA-Z]+/g);
+          const coefficient = parseFloat(term) || 1;
+
+          if (variable) {
+            const varName = variable[0];
+            if (!variablesList.includes(varName)) variablesList.push(varName);
+            row[variablesList.indexOf(varName)] = coefficient;
+          }
+        });
+
+        // Fill missing variables with 0
+        for (let i = 0; i < variablesList.length; i++) {
+          row[i] = row[i] || 0;
+        }
+        matrix.push(row);
+      });
+
+      // Solve using Gaussian Elimination
+      const solutions = gaussianElimination(matrix, constants);
+      const result = {};
+      variablesList.forEach((varName, i) => {
+        result[varName] = solutions[i];
+      });
+      return result;
+    }
+
+    function gaussianElimination(matrix, constants) {
+      const n = matrix.length;
+
+      for (let i = 0; i < n; i
