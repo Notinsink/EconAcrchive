@@ -1,106 +1,138 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>NSD - National Student Database</title>
-	<style>
-		body {
-			background-color: #f0f0f0;
-		}
-		table {
-			border-collapse: collapse;
-			width: 100%;
-		}
-		th, td {
-			border: 1px solid #ddd;
-			padding: 10px;
-			text-align: left;
-		}
-		th {
-			background-color: #34C759; /* green header row */
-			color: #ffffff;
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Student Economics Index (NSD)</title>
+    <!-- Embedded CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 1em 0;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart {
+            max-width: 100%;
+            height: 300px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1em 0;
+            background-color: #007bff;
+            color: #fff;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-	<h1>NSD - National Student Database</h1>
-	<nav>
-		<ul>
-			<li><a href="#home">Home</a></li>
-			<li><a href="#about">About NSD</a></li>
-			<li><a href="#departments">Departments</a></li>
-			<li><a href="#student-records">Student Records</a></li>
-			<li><a href="#contact">Contact Us</a></li>
-		</ul>
-	</nav>
-	<section>
-		<h2>Results Dataset</h2>
-		<table>
-			<thead>
-				<tr>
-					<th>Year</th>
-					<th>Ministry/Department</th>
-					<th>Projects Completed</th>
-					<th>Projects Abandoned</th>
-					<th>Public Satisfaction (%)</th>
-					<th>Infrastructure Development Score</th>
-					<th>Unemployment Rate (%)</th>
-					<th>Poverty Rate (%)</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>2020</td>
-					<td>Education</td>
-					<td>50</td>
-					<td>10</td>
-					<td>70</td>
-					<td>60</td>
-					<td>20</td>
-					<td>15</td>
-				</tr>
-				<tr>
-					<td>2021</td>
-					<td>Healthcare</td>
-					<td>40</td>
-					<td>15</td>
-					<td>65</td>
-					<td<|end_header_id|>
-                        Here is the rest of the HTML code:
-```
-<tr>
-<td>2022</td>
-<td>Infrastructure</td>
-<td>60</td>
-<td>20</td>
-<td>75</td>
-<td>70</td>
-<td>25</td>
-<td>18</td>
-</tr>
-<tr>
-<td>2020</td>
-<td>Defense</td>
-<td>30</td>
-<td>25</td>
-<td>60</td>
-<td>50</td>
-<td>30</td>
-<td>20</td>
-</tr>
-<tr>
-<td>2021</td>
-<td>Agriculture</td>
-<td>45</td>
-<td>10</td>
-<td>68</td>
-<td>62</td>
-<td>22</td>
-<td>16</td>
-</tr>
-</tbody>
-</table>
-<button style="background-color: #34C759; color: #ffffff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Sort by Year</button>
-</section>
+    <!-- Header Section -->
+    <header>
+        <h1>National Student Economics Index (NSD)</h1>
+        <p>Your gateway to Nigeria's economic data.</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="card">
+            <h2>Welcome to NSD</h2>
+            <p>This platform provides historical economic data for Nigeria, visualized for easy understanding.</p>
+        </div>
+
+        <div class="card">
+            <h3>2001 - 2024 GDP Growth (Example Chart)</h3>
+            <canvas id="gdpChart" class="chart"></canvas>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2024 National Student Economics Index. All rights reserved.</p>
+    </footer>
+
+    <!-- Embedded JavaScript -->
+    <script>
+        // Sample data for GDP Growth
+        const data = {
+            labels: [
+                "2001", "2002", "2003", "2004", "2005", "2006",
+                "2007", "2008", "2009", "2010", "2011", "2012"
+            ],
+            datasets: [
+                {
+                    label: "GDP Growth (%)",
+                    backgroundColor: "#007bff",
+                    borderColor: "#0056b3",
+                    data: [2.
+			                       data: [2.5, 3.1, 4.0, 6.5, 5.6, 6.2, 7.1, 6.9, 5.0, 7.4, 6.3, 4.5],
+                }
+            ]
+        };
+
+        // Chart.js Configuration
+        const config = {
+            type: "line",
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: "top",
+                    },
+                    tooltip: {
+                        enabled: true,
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "GDP Growth (%)"
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Year"
+                        }
+                    }
+                }
+            }
+        };
+
+        // Render the Chart
+        window.onload = function () {
+            const ctx = document.getElementById("gdpChart").getContext("2d");
+            new Chart(ctx, config);
+        };
+    </script>
+
+    <!-- Include Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
