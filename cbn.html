@@ -19,7 +19,8 @@
         }
         h1 {
             margin: 0;
-                    .container {
+        }
+        .container {
             padding: 20px;
         }
         table {
@@ -74,205 +75,12 @@
                     <th>Variance (₦)</th>
                     <th>Variance Percentage (%)</th>
                     <th>Funding Gap</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>2020</td>
-                    <td><a href="education_spending.html">Education</a></td>
-                    <td>1,000,000,000</td>
-                    <td>950,000,000</td>
-                    <td>-50,000,000</td>
-                    <td>-5%</td>
-                    <td>Underfunded</td>
-                </tr>
-                <tr>
-                    <td>2020</td>
-                    <td><a href="healthcare_spending.html">Healthcare</a></td>
-                    <td>1,200,000,000</td>
-                    <td>1,100,000,000</td>
-                    <td>-100,000,000</td>
-                    <td>-8.33%</td>
-                    <td>Underfunded</td>
-                </tr>
-                <tr>
-                    <td>2021</td>
-                    <td><a href="infrastructure_spending.html">Infrastructure</a></td>
-                    <td>5,000,000,000</td>
-                    <td>4,500,000,000</td>
-                    <td>-500,000,000</td>
-                    <td>-10%</td>
-                    <td>Underfunded</td>
-                </tr>
-                <tr>
-                    <td>2021</td>
-                    <td><a href="defense_spending.html">Defense</a></td>
-                    <td>3,000,000,000</td>
-                    <td>2,800,000,000</td>
-                    <td>-200,000,000</td>
-                    <td>-6.67%</td>
-                    <td>Underfunded</td>
-                </tr>
-                <tr>
-                    <td>2022</td>
-                    <td><a href="agriculture_spending.html">Agriculture</a></td>
-                    <td>1,500,000,000</td>
-                    <td>1,700,000,000</td>
-                    <td>200,000,000</td>
-                    <td>13.33%</td>
-                    <td>Overfunded</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="button-container">
-            <button onclick="sortTable()">Sort by Year</button>
-        </div>
-
-        <h2>Results Dataset</h2>
-        <table id="resultsTable">
-            <thead>
-                <tr>
-                    <th>Year</th>
-                    <th>Ministry/Department</th>
-                    <th>Projects Completed</th>
-                    <th>Projects Abandoned</th>
-                    <th>Public Satisfaction (%)</th>
-                    <th>Infrastructure Development Score</th>
-                    <th>Unemployment Rate (%)</th>
-                    <th>Poverty Rate (%)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>2020</td>
                     <td>Education</td>
-                    <td>20</td>
-                    <td>5</td>
-                    <td>70</td>
-                    <td>80</td>
-                    <td>12.5</td>
-                    <td>40</td>
-                </tr>
-                <tr>
-                    <td>2020</td>
-                    <td>Healthcare</td>
-                    <td>15</td>
-                    <td>3</td>
-                    <td>65</td>
-                    <td>75</td>
-                    <td>15.3</td>
-                    <td>45</td>
-                </tr>
-                <tr>
-                    <td>2021</td>
-                    <td>Infrastructure</td>
-                    <td>50</td>
-                    <td>8</td>
-                    <td>85</td>
-                    <td>90</td>
-                    <td>10.5</td>
-                    <td>38</td>
-                </tr>
-                <tr>
-                    <td>2021</td>
-                    <td>Defense</td>
-                    <td>12</td>
-                    <td>1</td>
-                    <td>78</td>
-                    <td>80</td>
-                    <td>9.8</td>
-                    <td>30</td>
-                </tr>
-                <tr>
-                    <td>2022</td>
-                    <td>Agriculture</td>
-                    <td>25</td>
-                    <td>2</td>
-                    <td>90</td>
-                    <td>92</td>
-                    <td>8.2</td>
-                    <td>35</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <script>
-        function sortTable() {
-            const table = document.getElementById("spendingTable");
-            let rows = Array.from(table.rows).slice(1);
-            rows.sort((rowA, rowB) => {
-                const yearA = parseInt(rowA.cells[0].innerText);
-                const yearB = parseInt(rowB.cells[0].innerText);
-                return yearA - yearB;
-            });
-            rows.forEach(row => table.appendChild(row));
-        }
-    </script>
-</body>
-</html>
-               .container {
-            padding: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .button-container {
-            margin: 20px 0;
-            text-align: center;
-        }
-        .button-container button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin: 0 10px;
-        }
-        .button-container button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>Government Efficiency in Nigeria</h1>
-        <p>Analyze spending vs. results in key sectors</p>
-    </header>
-
-    <div class="container">
-        <h2>Spending Dataset</h2>
-        <table id="spendingTable">
-            <thead>
-                <tr>
-                    <th>Year</th>
-                    <th>Ministry/Department</th>
-                    <th>Planned Spending (₦)</th>
-                    <th>Actual Spending (₦)</th>
-                    <th>Variance (₦)</th>
-                    <th>Variance Percentage (%)</th>
-                    <th>Funding Gap</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>2020</td>
-                    <td><a href="education_spending.html">Education</a></td>
                     <td>1,000,000,000</td>
                     <td>950,000,000</td>
                     <td>-50,000,000</td>
@@ -281,7 +89,7 @@
                 </tr>
                 <tr>
                     <td>2020</td>
-                    <td><a href="healthcare_spending.html">Healthcare</a></td>
+                    <td>Healthcare</td>
                     <td>1,200,000,000</td>
                     <td>1,100,000,000</td>
                     <td>-100,000,000</td>
@@ -290,7 +98,7 @@
                 </tr>
                 <tr>
                     <td>2021</td>
-                    <td><a href="infrastructure_spending.html">Infrastructure</a></td>
+                    <td>Infrastructure</td>
                     <td>5,000,000,000</td>
                     <td>4,500,000,000</td>
                     <td>-500,000,000</td>
@@ -299,7 +107,7 @@
                 </tr>
                 <tr>
                     <td>2021</td>
-                    <td><a href="defense_spending.html">Defense</a></td>
+                    <td>Defense</td>
                     <td>3,000,000,000</td>
                     <td>2,800,000,000</td>
                     <td>-200,000,000</td>
@@ -308,7 +116,7 @@
                 </tr>
                 <tr>
                     <td>2022</td>
-                    <td><a href="agriculture_spending.html">Agriculture</a></td>
+                    <td>Agriculture</td>
                     <td>1,500,000,000</td>
                     <td>1,700,000,000</td>
                     <td>200,000,000</td>
