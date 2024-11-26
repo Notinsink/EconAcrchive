@@ -3,110 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Click Game</title>
+  <title>Math War Fighting Game</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      flex-direction: column;
-    }
-    #game-container {
-      position: relative;
-      width: 80vw;
-      height: 80vh;
-      border: 2px solid #333;
-      overflow: hidden;
-    }
-    .movable-image {
-      position: absolute;
-      width: 100px;
-      height: 100px;
-      cursor: pointer;
-      transition: transform 0.5s ease;
-    }
-    .score-board {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #4CAF50;
+      text-align: center;
+      background: #1e1e2f;
       color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
     }
-    button:hover {
-      background-color: #45a049;
+    .container {
+      margin-top: 20px;
+    }
+    .fighter {
+      display: inline-block;
+      width: 150px;
+      height: 150px;
+      background: #ff6347;
+      border-radius: 10px;
+      margin: 10px;
+      position: relative;
+    }
+    .fighter h3 {
+      margin: 10px 0;
+    }
+    .health-bar {
+      height: 20px;
+      width: 100%;
+      background: #ccc;
+      position: absolute;
+      top: 0;
+    }
+    .health {
+      height: 100%;
+      background: green;
+    }
+    .math-problem {
+      margin: 20px;
+      font-size: 24px;
+    }
+    input, button {
+      font-size: 18px;
+      padding: 10px;
+      margin: 10px;
+    }
+    .winner {
+      font-size: 28px;
+      color: gold;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="score-board" id="score-board">
-    Score: 0
+  <h1>Math War Fighting Game</h1>
+  <div class="container">
+    <div class="fighter">
+      <div class="health-bar">
+        <div class="health" id="player-health" style="width: 100%;"></div>
+      </div>
+      <h3>Player</h3>
+    </div>
+    <div class="fighter">
+      <div class="health-bar">
+        <div class="health" id="enemy-health" style="width: 100%;"></div>
+      </div>
+      <h3>Enemy</h3>
+    </div>
   </div>
-  <button onclick="startGame()">Start Game</button>
-  <div id="game-container">
-    <!-- Images will appear here -->
+
+  <div class="math-problem">
+    <span id="problem"></span>
+    <input type="number" id="answer" placeholder="Your Answer">
+    <button onclick="checkAnswer()">Attack!</button>
   </div>
+
+  <div class="winner" id="winner"></div>
 
   <script>
-    let score = 0;
-    let gameInterval;
-    let imageUrls = [
-      'https://via.placeholder.com/100/FF0000/FFFFFF?text=1', // Red placeholder image
-      'https://via.placeholder.com/100/00FF00/FFFFFF?text=2', // Green placeholder image
-      'https://via.placeholder.com/100/0000FF/FFFFFF?text=3'  // Blue placeholder image
-    ];
+    let playerHealth = 100;
+    let enemyHealth = 100;
+    let currentAnswer;
 
-    // Function to start the game
-    function startGame() {
-      score = 0;
-      updateScore();
-      document.querySelector('button').style.display = 'none'; // Hide start button
-      gameInterval = setInterval(generateMovingImage, 1000);
+    // Function to generate a new math problem
+    function generateProblem() {
+      const num1 = Math.floor(Math.random() * 10) + 1;
+      const num2 = Math.floor(Math.random() * 10) + 1;
+      const operators = ['+', '-', '*'];
+      const operator = operators[Math.floor(Math.random() * operators.length)];
+      
+      // Generate the problem and the answer
+      const problem = `${num1} ${operator} ${num2}`;
+      currentAnswer = eval(problem);
+      document.getElementById('problem').textContent = problem;
     }
 
-    // Function to update the score on screen
-    function updateScore() {
-      document.getElementById('score-board').innerText = `Score: ${score}`;
+    // Function to check the player's answer
+    function checkAnswer() {
+      const playerAnswer = parseFloat(document.getElementById('answer').value);
+      if (playerAnswer === currentAnswer) {
+        attackEnemy();
+      } else {
+                attackPlayer();
+      }
+      document.getElementById('answer').value = ""; // Clear the input
+      generateProblem(); // Generate a new problem
     }
 
-    // Function to generate moving images
-    function generateMovingImage() {
-      const image = document.createElement('img');
-      image.src = imageUrls[Math.floor(Math.random() * imageUrls.length)];
-      image.classList.add('movable-image');
-
-      const randomX = Math.random() * (document.getElementById('game-container').clientWidth - 100);
-      const randomY = Math.random() * (document.getElementById('game-container').clientHeight - 100);
-      image.style.left = randomX + 'px';
-      image.style.top = randomY + 'px';
-
-      image.onclick = function() {
-        score++;
-        updateScore();
-        image.remove();
-      };
-
-      document.getElementById('game-container').appendChild(image);
+    // Function to update the health bars
+    function updateHealthBars() {
+      document.getElementById('player-health').style.width = playerHealth + '%';
+      document.getElementById('enemy-health').style.width = enemyHealth + '%';
     }
 
-    // Function to stop the game
-    function stopGame() {
-      clearInterval(gameInterval);
-      alert('Game Over! Your score is ' + score);
-      document.querySelector('button').style.display = 'block'; // Show start button again
+    // Function to handle attack on the enemy
+    function attackEnemy() {
+      enemyHealth -= 10;
+      if (enemyHealth <= 0) {
+        enemyHealth = 0;
+        endGame("Player");
+      }
+      updateHealthBars();
     }
 
-    // Add an event listener to detect when the user clicks anywhere in the game area
-    setTimeout(stopGame, 30000); // End the game after 30 seconds
+    // Function to handle attack on the player
+    function attackPlayer() {
+      playerHealth -= 10;
+      if (playerHealth <= 0) {
+        playerHealth = 0;
+        endGame("Enemy");
+      }
+      updateHealthBars();
+    }
+
+    // Function to handle the end of the game
+    function endGame(winner) {
+      document.getElementById('winner').textContent = `${winner} Wins!`;
+      document.querySelector(".math-problem").style.display = "none"; // Hide input and button
+    }
+
+    // Initialize the game
+    generateProblem();
   </script>
 </body>
 </html>
+       
