@@ -3,195 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emoji Shooter Game</title>
+    <title>3D Open World Game</title>
     <style>
-        body {
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body, html {
             margin: 0;
-        }
-
-        #game-container {
-            width: 600px;
-            height: 400px;
-            background-color: #1e1e1e;
-            position: relative;
+            padding: 0;
+            height: 100%;
             overflow: hidden;
         }
-
-        .shooter {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 30px;
-            z-index: 1;
-        }
-
-        .bullet {
-            position: absolute;
-            font-size: 25px;
-            bottom: 40px;
-            z-index: 2;
-        }
-
-        .target {
-            position: absolute;
-            font-size: 40px;
-            z-index: 3;
-        }
-
-        .score {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 20px;
-            color: white;
-        }
-
-        .game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 30px;
-            color: white;
-            display: none;
+        canvas {
+            display: block;
         }
     </style>
 </head>
 <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-<div id="game-container">
-    <div class="shooter" id="shooter">🎯</div>
-    <div class="score" id="score">Score: 0</div>
-    <div class="game-over" id="game-over">Game Over! Press Space to Restart</div>
-</div>
+        // Create a simple cube
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
 
-<script>
-    const shooter = document.getElementById("shooter");
-    const gameContainer = document.getElementById("game-container");
-    const scoreElement = document.getElementById("score");
-    const gameOverElement = document.getElementById("game-over");
+        // Camera positioning
+        camera.position.z = 5;
 
-    let shooterPosition = gameContainer.offsetWidth / 2;
-    let score = 0;
-    let gameOver = false;
-    let bullets = [];
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
 
-    // Event listener for shooter movement
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft" && shooterPosition > 0) {
-            shooterPosition -= 20;
-        } else if (e.key === "ArrowRight" && shooterPosition < gameContainer.offsetWidth - 40) {
-            shooterPosition += 20;
-        } else if (e.key === " " && !gameOver) {
-            shootBullet();
+            // Rotate cube
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+
+            // Render the scene
+            renderer.render(scene, camera);
         }
-        shooter.style.left = `${shooterPosition}px`;
-    });
+        animate();
 
-    // Shoot bullet
-    function shootBullet() {
-        const bullet = document.createElement("div");
-        bullet.classList.add("bullet");
-        bullet.textContent = "🎯";
-        bullet.style.left = `${shooterPosition + 10}px`;
-        gameContainer.appendChild(bullet);
-        bullets.push(bullet);
-    }
-
-    // Create random targets
-    function createTarget() {
-        const target = document.createElement("div");
-        target.classList.add("target");
-        target.textContent = "🍎";
-        target.style.left = `${Math.random() * (gameContainer.offsetWidth - 40)}px`;
-        gameContainer.appendChild(target);
-        moveTarget(target);
-    }
-
-    // Move targets
-    function moveTarget(target) {
-        const targetSpeed = Math.random() * 2 + 1;
-        let targetPosition = parseInt(target.style.left);
-
-        function targetMovement() {
-            if (gameOver) return;
-            targetPosition += targetSpeed;
-            target.style.left = `${targetPosition}px`;
-
-            if (targetPosition > gameContainer.offsetWidth) {
-                target.remove();
-                if (!gameOver) {
-                    score -= 5; // Miss penalty
-                    scoreElement.textContent = `Score: ${score}`;
-                }
-            }
-
-            checkCollision(target);
-            requestAnimationFrame(targetMovement);
-        }
-
-        targetMovement();
-    }
-
-    // Check for collisions between bullets and targets
-    function checkCollision(target) {
-        bullets.forEach((bullet, index) => {
-            const bulletRect = bullet.getBoundingClientRect();
-            const targetRect = target.getBoundingClientRect();
-            if (
-                bulletRect.left < targetRect.right &&
-                bulletRect.right > targetRect.left &&
-                bulletRect.top < targetRect.bottom &&
-                bulletRect.bottom > targetRect.top
-            ) {
-                target.remove();
-                bullet.remove();
-                bullets.splice(index, 1);
-                score += 10; // Hit reward
-                scoreElement.textContent = `Score: ${score}`;
-            }
+        // Resize the canvas when the window is resized
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
         });
-    }
 
-    // Start the game
-    function startGame() {
-        score = 0;
-        scoreElement.textContent = `Score: ${score}`;
-        gameOver = false;
-        gameOverElement.style.display = "none";
-        setInterval(() => {
-            if (!gameOver) {
-                createTarget();
-            }
-        }, 1000);
-    }
+        // Fetch textures from an API (Example: Unsplash API)
+        async function fetchTexture() {
+            const response = await fetch('https://api.unsplash.com/photos/random?query=landscape&client_id=YOUR_UNSPLASH_ACCESS_KEY');
+            const data = await response.json();
+            const textureURL = data[0].urls.regular;
+            const textureLoader = new THREE.TextureLoader();
+            const texture = textureLoader.load(textureURL);
 
-    // Game Over
-    function endGame() {
-        gameOver = true;
-        gameOverElement.style.display = "block";
-    }
-
-    // Restart game when space is pressed
-    document.addEventListener("keydown", (e) => {
-        if (e.key === " " && gameOver) {
-            gameContainer.innerHTML = '';
-            gameContainer.appendChild(shooter);
-            gameContainer.appendChild(scoreElement);
-            gameContainer.appendChild(gameOverElement);
-            startGame();
+            // Apply texture to the cube
+            cube.material.map = texture;
         }
-    });
 
-    // Call startGame to initialize the game
-    startGame();
-</script>
-
+        fetchTexture();
+    </script>
 </body>
 </html>
