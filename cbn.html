@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sword Fighting Game</title>
   <style>
-    /* Styles */
+    /* General Styles */
     body {
       margin: 0;
       padding: 0;
-      background-color: #333;
+      background-color: #222;
       color: white;
-      font-family: Arial, sans-serif;
       overflow: hidden;
+      font-family: Arial, sans-serif;
     }
 
     #game-container {
@@ -20,7 +20,6 @@
       width: 100vw;
       height: 100vh;
       background-color: #444;
-      overflow: hidden;
     }
 
     .player {
@@ -28,106 +27,134 @@
       width: 50px;
       height: 100px;
       background-color: #f00;
+      bottom: 50px;
     }
 
     #player1 {
       left: 100px;
-      bottom: 50px;
     }
 
     #player2 {
       right: 100px;
-      bottom: 50px;
       background-color: #00f;
     }
 
-    #health-bar {
-      position: fixed;
-      top: 10px;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 20px;
+    .sword {
+      position: absolute;
+      width: 10px;
+      height: 50px;
+      background-color: yellow;
     }
 
-    .health {
-      width: 45%;
+    .health-bar {
+      position: fixed;
+      top: 10px;
+      width: 40%;
       height: 20px;
       background-color: green;
-      border: 2px solid white;
+    }
+
+    #health1 {
+      left: 10%;
+      position: absolute;
+    }
+
+    #health2 {
+      right: 10%;
+      position: absolute;
     }
   </style>
 </head>
 <body>
   <div id="game-container">
-    <div id="player1" class="player"></div>
-    <div id="player2" class="player"></div>
-    <div id="health-bar">
-      <div id="health1" class="health"></div>
-      <div id="health2" class="health"></div>
+    <div id="player1" class="player">
+      <div class="sword" id="sword1" style="left: 50px; top: 25px;"></div>
     </div>
+    <div id="player2" class="player">
+      <div class="sword" id="sword2" style="right: 50px; top: 25px;"></div>
+    </div>
+    <div id="health1" class="health-bar"></div>
+    <div id="health2" class="health-bar"></div>
   </div>
 
   <script>
-    // JavaScript
     const player1 = document.getElementById('player1');
     const player2 = document.getElementById('player2');
+    const sword1 = document.getElementById('sword1');
+    const sword2 = document.getElementById('sword2');
     const health1 = document.getElementById('health1');
     const health2 = document.getElementById('health2');
     let health1Width = 100;
     let health2Width = 100;
 
-    const speed = 10;
+    const moveSpeed = 20;
+    const swordRange = 70;
 
-    // Movement controls
+    // Key press event
     document.addEventListener('keydown', (e) => {
-      const player1Pos = player1.getBoundingClientRect();
-      const player2Pos = player2.getBoundingClientRect();
+      const player1Rect = player1.getBoundingClientRect();
+      const player2Rect = player2.getBoundingClientRect();
 
-      // Player 1 controls
-      if (e.key === 'a' && player1Pos.left > 0) {
-        player1.style.left = `${player1.offsetLeft - speed}px`;
-      } else if (e.key === 'd' && player1Pos.right < window.innerWidth) {
-        player1.style.left = `${player1.offsetLeft + speed}px`;
-      } else if (e.key === 'w' && player1Pos.top > 0) {
-        player1.style.bottom = `${window.innerHeight - player1.offsetTop - speed - player1.offsetHeight}px`;
+      // Player 1 Movement
+      if (e.key === 'a' && player1Rect.left > 0) {
+        player1.style.left = `${player1.offsetLeft - moveSpeed}px`;
+      } else if (e.key === 'd' && player1Rect.right < window.innerWidth) {
+        player1.style.left = `${player1.offsetLeft + moveSpeed}px`;
       }
 
-      // Player 2 controls
-      if (e.key === 'ArrowLeft' && player2Pos.left > 0) {
-        player2.style.left = `${player2.offsetLeft - speed}px`;
-      } else if (e.key === 'ArrowRight' && player2Pos.right < window.innerWidth) {
-        player2.style.left = `${player2.offsetLeft + speed}px`;
-      } else if (e.key === 'ArrowUp' && player2Pos.top > 0) {
-        player2.style.bottom = `${window.innerHeight - player2.offsetTop - speed - player2.offsetHeight}px`;
+      // Player 2 Movement
+      if (e.key === 'ArrowLeft' && player2Rect.left > 0) {
+        player2.style.left = `${player2.offsetLeft - moveSpeed}px`;
+      } else if (e.key === 'ArrowRight' && player2Rect.right < window.innerWidth) {
+        player2.style.left = `${player2.offsetLeft + moveSpeed}px`;
       }
 
-      // Attacks
-      if (e.key === ' ') {
-        if (Math.abs(player1Pos.right - player2Pos.left) < 60) {
-          health2Width -= 10;
-          health2.style.width = `${health2Width}%`;
-          checkWinner();
-        }
-      } else if (e.key === 'Enter') {
-        if (Math.abs(player2Pos.right - player1Pos.left) < 60) {
-          health1Width -= 10;
-          health1.style.width = `${health1Width}%`;
-          checkWinner();
-        }
+      // Player 1 Attack
+      if (e.key === 'w') {
+        attack(player1, player2, sword1, health2, 'Player 1');
+      }
+
+      // Player 2 Attack
+      if (e.key === 'ArrowUp') {
+        attack(player2, player1, sword2, health1, 'Player 2');
       }
     });
 
+    // Attack Function
+    function attack(attacker, defender, sword, defenderHealth, playerName) {
+      const attackerRect = attacker.getBoundingClientRect();
+      const defenderRect = defender.getBoundingClientRect();
+
+      // Check sword range
+      if (
+        Math.abs(attackerRect.right - defenderRect.left) <= swordRange ||
+        Math.abs(attackerRect.left - defenderRect.right) <= swordRange
+      ) {
+        // Reduce defender health
+        if (playerName === 'Player 1') {
+          health2Width -= 10;
+          defenderHealth.style.width = `${health2Width}%`;
+          checkWinner();
+        } else {
+          health1Width -= 10;
+          defenderHealth.style.width = `${health1Width}%`;
+          checkWinner();
+        }
+      }
+    }
+
+    // Check Winner
     function checkWinner() {
       if (health1Width <= 0) {
-        alert('Player 2 wins!');
+        alert('Player 2 Wins!');
         resetGame();
       } else if (health2Width <= 0) {
-        alert('Player 1 wins!');
+        alert('Player 1 Wins!');
         resetGame();
       }
     }
 
+    // Reset Game
     function resetGame() {
       health1Width = 100;
       health2Width = 100;
