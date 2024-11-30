@@ -3,146 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Math War Fighting Game</title>
+  <title>Sword Fighting Game</title>
   <style>
+    /* Styles */
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #1e1e2f;
+      margin: 0;
+      padding: 0;
+      background-color: #333;
       color: white;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
     }
-    .container {
-      margin-top: 20px;
-    }
-    .fighter {
-      display: inline-block;
-      width: 150px;
-      height: 150px;
-      background: #ff6347;
-      border-radius: 10px;
-      margin: 10px;
+
+    #game-container {
       position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-color: #444;
+      overflow: hidden;
     }
-    .fighter h3 {
-      margin: 10px 0;
-    }
-    .health-bar {
-      height: 20px;
-      width: 100%;
-      background: #ccc;
+
+    .player {
       position: absolute;
-      top: 0;
+      width: 50px;
+      height: 100px;
+      background-color: #f00;
     }
+
+    #player1 {
+      left: 100px;
+      bottom: 50px;
+    }
+
+    #player2 {
+      right: 100px;
+      bottom: 50px;
+      background-color: #00f;
+    }
+
+    #health-bar {
+      position: fixed;
+      top: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
     .health {
-      height: 100%;
-      background: green;
-    }
-    .math-problem {
-      margin: 20px;
-      font-size: 24px;
-    }
-    input, button {
-      font-size: 18px;
-      padding: 10px;
-      margin: 10px;
-    }
-    .winner {
-      font-size: 28px;
-      color: gold;
-      margin-top: 20px;
+      width: 45%;
+      height: 20px;
+      background-color: green;
+      border: 2px solid white;
     }
   </style>
 </head>
 <body>
-  <h1>Math War Fighting Game</h1>
-  <div class="container">
-    <div class="fighter">
-      <div class="health-bar">
-        <div class="health" id="player-health" style="width: 100%;"></div>
-      </div>
-      <h3>Player</h3>
-    </div>
-    <div class="fighter">
-      <div class="health-bar">
-        <div class="health" id="enemy-health" style="width: 100%;"></div>
-      </div>
-      <h3>Enemy</h3>
+  <div id="game-container">
+    <div id="player1" class="player"></div>
+    <div id="player2" class="player"></div>
+    <div id="health-bar">
+      <div id="health1" class="health"></div>
+      <div id="health2" class="health"></div>
     </div>
   </div>
-
-  <div class="math-problem">
-    <span id="problem"></span>
-    <input type="number" id="answer" placeholder="Your Answer">
-    <button onclick="checkAnswer()">Attack!</button>
-  </div>
-
-  <div class="winner" id="winner"></div>
 
   <script>
-    let playerHealth = 100;
-    let enemyHealth = 100;
-    let currentAnswer;
+    // JavaScript
+    const player1 = document.getElementById('player1');
+    const player2 = document.getElementById('player2');
+    const health1 = document.getElementById('health1');
+    const health2 = document.getElementById('health2');
+    let health1Width = 100;
+    let health2Width = 100;
 
-    // Function to generate a new math problem
-    function generateProblem() {
-      const num1 = Math.floor(Math.random() * 10) + 1;
-      const num2 = Math.floor(Math.random() * 10) + 1;
-      const operators = ['+', '-', '*'];
-      const operator = operators[Math.floor(Math.random() * operators.length)];
-      
-      // Generate the problem and the answer
-      const problem = `${num1} ${operator} ${num2}`;
-      currentAnswer = eval(problem);
-      document.getElementById('problem').textContent = problem;
-    }
+    const speed = 10;
 
-    // Function to check the player's answer
-    function checkAnswer() {
-      const playerAnswer = parseFloat(document.getElementById('answer').value);
-      if (playerAnswer === currentAnswer) {
-        attackEnemy();
-      } else {
-                attackPlayer();
+    // Movement controls
+    document.addEventListener('keydown', (e) => {
+      const player1Pos = player1.getBoundingClientRect();
+      const player2Pos = player2.getBoundingClientRect();
+
+      // Player 1 controls
+      if (e.key === 'a' && player1Pos.left > 0) {
+        player1.style.left = `${player1.offsetLeft - speed}px`;
+      } else if (e.key === 'd' && player1Pos.right < window.innerWidth) {
+        player1.style.left = `${player1.offsetLeft + speed}px`;
+      } else if (e.key === 'w' && player1Pos.top > 0) {
+        player1.style.bottom = `${window.innerHeight - player1.offsetTop - speed - player1.offsetHeight}px`;
       }
-      document.getElementById('answer').value = ""; // Clear the input
-      generateProblem(); // Generate a new problem
-    }
 
-    // Function to update the health bars
-    function updateHealthBars() {
-      document.getElementById('player-health').style.width = playerHealth + '%';
-      document.getElementById('enemy-health').style.width = enemyHealth + '%';
-    }
-
-    // Function to handle attack on the enemy
-    function attackEnemy() {
-      enemyHealth -= 10;
-      if (enemyHealth <= 0) {
-        enemyHealth = 0;
-        endGame("Player");
+      // Player 2 controls
+      if (e.key === 'ArrowLeft' && player2Pos.left > 0) {
+        player2.style.left = `${player2.offsetLeft - speed}px`;
+      } else if (e.key === 'ArrowRight' && player2Pos.right < window.innerWidth) {
+        player2.style.left = `${player2.offsetLeft + speed}px`;
+      } else if (e.key === 'ArrowUp' && player2Pos.top > 0) {
+        player2.style.bottom = `${window.innerHeight - player2.offsetTop - speed - player2.offsetHeight}px`;
       }
-      updateHealthBars();
-    }
 
-    // Function to handle attack on the player
-    function attackPlayer() {
-      playerHealth -= 10;
-      if (playerHealth <= 0) {
-        playerHealth = 0;
-        endGame("Enemy");
+      // Attacks
+      if (e.key === ' ') {
+        if (Math.abs(player1Pos.right - player2Pos.left) < 60) {
+          health2Width -= 10;
+          health2.style.width = `${health2Width}%`;
+          checkWinner();
+        }
+      } else if (e.key === 'Enter') {
+        if (Math.abs(player2Pos.right - player1Pos.left) < 60) {
+          health1Width -= 10;
+          health1.style.width = `${health1Width}%`;
+          checkWinner();
+        }
       }
-      updateHealthBars();
+    });
+
+    function checkWinner() {
+      if (health1Width <= 0) {
+        alert('Player 2 wins!');
+        resetGame();
+      } else if (health2Width <= 0) {
+        alert('Player 1 wins!');
+        resetGame();
+      }
     }
 
-    // Function to handle the end of the game
-    function endGame(winner) {
-      document.getElementById('winner').textContent = `${winner} Wins!`;
-      document.querySelector(".math-problem").style.display = "none"; // Hide input and button
+    function resetGame() {
+      health1Width = 100;
+      health2Width = 100;
+      health1.style.width = '100%';
+      health2.style.width = '100%';
+      player1.style.left = '100px';
+      player2.style.right = '100px';
     }
-
-    // Initialize the game
-    generateProblem();
   </script>
 </body>
 </html>
-       
