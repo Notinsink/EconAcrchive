@@ -3,165 +3,183 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sword Fighting Game</title>
+  <title>Emoji Warrior: Clash of Blades and Bullets</title>
   <style>
-    /* General Styles */
     body {
       margin: 0;
       padding: 0;
-      background-color: #222;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
       color: white;
       overflow: hidden;
-      font-family: Arial, sans-serif;
     }
 
     #game-container {
       position: relative;
       width: 100vw;
       height: 100vh;
-      background-color: #444;
+      background: linear-gradient(135deg, #4444aa, #88aaff);
+      overflow: hidden;
     }
 
     .player {
       position: absolute;
       width: 50px;
-      height: 100px;
-      background-color: #f00;
-      bottom: 50px;
+      height: 50px;
+      background-color: transparent;
+      text-align: center;
+      font-size: 30px;
+      line-height: 50px;
     }
 
     #player1 {
-      left: 100px;
+      background-color: #ff6666;
     }
 
     #player2 {
-      right: 100px;
-      background-color: #00f;
+      background-color: #66ff66;
     }
 
-    .sword {
+    .emoji {
       position: absolute;
-      width: 10px;
-      height: 50px;
-      background-color: yellow;
+      width: 40px;
+      height: 40px;
+      font-size: 30px;
+      text-align: center;
+      line-height: 40px;
     }
 
     .health-bar {
       position: fixed;
       top: 10px;
-      width: 40%;
       height: 20px;
       background-color: green;
     }
 
     #health1 {
       left: 10%;
-      position: absolute;
+      width: 30%;
     }
 
     #health2 {
       right: 10%;
-      position: absolute;
+      width: 30%;
     }
   </style>
 </head>
 <body>
   <div id="game-container">
-    <div id="player1" class="player">
-      <div class="sword" id="sword1" style="left: 50px; top: 25px;"></div>
-    </div>
-    <div id="player2" class="player">
-      <div class="sword" id="sword2" style="right: 50px; top: 25px;"></div>
-    </div>
+    <div id="player1" class="player" style="top: 80%; left: 10%;">🗡️</div>
+    <div id="player2" class="player" style="top: 80%; right: 10%;">🔫</div>
+    <div id="emoji1" class="emoji" style="top: 20%; left: 50%;">🔥</div>
+    <div id="emoji2" class="emoji" style="top: 50%; left: 30%;">🛡️</div>
+    <div id="emoji3" class="emoji" style="top: 40%; right: 30%;">💣</div>
     <div id="health1" class="health-bar"></div>
     <div id="health2" class="health-bar"></div>
   </div>
 
   <script>
-    const player1 = document.getElementById('player1');
-    const player2 = document.getElementById('player2');
-    const sword1 = document.getElementById('sword1');
-    const sword2 = document.getElementById('sword2');
-    const health1 = document.getElementById('health1');
-    const health2 = document.getElementById('health2');
+    const player1 = document.getElementById("player1");
+    const player2 = document.getElementById("player2");
+    const health1 = document.getElementById("health1");
+    const health2 = document.getElementById("health2");
+    const emojis = Array.from(document.querySelectorAll(".emoji"));
     let health1Width = 100;
     let health2Width = 100;
+    const moveSpeed = 10;
 
-    const moveSpeed = 20;
-    const swordRange = 70;
-
-    // Key press event
-    document.addEventListener('keydown', (e) => {
+    // Movement controls
+    document.addEventListener("keydown", (e) => {
       const player1Rect = player1.getBoundingClientRect();
       const player2Rect = player2.getBoundingClientRect();
 
-      // Player 1 Movement
-      if (e.key === 'a' && player1Rect.left > 0) {
+      // Player 1 controls
+      if (e.key === "w" && player1Rect.top > 0) {
+        player1.style.top = `${player1.offsetTop - moveSpeed}px`;
+      }
+      if (e.key === "s" && player1Rect.bottom < window.innerHeight) {
+        player1.style.top = `${player1.offsetTop + moveSpeed}px`;
+      }
+      if (e.key === "a" && player1Rect.left > 0) {
         player1.style.left = `${player1.offsetLeft - moveSpeed}px`;
-      } else if (e.key === 'd' && player1Rect.right < window.innerWidth) {
+      }
+      if (e.key === "d" && player1Rect.right < window.innerWidth) {
         player1.style.left = `${player1.offsetLeft + moveSpeed}px`;
       }
 
-      // Player 2 Movement
-      if (e.key === 'ArrowLeft' && player2Rect.left > 0) {
+      // Player 2 controls
+      if (e.key === "ArrowUp" && player2Rect.top > 0) {
+        player2.style.top = `${player2.offsetTop - moveSpeed}px`;
+      }
+      if (e.key === "ArrowDown" && player2Rect.bottom < window.innerHeight) {
+        player2.style.top = `${player2.offsetTop + moveSpeed}px`;
+      }
+      if (e.key === "ArrowLeft" && player2Rect.left > 0) {
         player2.style.left = `${player2.offsetLeft - moveSpeed}px`;
-      } else if (e.key === 'ArrowRight' && player2Rect.right < window.innerWidth) {
+      }
+      if (e.key === "ArrowRight" && player2Rect.right < window.innerWidth) {
         player2.style.left = `${player2.offsetLeft + moveSpeed}px`;
       }
 
-      // Player 1 Attack
-      if (e.key === 'w') {
-        attack(player1, player2, sword1, health2, 'Player 1');
-      }
-
-      // Player 2 Attack
-      if (e.key === 'ArrowUp') {
-        attack(player2, player1, sword2, health1, 'Player 2');
-      }
+      // Check emoji collection
+      emojis.forEach((emoji) => {
+        const emojiRect = emoji.getBoundingClientRect();
+        if (checkCollision(player1Rect, emojiRect)) {
+          collectEmoji("Player 1", emoji);
+        }
+        if (checkCollision(player2Rect, emojiRect)) {
+          collectEmoji("Player 2", emoji);
+        }
+      });
     });
 
-    // Attack Function
-    function attack(attacker, defender, sword, defenderHealth, playerName) {
-      const attackerRect = attacker.getBoundingClientRect();
-      const defenderRect = defender.getBoundingClientRect();
+    // Check for collision
+    function checkCollision(rect1, rect2) {
+      return !(
+        rect1.right < rect2.left ||
+        rect1.left > rect2.right ||
+        rect1.bottom < rect2.top ||
+        rect1.top > rect2.bottom
+      );
+    }
 
-      // Check sword range
-      if (
-        Math.abs(attackerRect.right - defenderRect.left) <= swordRange ||
-        Math.abs(attackerRect.left - defenderRect.right) <= swordRange
-      ) {
-        // Reduce defender health
-        if (playerName === 'Player 1') {
-          health2Width -= 10;
-          defenderHealth.style.width = `${health2Width}%`;
-          checkWinner();
+    // Collect emoji
+    function collectEmoji(player, emoji) {
+      if (!emoji.classList.contains("collected")) {
+        emoji.classList.add("collected");
+        emoji.style.display = "none";
+        if (player === "Player 1") {
+          health2Width -= 20;
+          health2.style.width = `${health2Width}%`;
         } else {
-          health1Width -= 10;
-          defenderHealth.style.width = `${health1Width}%`;
-          checkWinner();
+          health1Width -= 20;
+          health1.style.width = `${health1Width}%`;
         }
+        checkWinner();
       }
     }
 
-    // Check Winner
+    // Check for winner
     function checkWinner() {
       if (health1Width <= 0) {
-        alert('Player 2 Wins!');
+        alert("Player 2 Wins!");
         resetGame();
       } else if (health2Width <= 0) {
-        alert('Player 1 Wins!');
+        alert("Player 1 Wins!");
         resetGame();
       }
     }
 
-    // Reset Game
+    // Reset game
     function resetGame() {
       health1Width = 100;
       health2Width = 100;
-      health1.style.width = '100%';
-      health2.style.width = '100%';
-      player1.style.left = '100px';
-      player2.style.right = '100px';
+      health1.style.width = "100%";
+      health2.style.width = "100%";
+      emojis.forEach((emoji) => {
+        emoji.classList.remove("collected");
+        emoji.style.display = "block";
+      });
     }
   </script>
 </body>
