@@ -3,183 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emoji Warrior: Clash of Blades and Bullets</title>
+  <title>GamieCoin Converter</title>
   <style>
+    /* CSS Styling */
     body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: white;
-      overflow: hidden;
-    }
-
-    #game-container {
-      position: relative;
-      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      background: linear-gradient(135deg, #4444aa, #88aaff);
-      overflow: hidden;
     }
-
-    .player {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      background-color: transparent;
+    .container {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      padding: 20px;
       text-align: center;
-      font-size: 30px;
-      line-height: 50px;
     }
-
-    #player1 {
-      background-color: #ff6666;
+    h1 {
+      margin-bottom: 20px;
+      color: #333333;
     }
-
-    #player2 {
-      background-color: #66ff66;
+    .balance p {
+      font-size: 18px;
+      margin: 10px 0;
     }
-
-    .emoji {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      font-size: 30px;
-      text-align: center;
-      line-height: 40px;
+    .balance span {
+      font-weight: bold;
+      color: #007bff;
     }
-
-    .health-bar {
-      position: fixed;
-      top: 10px;
-      height: 20px;
-      background-color: green;
+    .form-group {
+      margin: 20px 0;
     }
-
-    #health1 {
-      left: 10%;
-      width: 30%;
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
-
-    #health2 {
-      right: 10%;
-      width: 30%;
+    .form-group button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .form-group button:hover {
+      background-color: #0056b3;
+    }
+    .transaction-history {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .transaction-history h2 {
+      font-size: 18px;
+      color: #333;
+    }
+    .transaction-history ul {
+      list-style: none;
+      padding: 0;
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    .transaction-history li {
+      margin: 5px 0;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <div id="game-container">
-    <div id="player1" class="player" style="top: 80%; left: 10%;">🗡️</div>
-    <div id="player2" class="player" style="top: 80%; right: 10%;">🔫</div>
-    <div id="emoji1" class="emoji" style="top: 20%; left: 50%;">🔥</div>
-    <div id="emoji2" class="emoji" style="top: 50%; left: 30%;">🛡️</div>
-    <div id="emoji3" class="emoji" style="top: 40%; right: 30%;">💣</div>
-    <div id="health1" class="health-bar"></div>
-    <div id="health2" class="health-bar"></div>
+  <div class="container">
+    <h1>GamieCoin Converter</h1>
+    <div class="balance">
+      <p><strong>Naira Balance:</strong> ₦<span id="naira-balance">0</span></p>
+      <p><strong>GamieCoin Balance:</strong> <span id="gamiecoin-balance">0</span></p>
+    </div>
+    <div class="form-group">
+      <input type="number" id="amount" placeholder="Enter Naira amount">
+      <button onclick="addNaira()">Add Naira</button>
+    </div>
+    <div class="form-group">
+      <button onclick="convertToGamieCoin()">Convert to GamieCoin</button>
+    </div>
+    <div class="transaction-history">
+      <h2>Transaction History</h2>
+      <ul id="history"></ul>
+    </div>
   </div>
 
   <script>
-    const player1 = document.getElementById("player1");
-    const player2 = document.getElementById("player2");
-    const health1 = document.getElementById("health1");
-    const health2 = document.getElementById("health2");
-    const emojis = Array.from(document.querySelectorAll(".emoji"));
-    let health1Width = 100;
-    let health2Width = 100;
-    const moveSpeed = 10;
+    // JavaScript Logic
+    let nairaBalance = 0;
+    let gamieCoinBalance = 0;
+    const conversionRate = 500; // 1 GamieCoin = ₦500
 
-    // Movement controls
-    document.addEventListener("keydown", (e) => {
-      const player1Rect = player1.getBoundingClientRect();
-      const player2Rect = player2.getBoundingClientRect();
-
-      // Player 1 controls
-      if (e.key === "w" && player1Rect.top > 0) {
-        player1.style.top = `${player1.offsetTop - moveSpeed}px`;
-      }
-      if (e.key === "s" && player1Rect.bottom < window.innerHeight) {
-        player1.style.top = `${player1.offsetTop + moveSpeed}px`;
-      }
-      if (e.key === "a" && player1Rect.left > 0) {
-        player1.style.left = `${player1.offsetLeft - moveSpeed}px`;
-      }
-      if (e.key === "d" && player1Rect.right < window.innerWidth) {
-        player1.style.left = `${player1.offsetLeft + moveSpeed}px`;
-      }
-
-      // Player 2 controls
-      if (e.key === "ArrowUp" && player2Rect.top > 0) {
-        player2.style.top = `${player2.offsetTop - moveSpeed}px`;
-      }
-      if (e.key === "ArrowDown" && player2Rect.bottom < window.innerHeight) {
-        player2.style.top = `${player2.offsetTop + moveSpeed}px`;
-      }
-      if (e.key === "ArrowLeft" && player2Rect.left > 0) {
-        player2.style.left = `${player2.offsetLeft - moveSpeed}px`;
-      }
-      if (e.key === "ArrowRight" && player2Rect.right < window.innerWidth) {
-        player2.style.left = `${player2.offsetLeft + moveSpeed}px`;
-      }
-
-      // Check emoji collection
-      emojis.forEach((emoji) => {
-        const emojiRect = emoji.getBoundingClientRect();
-        if (checkCollision(player1Rect, emojiRect)) {
-          collectEmoji("Player 1", emoji);
-        }
-        if (checkCollision(player2Rect, emojiRect)) {
-          collectEmoji("Player 2", emoji);
-        }
-      });
-    });
-
-    // Check for collision
-    function checkCollision(rect1, rect2) {
-      return !(
-        rect1.right < rect2.left ||
-        rect1.left > rect2.right ||
-        rect1.bottom < rect2.top ||
-        rect1.top > rect2.bottom
-      );
-    }
-
-    // Collect emoji
-    function collectEmoji(player, emoji) {
-      if (!emoji.classList.contains("collected")) {
-        emoji.classList.add("collected");
-        emoji.style.display = "none";
-        if (player === "Player 1") {
-          health2Width -= 20;
-          health2.style.width = `${health2Width}%`;
-        } else {
-          health1Width -= 20;
-          health1.style.width = `${health1Width}%`;
-        }
-        checkWinner();
+    function addNaira() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      if (!isNaN(amount) && amount > 0) {
+        nairaBalance += amount;
+        document.getElementById("naira-balance").textContent = nairaBalance.toFixed(2);
+        logTransaction(`Added ₦${amount.toFixed(2)} to balance.`);
+        document.getElementById("amount").value = ""; // Clear input
+      } else {
+        alert("Please enter a valid Naira amount.");
       }
     }
 
-    // Check for winner
-    function checkWinner() {
-      if (health1Width <= 0) {
-        alert("Player 2 Wins!");
-        resetGame();
-      } else if (health2Width <= 0) {
-        alert("Player 1 Wins!");
-        resetGame();
+    function convertToGamieCoin() {
+      if (nairaBalance >= conversionRate) {
+        const coins = Math.floor(nairaBalance / conversionRate);
+        gamieCoinBalance += coins;
+        nairaBalance -= coins * conversionRate;
+        document.getElementById("naira-balance").textContent = nairaBalance.toFixed(2);
+        document.getElementById("gamiecoin-balance").textContent = gamieCoinBalance;
+        logTransaction(`Converted ₦${coins * conversionRate} to ${coins} GamieCoins.`);
+      } else {
+        alert("Not enough Naira to convert!");
       }
     }
 
-    // Reset game
-    function resetGame() {
-      health1Width = 100;
-      health2Width = 100;
-      health1.style.width = "100%";
-      health2.style.width = "100%";
-      emojis.forEach((emoji) => {
-        emoji.classList.remove("collected");
-        emoji.style.display = "block";
-      });
+    function logTransaction(message) {
+      const history = document.getElementById("history");
+      const listItem = document.createElement("li");
+      listItem.textContent = message;
+      history.appendChild(listItem);
     }
   </script>
 </body>
