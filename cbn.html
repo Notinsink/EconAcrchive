@@ -1,155 +1,99 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GamieCoin Simulator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      width: 90%;
-      max-width: 500px;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      text-align: center;
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin: 10px 0;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .wallet, .transactions {
-      margin-top: 20px;
-      text-align: left;
-    }
-
-    .transaction {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      margin-top: 10px;
-      background-color: #f9f9f9;
-    }
-
-    .transaction p {
-      margin: 5px 0;
-    }
-
-    .bold {
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Currency Website</title>
+    <style>
+        /* Embedded CSS */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #container {
+            width: 80%;
+            max-width: 1200px;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        header, main, footer {
+            margin-bottom: 20px;
+        }
+        header h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group button {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>GamieCoin Simulator</h1>
-    <p>Your wallet balance: <span id="wallet" class="bold">0</span> GamieCoins</p>
-    <button id="mineBtn">Mine GamieCoin</button>
-    <button id="transferBtn">Transfer GamieCoin</button>
+    <div id="container">
+        <header>
+            <h1>Crypto Currency Website</h1>
+        </header>
+        <main>
+            <section id="overview">
+                <h2>Overview</h2>
+                <p>Welcome to our cryptocurrency website. Here you can view your balance, make transactions, and more.</p>
+            </section>
+            <section id="account">
+                <h2>Account</h2>
+                <div class="form-group">
+                    <label for="address">Your Address:</label>
 
-    <div class="wallet">
-      <h3>Transaction History</h3>
-      <div id="transactions"></div>
+                  <input type="text" id="address" placeholder="Enter your wallet address">
+                </div>
+                <div class="form-group">
+                    <button id="check-balance">Check Balance</button>
+                </div>
+                <div id="balance-result"></div>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2024 Crypto Currency Website</p>
+        </footer>
     </div>
-  </div>
-
-  <script>
-    let walletBalance = 0;
-    const transactions = [];
-    const walletElement = document.getElementById("wallet");
-    const transactionsElement = document.getElementById("transactions");
-
-    // Update Wallet Display
-    function updateWallet() {
-      walletElement.textContent = walletBalance;
-    }
-
-    // Display Transactions
-    function displayTransactions() {
-      transactionsElement.innerHTML = "";
-      transactions.forEach((transaction, index) => {
-        const transactionDiv = document.createElement("div");
-        transactionDiv.classList.add("transaction");
-        transactionDiv.innerHTML = `
-          <p><span class="bold">Transaction ${index + 1}:</span> ${transaction.type}</p>
-          <p>Amount: ${transaction.amount} GamieCoins</p>
-          <p>Time: ${transaction.time}</p>
-        `;
-        transactionsElement.appendChild(transactionDiv);
-      });
-    }
-
-    // Mine Coins
-    document.getElementById("mineBtn").addEventListener("click", () => {
-      const minedCoins = Math.floor(Math.random() * 10) + 1; // Random between 1 and 10
-      walletBalance += minedCoins;
-      const now = new Date();
-      transactions.push({
-        type: "Mining",
-        amount: minedCoins,
-        time: now.toLocaleString()
-      });
-      updateWallet();
-      displayTransactions();
-    });
-
-    // Transfer Coins
-    document.getElementById("transferBtn").addEventListener("click", () => {
-      const transferAmount = prompt("Enter the amount of GamieCoins to transfer:");
-      if (!transferAmount || isNaN(transferAmount) || transferAmount <= 0) {
-        alert("Invalid transfer amount.");
-        return;
-      }
-
-      if (transferAmount > walletBalance
-                ) {
-        alert("You don't have enough GamieCoins for this transfer.");
-        return;
-      }
-
-      walletBalance -= Number(transferAmount);
-      const now = new Date();
-      transactions.push({
-        type: "Transfer",
-        amount: -transferAmount,
-        time: now.toLocaleString()
-      });
-
-      updateWallet();
-      displayTransactions();
-    });
-
-    // Initialize
-    updateWallet();
-    displayTransactions();
-  </script>
+    <script>
+        // Embedded JavaScript
+        document.getElementById('check-balance').addEventListener('click', function() {
+            const address = document.getElementById('address').value;
+            if (address) {
+                // Here you would make an API call to your backend to get the balance
+                // For demonstration, we'll just display a mock balance
+                document.getElementById('balance-result').innerText = `Balance for ${address}: 1000 tokens`;
+            } else {
+                alert('Please enter a wallet address.');
+            }
+        });
+    </script>
 </body>
 </html>
+```
