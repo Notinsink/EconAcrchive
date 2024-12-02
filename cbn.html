@@ -1,99 +1,107 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Currency Website</title>
+    <title>GamieCoin</title>
     <style>
-        /* Embedded CSS */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+        /* General Reset */
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            overflow: hidden;
+        }
+
+        /* Intro Screen Styles */
+        #intro {
+            background-color: black;
+            color: white;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-        }
-        #container {
-            width: 80%;
-            max-width: 1200px;
-            background: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        header, main, footer {
-            margin-bottom: 20px;
-        }
-        header h1 {
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input, .form-group button {
+            position: absolute;
             width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
+            z-index: 1000;
         }
-        .form-group button {
-            background-color: #007bff;
+
+        #intro h1 {
+            font-size: 3rem;
+            animation: colorShift 3s infinite;
+        }
+
+        @keyframes colorShift {
+            0% { color: #ff595e; }
+            25% { color: #ffca3a; }
+            50% { color: #8ac926; }
+            75% { color: #1982c4; }
+            100% { color: #6a4c93; }
+        }
+
+        /* Main Content Styles */
+        #main-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #1982c4;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background 0.3s;
         }
-        .form-group button:hover {
-            background-color: #0056b3;
+
+        .btn:hover {
+            background: #6a4c93;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <header>
-            <h1>Crypto Currency Website</h1>
-        </header>
-        <main>
-            <section id="overview">
-                <h2>Overview</h2>
-                <p>Welcome to our cryptocurrency website. Here you can view your balance, make transactions, and more.</p>
-            </section>
-            <section id="account">
-                <h2>Account</h2>
-                <div class="form-group">
-                    <label for="address">Your Address:</label>
-
-                  <input type="text" id="address" placeholder="Enter your wallet address">
-                </div>
-                <div class="form-group">
-                    <button id="check-balance">Check Balance</button>
-                </div>
-                <div id="balance-result"></div>
-            </section>
-        </main>
-        <footer>
-            <p>&copy; 2024 Crypto Currency Website</p>
-        </footer>
+    <!-- Intro Screen -->
+    <div id="intro">
+        <h1>Welcome to GamieCoin</h1>
     </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="header">
+            <h1>GamieCoin Platform</h1>
+            <p>Seamlessly use GamieCoin for transactions everywhere.</p>
+        </div>
+        <div class="buttons">
+            <button class="btn">View Wallet</button>
+            <button class="btn">Make a Transaction</button>
+        </div>
+    </div>
+
     <script>
-        // Embedded JavaScript
-        document.getElementById('check-balance').addEventListener('click', function() {
-            const address = document.getElementById('address').value;
-            if (address) {
-                // Here you would make an API call to your backend to get the balance
-                // For demonstration, we'll just display a mock balance
-                document.getElementById('balance-result').innerText = `Balance for ${address}: 1000 tokens`;
-            } else {
-                alert('Please enter a wallet address.');
-            }
-        });
+        // Wait for the intro animation to finish
+        window.onload = function () {
+            setTimeout(() => {
+                document.getElementById('intro').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            }, 3000); // 3 seconds for the animation
+        };
     </script>
 </body>
 </html>
-```
