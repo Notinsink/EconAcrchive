@@ -7,159 +7,108 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      padding: 20px;
-      background-color: #e5e5e5;
-    }
-    h1 {
-      font-size: 24px;
+      text-align: center;
     }
     #world {
       width: 80%;
       height: 600px;
-      border: 2px solid #333;
+      border: 2px solid black;
+      margin: 20px auto;
       position: relative;
       overflow: hidden;
-      background-color: #fafafa;
+      background-color: #f1f1f1;
     }
     .agent {
-      width: 20px;
-      height: 20px;
+      width: 15px;
+      height: 15px;
       position: absolute;
       border-radius: 50%;
-      background-color: blue;
-      transition: all 0.1s;
-    }
-    .stimulus {
-      width: 30px;
-      height: 30px;
-      position: absolute;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      color: white;
-      text-align: center;
-    }
-    .banana {
-      background-color: green;
-    }
-    .poison {
-      background-color: red;
+      background-color: #007bff;
     }
   </style>
 </head>
 <body>
-  <h1>Human-Like Virtual Population</h1>
+  <h1>Responsive Population Simulation</h1>
   <div id="world"></div>
 
   <script>
     const world = document.getElementById('world');
-    const populationSize = 100; // Number of agents
-    const agents = [];
-    const stimuli = [];
-
     const worldWidth = world.offsetWidth;
     const worldHeight = world.offsetHeight;
+    const populationSize = 100; // Number of agents
+    const agents = [];
 
-    // Stimuli generation (Bananas and Poison)
-    function createStimulus(type) {
-      const stimulus = document.createElement('div');
-      stimulus.classList.add('stimulus');
-      stimulus.classList.add(type);
-      stimulus.textContent = type === 'banana' ? 'Banana' : 'Poison';
-      stimulus.style.left = Math.random() * (worldWidth - 30) + 'px';
-      stimulus.style.top = Math.random() * (worldHeight - 30) + 'px';
-      world.appendChild(stimulus);
-      stimuli.push(stimulus);
+    // Define Agent Constructor
+    function Agent() {
+      this.x = Math.random() * worldWidth;
+      this.y = Math.random() * worldHeight;
+      this.energy = 100; // Agent starts with full energy
+      this.preference = 'banana'; // Default preference
+      this.history = []; // Keeps a record of past decisions
+      this.reactionTime = Math.random() * 2000 + 1000; // Time to wait before deciding
     }
 
-    // Agent creation
+    // Create agents
     function createAgent() {
-      const agent = document.createElement('div');
-      agent.classList.add('agent');
-      agent.style.left = Math.random() * (worldWidth - 20) + 'px';
-      agent.style.top = Math.random() * (worldHeight - 20) + 'px';
-      agent.energy = 100; // Agents start with full energy
-      agent.preference = 'banana'; // Start with preference for bananas
-      agent.alive = true;
+      const agent = new Agent();
+      const agentDiv = document.createElement('div');
+      agentDiv.classList.add('agent');
+      agentDiv.style.left = `${agent.x}px`;
+      agentDiv.style.top = `${agent.y}px`;
+      world.appendChild(agentDiv);
 
-      // Add learning (avoid poison after it kills)
-      agent.learn = function(stimulusType) {
-        if (stimulusType === 'poison' && Math.random() < 0.5) {
-          agent.preference = 'banana'; // Learns to avoid poison
-        }
-      };
+      // Attach agent to div for future interaction
+      agent.div = agentDiv;
 
-      world.appendChild(agent);
+      // Push agent to global array
       agents.push(agent);
     }
 
-    // Move agents and react to stimuli
-    function moveAgents() {
+    // Simulate agent behavior (making decisions based on preference)
+    function makeDecisions() {
       agents.forEach(agent => {
-        if (!agent.alive) return; // Skip dead agents
+        if (Math.random() < 0.01) {
+          // Simulate randomness in decision-making
+          agent.preference = Math.random() > 0.5 ? 'banana' : 'poison';
+        }
 
-        const left = parseFloat(agent.style.left);
-        const top = parseFloat(agent.style.top);
-        let newLeft = left + (Math.random() * 5 - 2.5); // Random small movement
-        let newTop = top + (Math.random() * 5 - 2.5);
+        // Simulate human-like decision (preference for banana)
+        if (agent.preference === 'banana') {
+          if (Math.random() < 0.9) {
+            agent.div.style.backgroundColor = '#007bff'; // Banana: blue
+            agent.energy += 10; // Gain energy
+          } else {
+            agent.div.style.backgroundColor = '#ff0000'; // Poison: red
+            agent.energy -= 50; // Lose energy due to poison
+          }
+        }
+
+        // Update agent position randomly
+        agent.x += Math.random() * 5 - 2.5;
+        agent.y += Math.random() * 5 - 2.5;
 
         // Boundary collision
-        if (newLeft < 0) newLeft = 0;
-        if (newTop < 0) newTop = 0;
-        if (newLeft > worldWidth - 20) newLeft = worldWidth - 20;
-        if (newTop > worldHeight - 20) newTop = worldHeight - 20;
+        if (agent.x < 0 || agent.x > worldWidth - 15) agent.x = Math.random() * worldWidth;
+        if (agent.y < 0 || agent.y > worldHeight - 15) agent.y = Math.random() * worldHeight;
 
-        agent.style.left = newLeft + 'px';
-        agent.style.top = newTop + 'px';
+        agent.div.style.left = `${agent.x}px`;
+        agent.div.style.top = `${agent.y}px`;
 
-        // React to nearby stimuli
-        stimuli.forEach(stimulus => {
-          const distance = Math.sqrt(
-            Math.pow(newLeft - parseFloat(stimulus.style.left), 2) + 
-            Math.pow(newTop - parseFloat(stimulus.style.top), 2)
-          );
-
-          if (distance < 30) {
-            const stimulusType = stimulus.classList.contains('banana') ? 'banana' : 'poison';
-
-            if (agent.preference === stimulusType && agent.energy > 0) {
-              // Agent eats the stimulus
-              agent.energy += stimulusType === 'banana' ? 20 : -30;
-              if (agent.energy <= 0) {
-                agent.alive = false;
-                agent.style.backgroundColor = 'gray'; // Dead agent
-              }
-              agent.learn(stimulusType);
-              stimulus.remove(); // Remove stimulus after consumption
-            }
-          }
-        });
+        // If energy is low, the agent dies
+        if (agent.energy <= 0) {
+          agent.div.style.backgroundColor = '#808080'; // Dead agent (gray)
+        }
       });
     }
 
-    // Initialize world
-    function initializeWorld() {
-      // Create agents
-      for (let i = 0; i < populationSize; i++) {
-        createAgent();
-      }
-
-      // Generate stimuli (Bananas and Poisons)
-      for (let i = 0; i < 10; i++) {
-        createStimulus(Math.random() < 0.5 ? 'banana' : 'poison');
-      }
-
-      // Start the simulation
-      setInterval(moveAgents, 100);
+    // Create initial population
+    for (let i = 0; i < populationSize; i++) {
+      createAgent();
     }
 
-    initializeWorld();
+    // Update simulation every 500ms
+    setInterval(makeDecisions, 500);
+
   </script>
 </body>
 </html>
