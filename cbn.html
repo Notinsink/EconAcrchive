@@ -1,114 +1,148 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Human-Like Agent Population</title>
+  <title>Football Match Game</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f0f0;
+    }
+
+    .container {
       text-align: center;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-    #world {
-      width: 80%;
-      height: 600px;
-      border: 2px solid black;
-      margin: 20px auto;
-      position: relative;
-      overflow: hidden;
-      background-color: #f1f1f1;
+
+    h1 {
+      color: #333;
     }
-    .agent {
-      width: 15px;
-      height: 15px;
-      position: absolute;
-      border-radius: 50%;
-      background-color: #007bff;
+
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+
+    .team {
+      background: #e3f2fd;
+      border-radius: 5px;
+      padding: 15px;
+      width: 45%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .odds {
+      font-weight: bold;
+      color: #1976d2;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #1976d2;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background: #005bb5;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <h1>Responsive Population Simulation</h1>
-  <div id="world"></div>
+  <div class="container">
+    <h1>Football Match Game</h1>
+    <div class="teams">
+      <div class="team">
+        <p id="team1-name">Team 1</p>
+        <p class="odds" id="team1-odds">Odds: 0</p>
+      </div>
+      <div class="team">
+        <p id="team2-name">Team 2</p>
+        <p class="odds" id="team2-odds">Odds: 0</p>
+      </div>
+    </div>
+    <button onclick="playGame()">Play Game</button>
+    <div class="result" id="result"></div>
+  </div>
 
   <script>
-    const world = document.getElementById('world');
-    const worldWidth = world.offsetWidth;
-    const worldHeight = world.offsetHeight;
-    const populationSize = 100; // Number of agents
-    const agents = [];
+    // List of Teams
+    const teams = [
+      "Manchester United",
+      "Chelsea",
+      "Arsenal",
+      "Liverpool",
+      "Real Madrid",
+      "Barcelona",
+      "Bayern Munich",
+      "Juventus",
+      "PSG",
+      "AC Milan"
+    ];
 
-    // Define Agent Constructor
-    function Agent() {
-      this.x = Math.random() * worldWidth;
-      this.y = Math.random() * worldHeight;
-      this.energy = 100; // Agent starts with full energy
-      this.preference = 'banana'; // Default preference
-      this.history = []; // Keeps a record of past decisions
-      this.reactionTime = Math.random() * 2000 + 1000; // Time to wait before deciding
+    // Function to generate random team and odds
+    function generateRandomTeams() {
+      const team1Index = Math.floor(Math.random() * teams.length);
+      let team2Index;
+      do {
+        team2Index = Math.floor(Math.random() * teams.length);
+      } while (team2Index === team1Index);
+
+      const team1Odds = (Math.random() * 2 + 1).toFixed(2); // Random odds between 1.00 and 3.00
+      const team2Odds = (Math.random() * 2 + 1).toFixed(2); // Random odds between 1.00 and 3.00
+
+      return {
+        team1: { name: teams[team1Index], odds: parseFloat(team1Odds) },
+        team2: { name: teams[team2Index], odds: parseFloat(team2Odds) },
+      };
     }
 
-    // Create agents
-    function createAgent() {
-      const agent = new Agent();
-      const agentDiv = document.createElement('div');
-      agentDiv.classList.add('agent');
-      agentDiv.style.left = `${agent.x}px`;
-      agentDiv.style.top = `${agent.y}px`;
-      world.appendChild(agentDiv);
+    // Function to play the game
+    function playGame() {
+      // Generate random teams and odds
+      const { team1, team2 } = generateRandomTeams();
 
-      // Attach agent to div for future interaction
-      agent.div = agentDiv;
+      // Update the UI
+      document.getElementById("team1-name").textContent = team1.name;
+      document.getElementById("team1-odds").textContent = `Odds: ${team1.odds}`;
+      document.getElementById("team2-name").textContent = team2.name;
+      document.getElementById("team2-odds").textContent = `Odds: ${team2.odds}`;
 
-      // Push agent to global array
-      agents.push(agent);
+      // Determine the winner based on odds
+      const totalOdds = team1.odds + team2.odds;
+      const randomChance = Math.random() * totalOdds;
+
+      let winner;
+      if (randomChance < team1.odds) {
+        winner = team1.name;
+      } else {
+        winner = team2.name;
+      }
+
+      // Display the result
+      document.getElementById("result").textContent = `The winner is: ${winner}`;
     }
-
-    // Simulate agent behavior (making decisions based on preference)
-    function makeDecisions() {
-      agents.forEach(agent => {
-        if (Math.random() < 0.01) {
-          // Simulate randomness in decision-making
-          agent.preference = Math.random() > 0.5 ? 'banana' : 'poison';
-        }
-
-        // Simulate human-like decision (preference for banana)
-        if (agent.preference === 'banana') {
-          if (Math.random() < 0.9) {
-            agent.div.style.backgroundColor = '#007bff'; // Banana: blue
-            agent.energy += 10; // Gain energy
-          } else {
-            agent.div.style.backgroundColor = '#ff0000'; // Poison: red
-            agent.energy -= 50; // Lose energy due to poison
-          }
-        }
-
-        // Update agent position randomly
-        agent.x += Math.random() * 5 - 2.5;
-        agent.y += Math.random() * 5 - 2.5;
-
-        // Boundary collision
-        if (agent.x < 0 || agent.x > worldWidth - 15) agent.x = Math.random() * worldWidth;
-        if (agent.y < 0 || agent.y > worldHeight - 15) agent.y = Math.random() * worldHeight;
-
-        agent.div.style.left = `${agent.x}px`;
-        agent.div.style.top = `${agent.y}px`;
-
-        // If energy is low, the agent dies
-        if (agent.energy <= 0) {
-          agent.div.style.backgroundColor = '#808080'; // Dead agent (gray)
-        }
-      });
-    }
-
-    // Create initial population
-    for (let i = 0; i < populationSize; i++) {
-      createAgent();
-    }
-
-    // Update simulation every 500ms
-    setInterval(makeDecisions, 500);
-
   </script>
 </body>
 </html>
