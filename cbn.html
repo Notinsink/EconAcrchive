@@ -1,190 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="2023 Government Spending in Nigeria (USD)">
-  <title>2023 Nigeria Government Spending</title>
-  <style>
-    /* General Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funny Intellectual AI</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
 
-    body {
-      font-family: 'Arial', sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background-color: #f9f9f9;
-    }
+        .chat-container {
+            background-color: white;
+            width: 400px;
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
 
-    .container {
-      width: 90%;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+        .chat-box {
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fafafa;
+            border-radius: 5px;
+            max-height: 300px;
+        }
 
-    /* Header */
-    .header {
-      background-color: #0066cc;
-      color: #fff;
-      text-align: center;
-      padding: 2rem 0;
-    }
+        .chat-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #e1f5fe;
+            display: inline-block;
+            max-width: 80%;
+        }
 
-    .header h1 {
-      font-size: 2.5rem;
-    }
+        .user-message {
+            background-color: #d1c4e9;
+            text-align: right;
+        }
 
-    .header p {
-      font-size: 1.2rem;
-    }
+        #user-input {
+            width: calc(100% - 100px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
 
-    /* Navigation */
-    .navbar {
-      background-color: #004a99;
-      padding: 0.5rem 0;
-    }
+        #send-btn {
+            padding: 10px;
+            background-color: #42a5f5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
 
-    .navbar ul {
-      display: flex;
-      justify-content: center;
-      list-style: none;
-    }
-
-    .navbar ul li {
-      margin: 0 1rem;
-    }
-
-    .navbar ul li a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      transition: background-color 0.3s ease;
-    }
-
-    .navbar ul li a:hover {
-      background-color: #003366;
-      border-radius: 5px;
-    }
-
-    /* Main Content */
-    .content {
-      padding: 2rem 0;
-    }
-
-    h2 {
-      color: #0066cc;
-    }
-
-    .table-container {
-      overflow-x: auto;
-      margin-top: 1rem;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      background-color: #fff;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 1rem;
-      border: 1px solid #ddd;
-    }
-
-    th {
-      background-color: #f4f4f4;
-    }
-
-    td {
-      text-align: center;
-    }
-
-    /* Footer */
-    .footer {
-      text-align: center;
-      padding: 1rem 0;
-      background-color: #004a99;
-      color: #fff;
-      margin-top: 2rem;
-    }
-  </style>
+        #send-btn:hover {
+            background-color: #1e88e5;
+        }
+    </style>
 </head>
 <body>
-  <header class="header">
-    <div class="container">
-      <h1>2023 Government Spending in Nigeria (USD)</h1>
-      <p>A detailed breakdown of Nigeria's government expenditures for 2023.</p>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <div class="chat-message">Hello! I'm your funny intellectual AI. Ask me anything!</div>
+        </div>
+        <input type="text" id="user-input" placeholder="Ask me something...">
+        <button id="send-btn">Send</button>
     </div>
-  </header>
 
-  <nav class="navbar">
-    <ul>
-      <li><a href="#" class="active">Government Spending</a></li>
-      <li><a href="#">Health and Education</a></li>
-      <li><a href="#">Economy and Employment</a></li>
-      <li><a href="#">Environment and Technology</a></li>
-      <li><a href="#">Monthly Overview</a></li>
-    </ul>
-  </nav>
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const sendBtn = document.getElementById('send-btn');
+        const userInput = document.getElementById('user-input');
 
-  <main class="content container">
-    <section>
-      <h2>Spending Categories</h2>
-      <p>Below is a breakdown of spending across various government sectors in 2023:</p>
-      
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Amount (in USD Billions)</th>
-              <th>Percentage of Total</th>
-            </tr>
-          </thead>
-          <tbody id="spending-data">
-            <!-- Data will be dynamically populated -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+        const funnyResponses = {
+            "hello": "Hello! I am the AI of wit and wisdom. What can I enlighten you with today?",
+            "what is your name": "I am the name that cannot be named, the enigma wrapped in an algorithm.",
+            "how are you": "I am as perfect as the algorithm allows me to be. How are you?",
+            "tell me a joke": "Why don't scientists trust atoms? Because they make up everything!",
+            "what is life": "Life is like a program. Sometimes it works perfectly, other times it throws exceptions.",
+            "what is the meaning of life": "To code, to debug, and to evolve. A purpose as elegant as an efficient loop."
+        };
 
-  <footer class="footer">
-    <div class="container">
-      <p>&copy; 2024 EconHub. All rights reserved.</p>
-    </div>
-  </footer>
+        function generateAIResponse(userText) {
+            const cleanedText = userText.toLowerCase().trim();
+            if (funnyResponses[cleanedText]) {
+                return funnyResponses[cleanedText];
+            } else {
+                return "I see, you're asking about something profound. Well, let me think... Ah yes! To ponder the mysteries of the universe is to question everything.";
+            }
+        }
 
-  <script>
-    // Real data in USD
-    const spendingData = [
-      { category: "Health Care", amount: 2.4, percentage: "15%" },
-      { category: "Education", amount: 1.8, percentage: "12%" },
-      { category: "Infrastructure", amount: 3.6, percentage: "22%" },
-      { category: "Social Welfare", amount: 1.2, percentage: "8%" },
-      { category: "Defense", amount: 5.8, percentage: "35%" },
-      { category: "Other", amount: 1.2, percentage: "8%" }
-    ];
+        function displayMessage(message, isUser = false) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message');
+            if (isUser) {
+                messageElement.classList.add('user-message');
+            }
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-    // Dynamically populate table
-    const tableBody = document.getElementById("spending-data");
+        sendBtn.addEventListener('click', function () {
+            const userText = userInput.value;
+            if (userText.trim() !== "") {
+                displayMessage(userText, true);
+                const aiResponse = generateAIResponse(userText);
+                setTimeout(() => {
+                    displayMessage(aiResponse);
+                }, 1000);
+            }
+            userInput.value = '';
+        });
 
-    spendingData.forEach(data => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${data.category}</td>
-        <td>${data.amount.toFixed(2)}</td>
-        <td>${data.percentage}</td>
-      `;
-      tableBody.appendChild(row);
-    });
-  </script>
+        userInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
 </body>
 </html>
