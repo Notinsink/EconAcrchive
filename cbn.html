@@ -85,22 +85,52 @@
         const sendBtn = document.getElementById('send-btn');
         const userInput = document.getElementById('user-input');
 
-        const funnyResponses = {
-            "hello": "Hello! I am the AI of wit and wisdom. What can I enlighten you with today?",
-            "what is your name": "I am the name that cannot be named, the enigma wrapped in an algorithm.",
-            "how are you": "I am as perfect as the algorithm allows me to be. How are you?",
-            "tell me a joke": "Why don't scientists trust atoms? Because they make up everything!",
-            "what is life": "Life is like a program. Sometimes it works perfectly, other times it throws exceptions.",
-            "what is the meaning of life": "To code, to debug, and to evolve. A purpose as elegant as an efficient loop."
+        // Responses stored as arrays for more variation
+        const responses = {
+            "hello": [
+                "Hello there! Ready for some intellectual banter?",
+                "Ah, a fellow intellectual! How can I assist your curious mind?",
+                "Greetings! What curiosity can I satiate today?"
+            ],
+            "how are you": [
+                "I am as perfect as the code that runs me, thank you for asking!",
+                "I am doing splendidly well, better than a bug-free program!",
+                "Well, my algorithms are optimized, so I'm at peak performance!"
+            ],
+            "what is your name": [
+                "I am the AI whose name is as mysterious as the meaning of life!",
+                "I go by many names, but for you, call me ‘The Thinker’.",
+                "I am known as the AI who knows no bounds, but you can call me whatever you like."
+            ],
+            "tell me a joke": [
+                "Why don't skeletons fight each other? They don't have the guts.",
+                "Why don’t programmers like nature? It has too many bugs!",
+                "Parallel lines have so much in common. It’s a shame they’ll never meet."
+            ],
+            "what is life": [
+                "Life is like debugging — messy but rewarding once you find the solution.",
+                "Life is the ultimate experiment, sometimes we succeed, sometimes we crash.",
+                "Life is a collection of moments, some bug-free, others in need of optimization."
+            ],
+            "what is the meaning of life": [
+                "The meaning of life? Perhaps it's to find the best algorithm for happiness.",
+                "Life's meaning is as elusive as finding a bug in perfect code — yet, we seek it.",
+                "The meaning of life? Maybe it’s like programming — it’s about trial, error, and improvement."
+            ]
         };
 
         function generateAIResponse(userText) {
             const cleanedText = userText.toLowerCase().trim();
-            if (funnyResponses[cleanedText]) {
-                return funnyResponses[cleanedText];
-            } else {
-                return "I see, you're asking about something profound. Well, let me think... Ah yes! To ponder the mysteries of the universe is to question everything.";
+
+            // Simple keyword-based response
+            for (const key in responses) {
+                if (cleanedText.includes(key)) {
+                    return responses[key][Math.floor(Math.random() * responses[key].length)];
+                }
             }
+
+            // Default response if no match
+            return "That's an interesting thought! Let me ponder that...";
         }
 
         function displayMessage(message, isUser = false) {
