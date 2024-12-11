@@ -1,148 +1,190 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Football Match Game</title>
+  <meta name="description" content="2023 Government Spending in Nigeria (USD)">
+  <title>2023 Nigeria Government Spending</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    /* General Styles */
+    * {
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f0f0f0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f9f9f9;
     }
 
     .container {
-      text-align: center;
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
-    h1 {
-      color: #333;
-    }
-
-    .teams {
-      display: flex;
-      justify-content: space-between;
-      margin: 20px 0;
-    }
-
-    .team {
-      background: #e3f2fd;
-      border-radius: 5px;
-      padding: 15px;
-      width: 45%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .odds {
-      font-weight: bold;
-      color: #1976d2;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      background: #1976d2;
+    /* Header */
+    .header {
+      background-color: #0066cc;
       color: #fff;
-      font-size: 16px;
-      cursor: pointer;
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+    }
+
+    .header p {
+      font-size: 1.2rem;
+    }
+
+    /* Navigation */
+    .navbar {
+      background-color: #004a99;
+      padding: 0.5rem 0;
+    }
+
+    .navbar ul {
+      display: flex;
+      justify-content: center;
+      list-style: none;
+    }
+
+    .navbar ul li {
+      margin: 0 1rem;
+    }
+
+    .navbar ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .navbar ul li a:hover {
+      background-color: #003366;
       border-radius: 5px;
     }
 
-    button:hover {
-      background: #005bb5;
+    /* Main Content */
+    .content {
+      padding: 2rem 0;
     }
 
-    .result {
-      margin-top: 20px;
-      font-size: 18px;
-      color: #333;
+    h2 {
+      color: #0066cc;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background-color: #fff;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 1rem;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    td {
+      text-align: center;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 1rem 0;
+      background-color: #004a99;
+      color: #fff;
+      margin-top: 2rem;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Football Match Game</h1>
-    <div class="teams">
-      <div class="team">
-        <p id="team1-name">Team 1</p>
-        <p class="odds" id="team1-odds">Odds: 0</p>
-      </div>
-      <div class="team">
-        <p id="team2-name">Team 2</p>
-        <p class="odds" id="team2-odds">Odds: 0</p>
-      </div>
+  <header class="header">
+    <div class="container">
+      <h1>2023 Government Spending in Nigeria (USD)</h1>
+      <p>A detailed breakdown of Nigeria's government expenditures for 2023.</p>
     </div>
-    <button onclick="playGame()">Play Game</button>
-    <div class="result" id="result"></div>
-  </div>
+  </header>
+
+  <nav class="navbar">
+    <ul>
+      <li><a href="#" class="active">Government Spending</a></li>
+      <li><a href="#">Health and Education</a></li>
+      <li><a href="#">Economy and Employment</a></li>
+      <li><a href="#">Environment and Technology</a></li>
+      <li><a href="#">Monthly Overview</a></li>
+    </ul>
+  </nav>
+
+  <main class="content container">
+    <section>
+      <h2>Spending Categories</h2>
+      <p>Below is a breakdown of spending across various government sectors in 2023:</p>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Amount (in USD Billions)</th>
+              <th>Percentage of Total</th>
+            </tr>
+          </thead>
+          <tbody id="spending-data">
+            <!-- Data will be dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 EconHub. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
-    // List of Teams
-    const teams = [
-      "Manchester United",
-      "Chelsea",
-      "Arsenal",
-      "Liverpool",
-      "Real Madrid",
-      "Barcelona",
-      "Bayern Munich",
-      "Juventus",
-      "PSG",
-      "AC Milan"
+    // Real data in USD
+    const spendingData = [
+      { category: "Health Care", amount: 2.4, percentage: "15%" },
+      { category: "Education", amount: 1.8, percentage: "12%" },
+      { category: "Infrastructure", amount: 3.6, percentage: "22%" },
+      { category: "Social Welfare", amount: 1.2, percentage: "8%" },
+      { category: "Defense", amount: 5.8, percentage: "35%" },
+      { category: "Other", amount: 1.2, percentage: "8%" }
     ];
 
-    // Function to generate random team and odds
-    function generateRandomTeams() {
-      const team1Index = Math.floor(Math.random() * teams.length);
-      let team2Index;
-      do {
-        team2Index = Math.floor(Math.random() * teams.length);
-      } while (team2Index === team1Index);
+    // Dynamically populate table
+    const tableBody = document.getElementById("spending-data");
 
-      const team1Odds = (Math.random() * 2 + 1).toFixed(2); // Random odds between 1.00 and 3.00
-      const team2Odds = (Math.random() * 2 + 1).toFixed(2); // Random odds between 1.00 and 3.00
-
-      return {
-        team1: { name: teams[team1Index], odds: parseFloat(team1Odds) },
-        team2: { name: teams[team2Index], odds: parseFloat(team2Odds) },
-      };
-    }
-
-    // Function to play the game
-    function playGame() {
-      // Generate random teams and odds
-      const { team1, team2 } = generateRandomTeams();
-
-      // Update the UI
-      document.getElementById("team1-name").textContent = team1.name;
-      document.getElementById("team1-odds").textContent = `Odds: ${team1.odds}`;
-      document.getElementById("team2-name").textContent = team2.name;
-      document.getElementById("team2-odds").textContent = `Odds: ${team2.odds}`;
-
-      // Determine the winner based on odds
-      const totalOdds = team1.odds + team2.odds;
-      const randomChance = Math.random() * totalOdds;
-
-      let winner;
-      if (randomChance < team1.odds) {
-        winner = team1.name;
-      } else {
-        winner = team2.name;
-      }
-
-      // Display the result
-      document.getElementById("result").textContent = `The winner is: ${winner}`;
-    }
+    spendingData.forEach(data => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${data.category}</td>
+        <td>${data.amount.toFixed(2)}</td>
+        <td>${data.percentage}</td>
+      `;
+      tableBody.appendChild(row);
+    });
   </script>
 </body>
 </html>
