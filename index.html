@@ -1,53 +1,93 @@
-<!-- archive.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EconArchive</title>
-<link rel="stylesheet" href="archive.css">
+  <meta charset="UTF-8" />
+  <title>Bubbly Mind Map</title>
+  <style>
+    body {
+      margin: 0;
+      background: #1e1e2f;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    .bubble {
+      position: absolute;
+      background: #4dabf7;
+      color: white;
+      border-radius: 50%;
+      padding: 20px;
+      cursor: move;
+      text-align: center;
+      box-shadow: 0 0 15px #0006;
+      user-select: none;
+      transition: transform 0.2s;
+    }
+    .bubble:hover {
+      transform: scale(1.1);
+      background: #339af0;
+    }
+    #addBubble {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      background: #ffffff10;
+      color: white;
+      border: 1px solid #fff3;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-<header>
-<div class="logo-search-container">
-<span class="logo"><i class="fas fa-search"></i>EconArchive</span>
-<select id="search-select">
-<option value="">Select an institution</option>
-<option value="cbn.html">Central Bank of Nigeria (CBN)</option>
-<option value="nse.html">Nigerian Stock Exchange (NSE)</option>
-<option value="sec.html">Securities and Exchange Commission (SEC)</option>
-<option value="pencom.html">National Pension Commission (PENCOM)</option>
-<option value="firs.html">Federal Inland Revenue Service (FIRS)</option>
-<option value="ndic.html">Nigerian Deposit Insurance Corporation (NDIC)</option>
-<option value="amcon.html">Asset Management Corporation of Nigeria (AMCON)</option>
-<option value="nexim.html">Nigerian Export-Import Bank (NEXIM)</option>
-<option value="boi.html">Bank of Industry (BOI)</option>
-<option value="dbn.html">Development Bank of Nigeria (DBN)</option>
-<option value="fmf.html">Federal Ministry of Finance</option>
-<option value="nnpc.html">Nigerian National Petroleum Corporation (NNPC)</option>
-<option value="nipc.html">Nigerian Investment Promotion Commission (NIPC)</option>
-<option value="smedan.html">Small and Medium Enterprises Development Agency of Nigeria (SMEDAN)</option>
-<option value="nbs.html">National Bureau of Statistics (NBS)</option>
-<option value="ncs.html">Nigerian Customs Service (NCS)</option>
-<option value="fmbn.html">Federal Mortgage Bank of Nigeria (FMBN)</option>
-<option value="npa.html">Nigerian Ports Authority (NPA)</option>
-<option value="nsc.html">Nigerian Shippers' Council (NSC)</option>
-<option value="icrc.html">Infrastructure Concession Regulatory Commission (ICRC)</option>
-</select>
-<button id="search-button">select</button>
-</div>
-</header>
-<main>
-    <!-- main content will go here -->
-</main>
-<script>
-document.getElementById('search-button').addEventListener('click', function() {
-var institution = document.getElementById('search-select').value;
-if (institution!== '') {
-window.location.href = institution;
-}
-});
-</script>
+
+  <button id="addBubble">Add Idea</button>
+
+  <script>
+    let count = 0;
+
+    function createBubble(text = "Idea " + (++count), x = 100, y = 100) {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      bubble.style.left = x + 'px';
+      bubble.style.top = y + 'px';
+
+      // Drag logic
+      let offsetX, offsetY, dragging = false;
+
+      bubble.addEventListener('mousedown', (e) => {
+        dragging = true;
+        offsetX = e.clientX - bubble.offsetLeft;
+        offsetY = e.clientY - bubble.offsetTop;
+      });
+
+      document.addEventListener('mouseup', () => dragging = false);
+      document.addEventListener('mousemove', (e) => {
+        if (dragging) {
+          bubble.style.left = (e.clientX - offsetX) + 'px';
+          bubble.style.top = (e.clientY - offsetY) + 'px';
+        }
+      });
+
+      // Click to prompt analysis (replace with AI call later)
+      bubble.addEventListener('dblclick', () => {
+        alert("Analysis of '" + bubble.textContent + "':\n(You can integrate AI here!)");
+      });
+
+      document.body.appendChild(bubble);
+    }
+
+    // Initial bubble
+    createBubble("Main Idea", window.innerWidth/2 - 50, window.innerHeight/2 - 50);
+
+    // Add new bubble on button click
+    document.getElementById('addBubble').addEventListener('click', () => {
+      const x = Math.random() * (window.innerWidth - 150);
+      const y = Math.random() * (window.innerHeight - 150);
+      const idea = prompt("Enter your idea:");
+      if (idea) createBubble(idea, x, y);
+    });
+  </script>
 </body>
 </html>
