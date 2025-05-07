@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smart Mind Map</title>
+  <title>Mind Map with Movable Nodes</title>
   <style>
     body {
       margin: 0;
@@ -15,20 +15,15 @@
       position: absolute;
       padding: 20px;
       color: white;
-      cursor: move;
+      cursor: grab;
       text-align: center;
       font-size: 14px;
       box-shadow: 0 0 10px #0006;
       user-select: none;
-      transition: transform 0.2s;
-    }
-
-    .node:hover {
-      transform: scale(1.05);
     }
 
     .circle { border-radius: 50%; }
-    .square { border-radius: 8px; }
+    .square { border-radius: 10px; }
     .diamond {
       transform: rotate(45deg);
       width: 100px;
@@ -39,38 +34,36 @@
     }
 
     #controls {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: #ffffff0f;
-      padding: 15px;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
       border-radius: 10px;
-      border: 1px solid #fff3;
       color: white;
-      z-index: 10;
+      z-index: 1000;
     }
 
-    label, select, input, textarea {
+    label, input, select, textarea {
       display: block;
-      margin: 6px 0;
+      margin-bottom: 6px;
+      font-size: 14px;
       width: 200px;
     }
 
     button {
-      margin-top: 10px;
       padding: 6px 12px;
+      background: #3498db;
       border: none;
-      border-radius: 6px;
-      background: #2f80ed;
+      border-radius: 5px;
       color: white;
       cursor: pointer;
     }
 
     button:hover {
-      background: #1c65d1;
+      background: #2980b9;
     }
 
-    /* Note popup */
     #notePopup {
       position: absolute;
       background: #1e1e2e;
@@ -81,8 +74,9 @@
       display: none;
       z-index: 1000;
     }
+
     #notePopup textarea {
-      width: 100%;
+      width: 250px;
       height: 100px;
       margin-bottom: 10px;
     }
@@ -91,11 +85,11 @@
 <body>
 
   <div id="controls">
-    <label>Idea:
-      <input type="text" id="nodeText" placeholder="Enter your idea" />
+    <label>Text:
+      <input type="text" id="nodeText" placeholder="Enter idea" />
     </label>
     <label>Note:
-      <textarea id="nodeNote" placeholder="Add a note (optional)"></textarea>
+      <textarea id="nodeNote" placeholder="Add note"></textarea>
     </label>
     <label>Color:
       <input type="color" id="nodeColor" value="#4dabf7" />
@@ -112,19 +106,18 @@
 
   <div id="notePopup">
     <textarea id="editNote"></textarea>
-    <button onclick="saveNote()">Save Note</button>
-    <button onclick="analyzeNote()">Analyze (AI)</button>
+    <button onclick="saveNote()">Save</button>
+    <button onclick="analyzeNote()">AI Analyze</button>
   </div>
 
   <script>
-    let count = 0;
     let currentNode = null;
 
     function addNode() {
-      const text = document.getElementById('nodeText').value || "Idea " + (++count);
+      const text = document.getElementById('nodeText').value || "Idea";
+      const note = document.getElementById('nodeNote').value;
       const color = document.getElementById('nodeColor').value;
       const shape = document.getElementById('nodeShape').value;
-      const note = document.getElementById('nodeNote').value;
 
       const node = document.createElement('div');
       node.className = `node ${shape}`;
@@ -132,36 +125,32 @@
       node.style.background = color;
       node.dataset.note = note;
 
-      const x = Math.random() * (window.innerWidth - 200);
-      const y = Math.random() * (window.innerHeight - 200);
-      node.style.left = x + 'px';
-      node.style.top = y + 'px';
+      node.style.left = Math.random() * (window.innerWidth - 150) + 'px';
+      node.style.top = Math.random() * (window.innerHeight - 150) + 'px';
 
-      if (shape === "diamond") {
-        node.style.width = '100px';
-        node.style.height = '100px';
-        node.style.padding = '0';
-        node.style.display = 'flex';
-        node.style.alignItems = 'center';
-        node.style.justifyContent = 'center';
-      }
-
-      // Drag logic
-      let dragging = false, offsetX, offsetY;
-      node.addEventListener('mousedown', (e) => {
-        dragging = true;
+      // Dragging
+      let offsetX, offsetY;
+      node.addEventListener('mousedown', function (e) {
+        node.style.cursor = "grabbing";
         offsetX = e.clientX - node.offsetLeft;
         offsetY = e.clientY - node.offsetTop;
-      });
-      document.addEventListener('mouseup', () => dragging = false);
-      document.addEventListener('mousemove', (e) => {
-        if (dragging) {
-          node.style.left = (e.clientX - offsetX) + 'px';
-          node.style.top = (e.clientY - offsetY) + 'px';
+
+        function moveAt(ev) {
+          node.style.left = ev.clientX - offsetX + 'px';
+          node.style.top = ev.clientY - offsetY + 'px';
         }
+
+        function stopMove() {
+          document.removeEventListener('mousemove', moveAt);
+          document.removeEventListener('mouseup', stopMove);
+          node.style.cursor = "grab";
+        }
+
+        document.addEventListener('mousemove', moveAt);
+        document.addEventListener('mouseup', stopMove);
       });
 
-      // Double-click to open note editor
+      // Double click to show note
       node.addEventListener('dblclick', (e) => {
         currentNode = node;
         const popup = document.getElementById('notePopup');
@@ -183,11 +172,8 @@
 
     function analyzeNote() {
       const note = document.getElementById('editNote').value;
-      alert("AI Analysis:\n" + note + "\n\n(Here you can connect an AI model like OpenAI to analyze this)");
+      alert("AI says:\n\n" + note + "\n\n(This is where real AI suggestions would go.)");
     }
-
-    // Add one initial node
-    addNode();
   </script>
 </body>
 </html>
