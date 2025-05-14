@@ -2,178 +2,222 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Mind Map with Movable Nodes</title>
+  <title>SimuTrade - Learn to Trade</title>
   <style>
     body {
-      margin: 0;
-      background: #121826;
       font-family: Arial, sans-serif;
-      overflow: hidden;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
     }
-
-    .node {
-      position: absolute;
-      padding: 20px;
+    header {
+      background: #1a202c;
       color: white;
-      cursor: grab;
+      padding: 1em;
       text-align: center;
-      font-size: 14px;
-      box-shadow: 0 0 10px #0006;
-      user-select: none;
     }
-
-    .circle { border-radius: 50%; }
-    .square { border-radius: 10px; }
-    .diamond {
-      transform: rotate(45deg);
-      width: 100px;
-      height: 100px;
+    .container {
       display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #controls {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 10px;
-      border-radius: 10px;
-      color: white;
-      z-index: 1000;
-    }
-
-    label, input, select, textarea {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-      width: 200px;
-    }
-
-    button {
-      padding: 6px 12px;
-      background: #3498db;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #2980b9;
-    }
-
-    #notePopup {
-      position: absolute;
-      background: #1e1e2e;
-      color: white;
       padding: 20px;
-      border: 1px solid #444;
-      border-radius: 10px;
-      display: none;
-      z-index: 1000;
     }
-
-    #notePopup textarea {
-      width: 250px;
-      height: 100px;
-      margin-bottom: 10px;
+    .chart, .trade-panel, .portfolio {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 10px;
+      flex: 1;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    canvas {
+      width: 100%;
+      height: 200px;
+    }
+    select, input, button {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    .profit {
+      color: green;
+    }
+    .loss {
+      color: red;
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>SimuTrade</h1>
+    <p>Learn to Trade Like a Pro</p>
+  </header>
 
-  <div id="controls">
-    <label>Text:
-      <input type="text" id="nodeText" placeholder="Enter idea" />
-    </label>
-    <label>Note:
-      <textarea id="nodeNote" placeholder="Add note"></textarea>
-    </label>
-    <label>Color:
-      <input type="color" id="nodeColor" value="#4dabf7" />
-    </label>
-    <label>Shape:
-      <select id="nodeShape">
-        <option value="circle">Circle</option>
-        <option value="square">Square</option>
-        <option value="diamond">Diamond</option>
+  <div class="container">
+    <div class="chart">
+      <h3>Stock Chart</h3>
+      <select id="stock-select">
+        <option value="AAPL">AAPL</option>
+        <option value="GOOG">GOOG</option>
+        <option value="TSLA">TSLA</option>
+        <option value="AMZN">AMZN</option>
       </select>
-    </label>
-    <button onclick="addNode()">Add Node</button>
-  </div>
+      <canvas id="chart-canvas"></canvas>
+    </div>
 
-  <div id="notePopup">
-    <textarea id="editNote"></textarea>
-    <button onclick="saveNote()">Save</button>
-    <button onclick="analyzeNote()">AI Analyze</button>
+    <div class="trade-panel">
+      <h3>Place a Trade</h3>
+      <label>Stock:</label>
+      <select id="trade-stock">
+        <option value="AAPL">AAPL</option>
+        <option value="GOOG">GOOG</option>
+        <option value="TSLA">TSLA</option>
+        <option value="AMZN">AMZN</option>
+      </select>
+      <label>Quantity:</label>
+      <input type="number" id="quantity" value="1" min="1" />
+      <button onclick="buyStock()">Buy</button>
+      <button onclick="sellStock()">Sell</button>
+    </div>
+
+    <div class="portfolio">
+      <h3>Your Portfolio</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Stock</th>
+            <th>Quantity</th>
+            <th>Avg Price</th>
+            <th>Current Price</th>
+            <th>P/L</th>
+          </tr>
+        </thead>
+        <tbody id="portfolio-body"></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
-    let currentNode = null;
+    const stocks = {
+      AAPL: 150,
+      GOOG: 2700,
+      TSLA: 700,
+      AMZN: 3300
+    };
 
-    function addNode() {
-      const text = document.getElementById('nodeText').value || "Idea";
-      const note = document.getElementById('nodeNote').value;
-      const color = document.getElementById('nodeColor').value;
-      const shape = document.getElementById('nodeShape').value;
+    let prices = {...stocks};
 
-      const node = document.createElement('div');
-      node.className = `node ${shape}`;
-      node.textContent = text;
-      node.style.background = color;
-      node.dataset.note = note;
+    const chartCanvas = document.getElementById("chart-canvas");
+    const ctx = chartCanvas.getContext("2d");
 
-      node.style.left = Math.random() * (window.innerWidth - 150) + 'px';
-      node.style.top = Math.random() * (window.innerHeight - 150) + 'px';
+    let chartData = Array(30).fill(0).map(() => Math.random() * 100 + 100);
 
-      // Dragging
-      let offsetX, offsetY;
-      node.addEventListener('mousedown', function (e) {
-        node.style.cursor = "grabbing";
-        offsetX = e.clientX - node.offsetLeft;
-        offsetY = e.clientY - node.offsetTop;
-
-        function moveAt(ev) {
-          node.style.left = ev.clientX - offsetX + 'px';
-          node.style.top = ev.clientY - offsetY + 'px';
-        }
-
-        function stopMove() {
-          document.removeEventListener('mousemove', moveAt);
-          document.removeEventListener('mouseup', stopMove);
-          node.style.cursor = "grab";
-        }
-
-        document.addEventListener('mousemove', moveAt);
-        document.addEventListener('mouseup', stopMove);
+    function drawChart(stock) {
+      ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+      ctx.beginPath();
+      chartData.forEach((price, index) => {
+        const x = index * (chartCanvas.width / chartData.length);
+        const y = chartCanvas.height - price;
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       });
-
-      // Double click to show note
-      node.addEventListener('dblclick', (e) => {
-        currentNode = node;
-        const popup = document.getElementById('notePopup');
-        document.getElementById('editNote').value = node.dataset.note || "";
-        popup.style.left = e.pageX + 'px';
-        popup.style.top = e.pageY + 'px';
-        popup.style.display = 'block';
-      });
-
-      document.body.appendChild(node);
+      ctx.strokeStyle = "#4a90e2";
+      ctx.stroke();
     }
 
-    function saveNote() {
-      if (currentNode) {
-        currentNode.dataset.note = document.getElementById('editNote').value;
-        document.getElementById('notePopup').style.display = 'none';
+    function updatePrices() {
+      for (let stock in prices) {
+        const change = (Math.random() - 0.5) * 10;
+        prices[stock] = Math.max(1, prices[stock] + change);
+      }
+      drawChart(document.getElementById("stock-select").value);
+      updatePortfolio();
+    }
+
+    function getPortfolio() {
+      return JSON.parse(localStorage.getItem("portfolio") || "{}");
+    }
+
+    function savePortfolio(p) {
+      localStorage.setItem("portfolio", JSON.stringify(p));
+    }
+
+    function buyStock() {
+      const stock = document.getElementById("trade-stock").value;
+      const qty = parseInt(document.getElementById("quantity").value);
+      const price = prices[stock];
+      let portfolio = getPortfolio();
+
+      if (!portfolio[stock]) {
+        portfolio[stock] = { qty: 0, avg: 0 };
+      }
+
+      const current = portfolio[stock];
+      const totalCost = current.avg * current.qty + price * qty;
+      const totalQty = current.qty + qty;
+      current.avg = totalCost / totalQty;
+      current.qty = totalQty;
+      savePortfolio(portfolio);
+      updatePortfolio();
+    }
+
+    function sellStock() {
+      const stock = document.getElementById("trade-stock").value;
+      const qty = parseInt(document.getElementById("quantity").value);
+      const price = prices[stock];
+      let portfolio = getPortfolio();
+
+      if (!portfolio[stock] || portfolio[stock].qty < qty) {
+        alert("You don't own enough shares!");
+        return;
+      }
+
+      portfolio[stock].qty -= qty;
+      if (portfolio[stock].qty === 0) {
+        delete portfolio[stock];
+      }
+      savePortfolio(portfolio);
+      updatePortfolio();
+    }
+
+    function updatePortfolio() {
+      const tbody = document.getElementById("portfolio-body");
+      tbody.innerHTML = "";
+      const portfolio = getPortfolio();
+
+      for (let stock in portfolio) {
+        const { qty, avg } = portfolio[stock];
+        const current = prices[stock];
+        const pl = (current - avg) * qty;
+        const row = `<tr>
+          <td>${stock}</td>
+          <td>${qty}</td>
+          <td>$${avg.toFixed(2)}</td>
+          <td>$${current.toFixed(2)}</td>
+          <td class="${pl >= 0 ? "profit" : "loss"}">$${pl.toFixed(2)}</td>
+        </tr>`;
+        tbody.innerHTML += row;
       }
     }
 
-    function analyzeNote() {
-      const note = document.getElementById('editNote').value;
-      alert("AI says:\n\n" + note + "\n\n(This is where real AI suggestions would go.)");
-    }
+    // Auto-update
+    setInterval(updatePrices, 3000);
+
+    document.getElementById("stock-select").addEventListener("change", function() {
+      drawChart(this.value);
+    });
+
+    drawChart("AAPL");
+    updatePortfolio();
   </script>
 </body>
 </html>
