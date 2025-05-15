@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Realistic Trading Simulator</title>
+  <meta charset="UTF-8" />
+  <title>Trading Simulator with Time</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -59,12 +59,12 @@
   </style>
 </head>
 <body>
-  <header>Realistic Trading Simulator</header>
+  <header>Trading Simulator with Time</header>
   <div id="content">
     <div id="market">
       <h2>Market</h2>
       <div id="assets"></div>
-      <canvas id="chart" width="600" height="300"></canvas>
+      <canvas id="chart" width="800" height="300"></canvas>
     </div>
     <div id="portfolio">
       <h2>Portfolio</h2>
@@ -72,7 +72,8 @@
       <div id="holdings"></div>
     </div>
   </div>
-    <script>
+
+  <script>
     const assets = [
       { name: 'Gold', type: 'Commodity', price: 1950 },
       { name: 'Crude Oil', type: 'Commodity', price: 85 },
@@ -85,12 +86,24 @@
     ];
     let balance = 10000;
     const holdings = {};
-
     const priceHistory = {};
-
+    const timeHistory = {};
     const chart = document.getElementById('chart');
     const ctx = chart.getContext('2d');
     let selectedAsset = assets[0].name;
+
+    let timeMinutes = 0;
+
+    function getSimulatedTime() {
+      const day = Math.floor(timeMinutes / (24 * 60)) + 1;
+      const minutesInDay = timeMinutes % (24 * 60);
+      const hour = Math.floor(minutesInDay / 60);
+      const minute = minutesInDay % 60;
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+      const minStr = minute < 10 ? '0' + minute : minute;
+      return { label: `Day ${day} ${hour12}:${minStr} ${ampm}`, short: `${hour12}:${minStr}` };
+    }
 
     function randomVolatility(basePrice) {
       const volatility = 0.005 + Math.random() * 0.015;
@@ -101,8 +114,10 @@
       const container = document.getElementById('assets');
       container.innerHTML = '';
       assets.forEach(asset => {
-        if (!priceHistory[asset.name]) priceHistory[asset.name] = [asset.price];
-
+        if (!priceHistory[asset.name]) {
+          priceHistory[asset.name] = [asset.price];
+          timeHistory[asset.name] = [getSimulatedTime().label];
+        }
         const div = document.createElement('div');
         div.className = 'asset';
         div.innerHTML = `
@@ -154,14 +169,20 @@
     }
 
     function updatePrices() {
+      timeMinutes++;
+      const simTime = getSimulatedTime();
+
       assets.forEach(asset => {
         const newPrice = randomVolatility(asset.price);
         asset.price = newPrice;
         priceHistory[asset.name].push(newPrice);
+        timeHistory[asset.name].push(simTime.label);
         if (priceHistory[asset.name].length > 100) {
           priceHistory[asset.name].shift();
+          timeHistory[asset.name].shift();
         }
       });
+
       renderAssets();
       drawChart();
     }
@@ -169,18 +190,27 @@
     function drawChart() {
       ctx.clearRect(0, 0, chart.width, chart.height);
       const prices = priceHistory[selectedAsset];
+      const times = timeHistory[selectedAsset];
       if (!prices) return;
+
+      const max = Math.max(...prices);
+      const min = Math.min(...prices);
+      const range = max - min || 1;
+
       ctx.strokeStyle = 'green';
       ctx.beginPath();
       prices.forEach((p, i) => {
         const x = (i / prices.length) * chart.width;
-        const y = chart.height - (p / Math.max(...prices)) * chart.height + 10;
+        const y = chart.height - ((p - min) / range) * chart.height;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
       ctx.stroke();
-      ctx.fillStyle = 'black';
-      ctx.fillText(selectedAsset + " - $" + prices[prices.length - 1].toFixed(2), 10, 20);
+
+      ctx.fillStyle = '#000';
+      ctx.font = '14px monospace';
+      ctx.fillText(selectedAsset + " | $" + prices[prices.length - 1].toFixed(2), 10, 20);
+      ctx.fillText("Time: " + times[times.length - 1], 10, 40);
     }
 
     setInterval(updatePrices, 1000);
@@ -190,4 +220,3 @@
   </script>
 </body>
 </html>
-
