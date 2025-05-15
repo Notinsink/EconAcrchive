@@ -2,221 +2,264 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Trading Simulator with Time</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market Simulator</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #0e1117;
-      color: #eee;
       margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
     }
-    header {
-      background-color: #111;
-      padding: 15px;
-      text-align: center;
-      font-size: 24px;
-      color: #0f0;
-      border-bottom: 2px solid #222;
-    }
-    #content {
+
+    #app {
       display: flex;
-      flex-direction: row;
       height: 100vh;
     }
-    #market {
-      flex: 2;
-      padding: 20px;
+
+    #sidebar {
+      width: 250px;
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-right: 1px solid #ccc;
+      overflow-y: auto;
     }
-    #portfolio {
+
+    #sidebar h2, #sidebar h3 {
+      margin: 0 0 10px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    li:hover {
+      background-color: #e0e0e0;
+    }
+
+    #main {
       flex: 1;
-      background-color: #1a1d23;
-      padding: 20px;
-      border-left: 2px solid #222;
+      display: flex;
+      flex-direction: column;
     }
-    .asset {
+
+    header {
       display: flex;
       justify-content: space-between;
-      margin: 8px 0;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-bottom: 1px solid #ccc;
     }
-    button {
-      background-color: #08f;
-      color: white;
-      border: none;
-      padding: 4px 8px;
-      cursor: pointer;
-      margin-left: 5px;
+
+    #chart {
+      flex-grow: 1;
+      padding: 10px;
     }
-    button:hover {
-      background-color: #05c;
+
+    #controls, #trade {
+      display: flex;
+      justify-content: center;
+      padding: 10px;
     }
-    canvas {
-      background-color: #fff;
-      border: 2px solid #444;
-      margin-top: 20px;
-      width: 100%;
+
+    #controls button, #trade button {
+      margin: 0 5px;
+      padding: 8px 16px;
+    }
+
+    #trade input {
+      width: 120px;
+      padding: 8px;
+      margin-right: 10px;
     }
   </style>
 </head>
 <body>
-  <header>Trading Simulator with Time</header>
-  <div id="content">
-    <div id="market">
-      <h2>Market</h2>
-      <div id="assets"></div>
-      <canvas id="chart" width="800" height="300"></canvas>
-    </div>
-    <div id="portfolio">
-      <h2>Portfolio</h2>
-      <p>Balance: $<span id="balance">10000</span></p>
-      <div id="holdings"></div>
+  <div id="app">
+    <aside id="sidebar">
+      <h2>Categories</h2>
+      <ul id="categoryList"></ul>
+      <h3>Assets</h3>
+      <ul id="assetList"></ul>
+    </aside>
+    <div id="main">
+      <header>
+        <div id="balance">Balance: ₦50,000</div>
+        <div id="portfolio">Portfolio: 0</div>
+      </header>
+      <div id="chart"></div>
+      <div id="controls"></div>
+      <div id="trade">
+        <input type="number" id="amount" placeholder="Amount" />
+        <button id="buy">Buy</button>
+        <button id="sell">Sell</button>
+      </div>
     </div>
   </div>
 
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <script>
-    const assets = [
-      { name: 'Gold', type: 'Commodity', price: 1950 },
-      { name: 'Crude Oil', type: 'Commodity', price: 85 },
-      { name: 'EUR/USD', type: 'Forex', price: 1.1 },
-      { name: 'USD/JPY', type: 'Forex', price: 145 },
-      { name: 'AAPL', type: 'Stock', price: 180 },
-      { name: 'TSLA', type: 'Stock', price: 220 },
-      { name: 'Bitcoin Futures', type: 'Derivative', price: 65000 },
-      { name: 'VIX Option', type: 'Derivative', price: 17 }
-    ];
-    let balance = 10000;
-    const holdings = {};
-    const priceHistory = {};
-    const timeHistory = {};
-    const chart = document.getElementById('chart');
-    const ctx = chart.getContext('2d');
-    let selectedAsset = assets[0].name;
+    const API_KEY = 'YOUR_ALPHA_VANTAGE_API_KEY';
+    const categories = {
+      stocks: ['AAPL', 'MSFT', 'GOOGL'],
+      forex: ['EUR/USD', 'USD/JPY', 'GBP/USD'],
+      crypto: ['bitcoin', 'ethereum', 'litecoin'],
+      commodities: ['XAU', 'XAG', 'WTI']
+    };
 
-    let timeMinutes = 0;
+    let selectedCategory = 'stocks';
+    let selectedAsset = 'AAPL';
+    let balance = 50000;
+    let portfolio = {};
 
-    function getSimulatedTime() {
-      const day = Math.floor(timeMinutes / (24 * 60)) + 1;
-      const minutesInDay = timeMinutes % (24 * 60);
-      const hour = Math.floor(minutesInDay / 60);
-      const minute = minutesInDay % 60;
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 === 0 ? 12 : hour % 12;
-      const minStr = minute < 10 ? '0' + minute : minute;
-      return { label: `Day ${day} ${hour12}:${minStr} ${ampm}`, short: `${hour12}:${minStr}` };
+    const balanceEl = document.getElementById('balance');
+    const portfolioEl = document.getElementById('portfolio');
+    const categoryList = document.getElementById('categoryList');
+    const assetList = document.getElementById('assetList');
+    const chartDiv = document.getElementById('chart');
+    const controls = document.getElementById('controls');
+    const amountInput = document.getElementById('amount');
+    const buyBtn = document.getElementById('buy');
+    const sellBtn = document.getElementById('sell');
+
+    let chart, series;
+
+    function initialize() {
+      renderCategories();
+      renderAssets();
+      setupChart();
+      updateChart('1M');
+      renderTimeControls();
+      updateBalance();
+      updatePortfolio();
     }
 
-    function randomVolatility(basePrice) {
-      const volatility = 0.005 + Math.random() * 0.015;
-      return basePrice * (1 + (Math.random() - 0.5) * volatility * 10);
+    function renderCategories() {
+      categoryList.innerHTML = '';
+      for (const key in categories) {
+        const li = document.createElement('li');
+        li.textContent = key.toUpperCase();
+        li.onclick = () => {
+          selectedCategory = key;
+          selectedAsset = categories[key][0];
+          renderAssets();
+          updateChart('1M');
+        };
+        categoryList.appendChild(li);
+      }
     }
 
     function renderAssets() {
-      const container = document.getElementById('assets');
-      container.innerHTML = '';
-      assets.forEach(asset => {
-        if (!priceHistory[asset.name]) {
-          priceHistory[asset.name] = [asset.price];
-          timeHistory[asset.name] = [getSimulatedTime().label];
-        }
-        const div = document.createElement('div');
-        div.className = 'asset';
-        div.innerHTML = `
-          <span>${asset.name} (${asset.type}): $${asset.price.toFixed(2)}</span>
-          <span>
-            <button onclick="buy('${asset.name}')">Buy</button>
-            <button onclick="sell('${asset.name}')">Sell</button>
-            <button onclick="select('${asset.name}')">Chart</button>
-          </span>
-        `;
-        container.appendChild(div);
+      assetList.innerHTML = '';
+      categories[selectedCategory].forEach(asset => {
+        const li = document.createElement('li');
+        li.textContent = asset.toUpperCase();
+        li.onclick = () => {
+          selectedAsset = asset;
+          updateChart('1M');
+        };
+        assetList.appendChild(li);
       });
     }
 
-    function renderPortfolio() {
-      document.getElementById('balance').textContent = balance.toFixed(2);
-      const holdingsDiv = document.getElementById('holdings');
-      holdingsDiv.innerHTML = '';
-      for (const asset in holdings) {
-        const amt = holdings[asset];
-        const price = assets.find(a => a.name === asset).price;
-        const val = amt * price;
-        holdingsDiv.innerHTML += `<p>${asset}: ${amt} units ($${val.toFixed(2)})</p>`;
-      }
-    }
-
-    function buy(assetName) {
-      const asset = assets.find(a => a.name === assetName);
-      const cost = asset.price;
-      if (balance >= cost) {
-        balance -= cost;
-        holdings[assetName] = (holdings[assetName] || 0) + 1;
-        renderPortfolio();
-      }
-    }
-
-    function sell(assetName) {
-      if (holdings[assetName] > 0) {
-        const asset = assets.find(a => a.name === assetName);
-        balance += asset.price;
-        holdings[assetName]--;
-        renderPortfolio();
-      }
-    }
-
-    function select(name) {
-      selectedAsset = name;
-      drawChart();
-    }
-
-    function updatePrices() {
-      timeMinutes++;
-      const simTime = getSimulatedTime();
-
-      assets.forEach(asset => {
-        const newPrice = randomVolatility(asset.price);
-        asset.price = newPrice;
-        priceHistory[asset.name].push(newPrice);
-        timeHistory[asset.name].push(simTime.label);
-        if (priceHistory[asset.name].length > 100) {
-          priceHistory[asset.name].shift();
-          timeHistory[asset.name].shift();
-        }
+    function setupChart() {
+      chartDiv.innerHTML = '';
+      chart = LightweightCharts.createChart(chartDiv, {
+        width: chartDiv.clientWidth,
+        height: chartDiv.clientHeight,
+        layout: { backgroundColor: '#fff', textColor: '#000' },
+        grid: { vertLines: { color: '#eee' }, horzLines: { color: '#eee' } },
+        priceScale: { borderColor: '#ccc' },
+        timeScale: { borderColor: '#ccc', timeVisible: true }
       });
-
-      renderAssets();
-      drawChart();
+      series = chart.addCandlestickSeries();
     }
 
-    function drawChart() {
-      ctx.clearRect(0, 0, chart.width, chart.height);
-      const prices = priceHistory[selectedAsset];
-      const times = timeHistory[selectedAsset];
-      if (!prices) return;
-
-      const max = Math.max(...prices);
-      const min = Math.min(...prices);
-      const range = max - min || 1;
-
-      ctx.strokeStyle = 'green';
-      ctx.beginPath();
-      prices.forEach((p, i) => {
-        const x = (i / prices.length) * chart.width;
-        const y = chart.height - ((p - min) / range) * chart.height;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+    function renderTimeControls() {
+      ['1D', '1W', '1M', '3M', '6M', '1Y', '5Y'].forEach(label => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.onclick = () => updateChart(label);
+        controls.appendChild(btn);
       });
-      ctx.stroke();
-
-      ctx.fillStyle = '#000';
-      ctx.font = '14px monospace';
-      ctx.fillText(selectedAsset + " | $" + prices[prices.length - 1].toFixed(2), 10, 20);
-      ctx.fillText("Time: " + times[times.length - 1], 10, 40);
     }
 
-    setInterval(updatePrices, 1000);
-    renderAssets();
-    renderPortfolio();
-    drawChart();
+    async function updateChart(timeframe) {
+      let data;
+      if (selectedCategory === 'crypto') {
+        data = await fetchCrypto(selectedAsset, timeframe);
+      } else {
+        data = await fetchStock(selectedAsset, timeframe);
+      }
+      series.setData(data);
+    }
+
+    async function fetchStock(symbol, timeframe) {
+      const intervalMap = {
+        '1D': '60min', '1W': '60min', '1M': 'daily',
+        '3M': 'daily', '6M': 'daily', '1Y': 'weekly', '5Y': 'monthly'
+      };
+      const interval = intervalMap[timeframe] || 'daily';
+      const func = interval === '60min' ? 'TIME_SERIES_INTRADAY' : 'TIME_SERIES_' + interval.toUpperCase();
+      const url = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&interval=${interval}&apikey=${API_KEY}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      const key = Object.keys(json).find(k => k.includes('Time Series'));
+      const data = json[key];
+      return Object.entries(data).slice(0, 100).reverse().map(([date, val]) => {
+        const t = new Date(date).getTime() / 1000;
+        return { time: t, open: +val['1. open'], high: +val['2. high'], low: +val['3. low'], close: +val['4. close'] };
+      });
+    }
+
+    async function fetchCrypto(id, timeframe) {
+      const daysMap = { '1D': 1, '1W': 7, '1M': 30, '3M': 90, '6M': 180, '1Y': 365, '5Y': 1825 };
+      const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${daysMap[timeframe]}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      return data.prices.map(([time, price], i, arr) => {
+        const close = price;
+        const open = i > 0 ? arr[i - 1][1] : price;
+        const high = Math.max(open, close);
+        const low = Math.min(open, close);
+        return { time: Math.floor(time / 1000), open, high, low, close };
+      });
+    }
+
+    function updateBalance() {
+      balanceEl.textContent = `Balance: ₦${balance.toLocaleString()}`;
+    }
+
+    function updatePortfolio() {
+      portfolioEl.textContent = `Portfolio: ${portfolio[selectedAsset] || 0}`;
+    }
+
+    buyBtn.onclick = () => {
+      const amount = parseFloat(amountInput.value);
+      if (!isNaN(amount) && amount <= balance) {
+        balance -= amount;
+        portfolio[selectedAsset] = (portfolio[selectedAsset] || 0) + amount;
+        updateBalance();
+        updatePortfolio();
+      }
+    };
+
+    sellBtn.onclick = () => {
+      const amount = parseFloat(amountInput.value);
+      if (!isNaN(amount) && (portfolio[selectedAsset] || 0) >= amount) {
+        balance += amount;
+        portfolio[selectedAsset] -= amount;
+        updateBalance();
+        updatePortfolio();
+      }
+    };
+
+    initialize();
   </script>
 </body>
 </html>
