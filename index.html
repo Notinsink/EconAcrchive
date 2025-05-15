@@ -1,223 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>SimuTrade - Learn to Trade</title>
+  <meta charset="UTF-8">
+  <title>Realistic Trading Simulator</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0e1117;
+      color: #eee;
       margin: 0;
       padding: 0;
     }
     header {
-      background: #1a202c;
-      color: white;
-      padding: 1em;
+      background-color: #111;
+      padding: 15px;
       text-align: center;
+      font-size: 24px;
+      color: #0f0;
+      border-bottom: 2px solid #222;
     }
-    .container {
+    #content {
       display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+    #market {
+      flex: 2;
       padding: 20px;
     }
-    .chart, .trade-panel, .portfolio {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 10px;
+    #portfolio {
       flex: 1;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: #1a1d23;
+      padding: 20px;
+      border-left: 2px solid #222;
+    }
+    .asset {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+    }
+    button {
+      background-color: #08f;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    button:hover {
+      background-color: #05c;
     }
     canvas {
+      background-color: #fff;
+      border: 2px solid #444;
+      margin-top: 20px;
       width: 100%;
-      height: 200px;
-    }
-    select, input, button {
-      padding: 8px;
-      margin: 5px 0;
-      width: 100%;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-    .profit {
-      color: green;
-    }
-    .loss {
-      color: red;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>SimuTrade</h1>
-    <p>Learn to Trade Like a Pro</p>
-  </header>
-
-  <div class="container">
-    <div class="chart">
-      <h3>Stock Chart</h3>
-      <select id="stock-select">
-        <option value="AAPL">AAPL</option>
-        <option value="GOOG">GOOG</option>
-        <option value="TSLA">TSLA</option>
-        <option value="AMZN">AMZN</option>
-      </select>
-      <canvas id="chart-canvas"></canvas>
+  <header>Realistic Trading Simulator</header>
+  <div id="content">
+    <div id="market">
+      <h2>Market</h2>
+      <div id="assets"></div>
+      <canvas id="chart" width="600" height="300"></canvas>
     </div>
-
-    <div class="trade-panel">
-      <h3>Place a Trade</h3>
-      <label>Stock:</label>
-      <select id="trade-stock">
-        <option value="AAPL">AAPL</option>
-        <option value="GOOG">GOOG</option>
-        <option value="TSLA">TSLA</option>
-        <option value="AMZN">AMZN</option>
-      </select>
-      <label>Quantity:</label>
-      <input type="number" id="quantity" value="1" min="1" />
-      <button onclick="buyStock()">Buy</button>
-      <button onclick="sellStock()">Sell</button>
-    </div>
-
-    <div class="portfolio">
-      <h3>Your Portfolio</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Stock</th>
-            <th>Quantity</th>
-            <th>Avg Price</th>
-            <th>Current Price</th>
-            <th>P/L</th>
-          </tr>
-        </thead>
-        <tbody id="portfolio-body"></tbody>
-      </table>
+    <div id="portfolio">
+      <h2>Portfolio</h2>
+      <p>Balance: $<span id="balance">10000</span></p>
+      <div id="holdings"></div>
     </div>
   </div>
+    <script>
+    const assets = [
+      { name: 'Gold', type: 'Commodity', price: 1950 },
+      { name: 'Crude Oil', type: 'Commodity', price: 85 },
+      { name: 'EUR/USD', type: 'Forex', price: 1.1 },
+      { name: 'USD/JPY', type: 'Forex', price: 145 },
+      { name: 'AAPL', type: 'Stock', price: 180 },
+      { name: 'TSLA', type: 'Stock', price: 220 },
+      { name: 'Bitcoin Futures', type: 'Derivative', price: 65000 },
+      { name: 'VIX Option', type: 'Derivative', price: 17 }
+    ];
+    let balance = 10000;
+    const holdings = {};
 
-  <script>
-    const stocks = {
-      AAPL: 150,
-      GOOG: 2700,
-      TSLA: 700,
-      AMZN: 3300
-    };
+    const priceHistory = {};
 
-    let prices = {...stocks};
+    const chart = document.getElementById('chart');
+    const ctx = chart.getContext('2d');
+    let selectedAsset = assets[0].name;
 
-    const chartCanvas = document.getElementById("chart-canvas");
-    const ctx = chartCanvas.getContext("2d");
+    function randomVolatility(basePrice) {
+      const volatility = 0.005 + Math.random() * 0.015;
+      return basePrice * (1 + (Math.random() - 0.5) * volatility * 10);
+    }
 
-    let chartData = Array(30).fill(0).map(() => Math.random() * 100 + 100);
+    function renderAssets() {
+      const container = document.getElementById('assets');
+      container.innerHTML = '';
+      assets.forEach(asset => {
+        if (!priceHistory[asset.name]) priceHistory[asset.name] = [asset.price];
 
-    function drawChart(stock) {
-      ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-      ctx.beginPath();
-      chartData.forEach((price, index) => {
-        const x = index * (chartCanvas.width / chartData.length);
-        const y = chartCanvas.height - price;
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        const div = document.createElement('div');
+        div.className = 'asset';
+        div.innerHTML = `
+          <span>${asset.name} (${asset.type}): $${asset.price.toFixed(2)}</span>
+          <span>
+            <button onclick="buy('${asset.name}')">Buy</button>
+            <button onclick="sell('${asset.name}')">Sell</button>
+            <button onclick="select('${asset.name}')">Chart</button>
+          </span>
+        `;
+        container.appendChild(div);
       });
-      ctx.strokeStyle = "#4a90e2";
-      ctx.stroke();
+    }
+
+    function renderPortfolio() {
+      document.getElementById('balance').textContent = balance.toFixed(2);
+      const holdingsDiv = document.getElementById('holdings');
+      holdingsDiv.innerHTML = '';
+      for (const asset in holdings) {
+        const amt = holdings[asset];
+        const price = assets.find(a => a.name === asset).price;
+        const val = amt * price;
+        holdingsDiv.innerHTML += `<p>${asset}: ${amt} units ($${val.toFixed(2)})</p>`;
+      }
+    }
+
+    function buy(assetName) {
+      const asset = assets.find(a => a.name === assetName);
+      const cost = asset.price;
+      if (balance >= cost) {
+        balance -= cost;
+        holdings[assetName] = (holdings[assetName] || 0) + 1;
+        renderPortfolio();
+      }
+    }
+
+    function sell(assetName) {
+      if (holdings[assetName] > 0) {
+        const asset = assets.find(a => a.name === assetName);
+        balance += asset.price;
+        holdings[assetName]--;
+        renderPortfolio();
+      }
+    }
+
+    function select(name) {
+      selectedAsset = name;
+      drawChart();
     }
 
     function updatePrices() {
-      for (let stock in prices) {
-        const change = (Math.random() - 0.5) * 10;
-        prices[stock] = Math.max(1, prices[stock] + change);
-      }
-      drawChart(document.getElementById("stock-select").value);
-      updatePortfolio();
+      assets.forEach(asset => {
+        const newPrice = randomVolatility(asset.price);
+        asset.price = newPrice;
+        priceHistory[asset.name].push(newPrice);
+        if (priceHistory[asset.name].length > 100) {
+          priceHistory[asset.name].shift();
+        }
+      });
+      renderAssets();
+      drawChart();
     }
 
-    function getPortfolio() {
-      return JSON.parse(localStorage.getItem("portfolio") || "{}");
+    function drawChart() {
+      ctx.clearRect(0, 0, chart.width, chart.height);
+      const prices = priceHistory[selectedAsset];
+      if (!prices) return;
+      ctx.strokeStyle = 'green';
+      ctx.beginPath();
+      prices.forEach((p, i) => {
+        const x = (i / prices.length) * chart.width;
+        const y = chart.height - (p / Math.max(...prices)) * chart.height + 10;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.fillStyle = 'black';
+      ctx.fillText(selectedAsset + " - $" + prices[prices.length - 1].toFixed(2), 10, 20);
     }
 
-    function savePortfolio(p) {
-      localStorage.setItem("portfolio", JSON.stringify(p));
-    }
-
-    function buyStock() {
-      const stock = document.getElementById("trade-stock").value;
-      const qty = parseInt(document.getElementById("quantity").value);
-      const price = prices[stock];
-      let portfolio = getPortfolio();
-
-      if (!portfolio[stock]) {
-        portfolio[stock] = { qty: 0, avg: 0 };
-      }
-
-      const current = portfolio[stock];
-      const totalCost = current.avg * current.qty + price * qty;
-      const totalQty = current.qty + qty;
-      current.avg = totalCost / totalQty;
-      current.qty = totalQty;
-      savePortfolio(portfolio);
-      updatePortfolio();
-    }
-
-    function sellStock() {
-      const stock = document.getElementById("trade-stock").value;
-      const qty = parseInt(document.getElementById("quantity").value);
-      const price = prices[stock];
-      let portfolio = getPortfolio();
-
-      if (!portfolio[stock] || portfolio[stock].qty < qty) {
-        alert("You don't own enough shares!");
-        return;
-      }
-
-      portfolio[stock].qty -= qty;
-      if (portfolio[stock].qty === 0) {
-        delete portfolio[stock];
-      }
-      savePortfolio(portfolio);
-      updatePortfolio();
-    }
-
-    function updatePortfolio() {
-      const tbody = document.getElementById("portfolio-body");
-      tbody.innerHTML = "";
-      const portfolio = getPortfolio();
-
-      for (let stock in portfolio) {
-        const { qty, avg } = portfolio[stock];
-        const current = prices[stock];
-        const pl = (current - avg) * qty;
-        const row = `<tr>
-          <td>${stock}</td>
-          <td>${qty}</td>
-          <td>$${avg.toFixed(2)}</td>
-          <td>$${current.toFixed(2)}</td>
-          <td class="${pl >= 0 ? "profit" : "loss"}">$${pl.toFixed(2)}</td>
-        </tr>`;
-        tbody.innerHTML += row;
-      }
-    }
-
-    // Auto-update
-    setInterval(updatePrices, 3000);
-
-    document.getElementById("stock-select").addEventListener("change", function() {
-      drawChart(this.value);
-    });
-
-    drawChart("AAPL");
-    updatePortfolio();
+    setInterval(updatePrices, 1000);
+    renderAssets();
+    renderPortfolio();
+    drawChart();
   </script>
 </body>
 </html>
+
