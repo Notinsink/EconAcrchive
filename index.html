@@ -1,205 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Market Simulator</title>
+  <script src="https://unpkg.com/lightweight-charts@3.4.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     body {
       margin: 0;
+      background-color: #0d1117;
+      color: #c9d1d9;
       font-family: Arial, sans-serif;
     }
-
-    #app {
-      display: flex;
-      height: 100vh;
-    }
-
     #sidebar {
+      position: absolute;
       width: 250px;
-      background-color: #f9f9f9;
-      padding: 15px;
-      border-right: 1px solid #ccc;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      background-color: #161b22;
+      padding: 20px;
       overflow-y: auto;
+      border-right: 1px solid #30363d;
     }
-
-    #sidebar h2, #sidebar h3 {
-      margin: 0 0 10px;
+    #sidebar h2 {
+      margin-top: 0;
     }
-
-    ul {
+    .asset-category {
+      margin-bottom: 20px;
+    }
+    .asset-category h3 {
+      margin-bottom: 5px;
+    }
+    .asset-category ul {
       list-style-type: none;
-      padding: 0;
+      padding-left: 0;
     }
-
-    li {
-      padding: 8px;
+    .asset-category li {
       cursor: pointer;
-      transition: background-color 0.2s;
+      padding: 4px;
     }
-
-    li:hover {
-      background-color: #e0e0e0;
+    .asset-category li:hover {
+      background-color: #21262d;
     }
-
-    #main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    #chart-container {
+      margin-left: 250px;
+      padding: 20px;
     }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      padding: 15px;
-      background-color: #f0f0f0;
-      border-bottom: 1px solid #ccc;
-    }
-
-    #chart {
-      flex-grow: 1;
-      padding: 10px;
-    }
-
-    #controls, #trade {
-      display: flex;
-      justify-content: center;
-      padding: 10px;
-    }
-
-    #controls button, #trade button {
-      margin: 0 5px;
-      padding: 8px 16px;
-    }
-
-    #trade input {
-      width: 120px;
-      padding: 8px;
-      margin-right: 10px;
+    #profile {
+      margin-left: 250px;
+      padding: 20px;
+      border-top: 1px solid #30363d;
+      background-color: #0d1117;
     }
   </style>
 </head>
 <body>
-  <div id="app">
-    <aside id="sidebar">
-      <h2>Categories</h2>
-      <ul id="categoryList"></ul>
-      <h3>Assets</h3>
-      <ul id="assetList"></ul>
-    </aside>
-    <div id="main">
-      <header>
-        <div id="balance">Balance: ₦50,000</div>
-        <div id="portfolio">Portfolio: 0</div>
-      </header>
-      <div id="chart"></div>
-      <div id="controls"></div>
-      <div id="trade">
-        <input type="number" id="amount" placeholder="Amount" />
-        <button id="buy">Buy</button>
-        <button id="sell">Sell</button>
-      </div>
+  <div id="sidebar">
+    <h2>Asset Categories</h2>
+    <div class="asset-category">
+      <h3>Forex</h3>
+      <ul>
+        <li onclick="renderChart('USDNGN')">USD/NGN</li>
+        <li onclick="renderChart('EURUSD')">EUR/USD</li>
+        <li onclick="renderChart('GBPUSD')">GBP/USD</li>
+      </ul>
+    </div>
+    <div class="asset-category">
+      <h3>Commodities</h3>
+      <ul>
+        <li onclick="renderChart('XAUUSD')">Gold</li>
+        <li onclick="renderChart('XAGUSD')">Silver</li>
+        <li onclick="renderChart('WTI')">Oil</li>
+      </ul>
+    </div>
+    <div class="asset-category">
+      <h3>Crypto</h3>
+      <ul>
+        <li onclick="renderChart('BTCUSD')">Bitcoin</li>
+        <li onclick="renderChart('ETHUSD')">Ethereum</li>
+      </ul>
+    </div>
+    <div class="asset-category">
+      <h3>Stocks</h3>
+      <ul>
+        <li onclick="renderChart('AAPL')">Apple</li>
+        <li onclick="renderChart('GOOGL')">Google</li>
+        <li onclick="renderChart('MSFT')">Microsoft</li>
+      </ul>
     </div>
   </div>
 
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <div id="chart-container">
+    <div id="chart" style="width: 100%; height: 600px;"></div>
+  </div>
+
+  <div id="profile">
+    <h2>My Profile</h2>
+    <p>Starting Capital: ₦50,000</p>
+    <p>Assets Owned: <span id="assets">None</span></p>
+  </div>
+
   <script>
+    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+      width: window.innerWidth - 300,
+      height: 600,
+      layout: {
+        background: { color: '#0d1117' },
+        textColor: '#c9d1d9'
+      },
+      grid: {
+        vertLines: { color: '#21262d' },
+        horzLines: { color: '#21262d' }
+      },
+      crosshair: {
+        mode: 0,
+      },
+      rightPriceScale: {
+        borderColor: '#30363d'
+      },
+      timeScale: {
+        borderColor: '#30363d',
+        timeVisible: true,
+        secondsVisible: false
+      }
+    });
+
+    const candleSeries = chart.addCandlestickSeries();
     const API_KEY = 'S0CBS8L9QUAVNI6W';
-    const categories = {
-      stocks: ['AAPL', 'MSFT', 'GOOGL'],
-      forex: ['EUR/USD', 'USD/JPY', 'GBP/USD'],
-      crypto: ['bitcoin', 'ethereum', 'litecoin'],
-      commodities: ['XAU', 'XAG', 'WTI']
-    };
 
-    let selectedCategory = 'stocks';
-    let selectedAsset = 'AAPL';
-    let balance = 50000;
-    let portfolio = {};
-
-    const balanceEl = document.getElementById('balance');
-    const portfolioEl = document.getElementById('portfolio');
-    const categoryList = document.getElementById('categoryList');
-    const assetList = document.getElementById('assetList');
-    const chartDiv = document.getElementById('chart');
-    const controls = document.getElementById('controls');
-    const amountInput = document.getElementById('amount');
-    const buyBtn = document.getElementById('buy');
-    const sellBtn = document.getElementById('sell');
-
-    let chart, series;
-
-    function initialize() {
-      renderCategories();
-      renderAssets();
-      setupChart();
-      updateChart('1M');
-      renderTimeControls();
-      updateBalance();
-      updatePortfolio();
-    }
-
-    function renderCategories() {
-      categoryList.innerHTML = '';
-      for (const key in categories) {
-        const li = document.createElement('li');
-        li.textContent = key.toUpperCase();
-        li.onclick = () => {
-          selectedCategory = key;
-          selectedAsset = categories[key][0];
-          renderAssets();
-          updateChart('1M');
-        };
-        categoryList.appendChild(li);
-      }
-    }
-
-    function renderAssets() {
-      assetList.innerHTML = '';
-      categories[selectedCategory].forEach(asset => {
-        const li = document.createElement('li');
-        li.textContent = asset.toUpperCase();
-        li.onclick = () => {
-          selectedAsset = asset;
-          updateChart('1M');
-        };
-        assetList.appendChild(li);
-      });
-    }
-
-    function setupChart() {
-      chartDiv.innerHTML = '';
-      chart = LightweightCharts.createChart(chartDiv, {
-        width: chartDiv.clientWidth,
-        height: chartDiv.clientHeight,
-        layout: { backgroundColor: '#fff', textColor: '#000' },
-        grid: { vertLines: { color: '#eee' }, horzLines: { color: '#eee' } },
-        priceScale: { borderColor: '#ccc' },
-        timeScale: { borderColor: '#ccc', timeVisible: true }
-      });
-      series = chart.addCandlestickSeries();
-    }
-
-    function renderTimeControls() {
-      ['1D', '1W', '1M', '3M', '6M', '1Y', '5Y'].forEach(label => {
-        const btn = document.createElement('button');
-        btn.textContent = label;
-        btn.onclick = () => updateChart(label);
-        controls.appendChild(btn);
-      });
-    }
-
-    async function updateChart(timeframe) {
-      let data;
-      if (selectedCategory === 'crypto') {
-        data = await fetchCrypto(selectedAsset, timeframe);
-      } else {
-        data = await fetchStock(selectedAsset, timeframe);
-      }
-      series.setData(data);
-    }
-
-    async function fetchStock(symbol, timeframe) {
+    async function fetchStock(symbol, timeframe = '1M') {
       const intervalMap = {
         '1D': '60min', '1W': '60min', '1M': 'daily',
         '3M': 'daily', '6M': 'daily', '1Y': 'weekly', '5Y': 'monthly'
@@ -207,59 +137,43 @@
       const interval = intervalMap[timeframe] || 'daily';
       const func = interval === '60min' ? 'TIME_SERIES_INTRADAY' : 'TIME_SERIES_' + interval.toUpperCase();
       const url = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&interval=${interval}&apikey=${API_KEY}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      const key = Object.keys(json).find(k => k.includes('Time Series'));
-      const data = json[key];
-      return Object.entries(data).slice(0, 100).reverse().map(([date, val]) => {
-        const t = new Date(date).getTime() / 1000;
-        return { time: t, open: +val['1. open'], high: +val['2. high'], low: +val['3. low'], close: +val['4. close'] };
-      });
-    }
 
-    async function fetchCrypto(id, timeframe) {
-      const daysMap = { '1D': 1, '1W': 7, '1M': 30, '3M': 90, '6M': 180, '1Y': 365, '5Y': 1825 };
-      const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${daysMap[timeframe]}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return data.prices.map(([time, price], i, arr) => {
-        const close = price;
-        const open = i > 0 ? arr[i - 1][1] : price;
-        const high = Math.max(open, close);
-        const low = Math.min(open, close);
-        return { time: Math.floor(time / 1000), open, high, low, close };
-      });
-    }
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        const key = Object.keys(json).find(k => k.includes('Time Series'));
 
-    function updateBalance() {
-      balanceEl.textContent = `Balance: ₦${balance.toLocaleString()}`;
-    }
+        if (!key || !json[key]) {
+          throw new Error(json['Note'] || json['Error Message'] || 'No data returned');
+        }
 
-    function updatePortfolio() {
-      portfolioEl.textContent = `Portfolio: ${portfolio[selectedAsset] || 0}`;
-    }
-
-    buyBtn.onclick = () => {
-      const amount = parseFloat(amountInput.value);
-      if (!isNaN(amount) && amount <= balance) {
-        balance -= amount;
-        portfolio[selectedAsset] = (portfolio[selectedAsset] || 0) + amount;
-        updateBalance();
-        updatePortfolio();
+        const data = json[key];
+        return Object.entries(data).slice(0, 100).reverse().map(([date, val]) => {
+          const t = new Date(date).getTime() / 1000;
+          return {
+            time: t,
+            open: +val['1. open'],
+            high: +val['2. high'],
+            low: +val['3. low'],
+            close: +val['4. close']
+          };
+        });
+      } catch (err) {
+        console.error('Stock fetch error:', err.message);
+        return [];
       }
-    };
+    }
 
-    sellBtn.onclick = () => {
-      const amount = parseFloat(amountInput.value);
-      if (!isNaN(amount) && (portfolio[selectedAsset] || 0) >= amount) {
-        balance += amount;
-        portfolio[selectedAsset] -= amount;
-        updateBalance();
-        updatePortfolio();
+    async function renderChart(symbol = 'AAPL', timeframe = '1M') {
+      const seriesData = await fetchStock(symbol, timeframe);
+      if (seriesData.length === 0) {
+        alert('Failed to load data. Please check the asset symbol or try again later.');
+        return;
       }
-    };
+      candleSeries.setData(seriesData);
+    }
 
-    initialize();
+    renderChart();
   </script>
 </body>
 </html>
