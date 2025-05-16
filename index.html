@@ -1,217 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Market Simulator - Candlestick Chart</title>
-<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-<style>
-  body {
-    background: #121212;
-    color: #eee;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  header {
-    padding: 1rem;
-    background: #1f1f1f;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-  }
-  button {
-    background: #333;
-    border: none;
-    color: #eee;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s ease;
-  }
-  button:hover, button.active {
-    background: #4caf50;
-    color: #fff;
-  }
-  #chart {
-    flex-grow: 1;
-    min-height: 400px;
-    max-width: 1000px;
-    margin: 1rem auto;
-  }
-  @media (max-width: 600px) {
-    #chart {
-      height: 300px !important;
-      width: 95vw !important;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Simulator</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+    #controls {
+      margin: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
     }
     button {
-      flex: 1 1 30%;
-      font-size: 0.9rem;
+      background-color: #222;
+      color: white;
+      padding: 8px 16px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      cursor: pointer;
     }
-  }
-</style>
+    button:hover {
+      background-color: #333;
+    }
+    #chart {
+      width: 100%;
+      max-width: 1000px;
+      height: 600px;
+    }
+    @media screen and (max-width: 600px) {
+      #chart {
+        height: 400px;
+      }
+      button {
+        padding: 10px;
+        font-size: 16px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <h2>Market Simulator</h2>
+  <div id="controls">
+    <button onclick="renderChart('AAPL', '1D')">1D</button>
+    <button onclick="renderChart('AAPL', '1W')">1W</button>
+    <button onclick="renderChart('AAPL', '1M')">1M</button>
+    <button onclick="renderChart('AAPL', '3M')">3M</button>
+    <button onclick="renderChart('AAPL', '6M')">6M</button>
+    <button onclick="renderChart('AAPL', '1Y')">1Y</button>
+    <button onclick="renderChart('AAPL', '5Y')">5Y</button>
+  </div>
+  <div id="chart"></div>
 
-<header>
-  <button data-timeframe="1D">1 Day</button>
-  <button data-timeframe="1W" class="active">1 Week</button>
-  <button data-timeframe="1M">1 Month</button>
-  <button data-timeframe="3M">3 Months</button>
-  <button data-timeframe="6M">6 Months</button>
-  <button data-timeframe="1Y">1 Year</button>
-  <button data-timeframe="5Y">5 Years</button>
-</header>
-
-<div id="chart"></div>
-
-<script>
-  const API_KEY = 'S0CBS8L9QUAVNI6W'; // Your API key here
-  const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-    width: window.innerWidth > 1000 ? 1000 : window.innerWidth * 0.95,
-    height: window.innerWidth > 600 ? 600 : 300,
-    layout: {
-      backgroundColor: '#121212',
-      textColor: '#d1d4dc',
-    },
-    grid: {
-      vertLines: { color: '#334158' },
-      horzLines: { color: '#334158' },
-    },
-    crosshair: {
-      mode: LightweightCharts.CrosshairMode.Normal,
-    },
-    rightPriceScale: {
-      borderColor: '#485c7b',
-    },
-    timeScale: {
-      borderColor: '#485c7b',
-      timeVisible: true,
-      secondsVisible: false,
-    },
-  });
-
-  const candleSeries = chart.addCandlestickSeries();
-
-  window.addEventListener('resize', () => {
-    chart.applyOptions({ width: window.innerWidth > 1000 ? 1000 : window.innerWidth * 0.95, height: window.innerWidth > 600 ? 600 : 300 });
-  });
-
-  // Map timeframe to Alpha Vantage function and interval
-  const timeframeMap = {
-    '1D': { func: 'TIME_SERIES_INTRADAY', interval: '60min' },
-    '1W': { func: 'TIME_SERIES_DAILY', interval: null },
-    '1M': { func: 'TIME_SERIES_DAILY', interval: null },
-    '3M': { func: 'TIME_SERIES_DAILY', interval: null },
-    '6M': { func: 'TIME_SERIES_DAILY', interval: null },
-    '1Y': { func: 'TIME_SERIES_WEEKLY', interval: null },
-    '5Y': { func: 'TIME_SERIES_MONTHLY', interval: null },
-  };
-
-  // We'll use AAPL as example symbol; you can expand this later
-  const symbol = 'AAPL';
-
-  async function fetchData(timeframe) {
-    const config = timeframeMap[timeframe];
-    let url = '';
-    if (!config) {
-      alert('Unsupported timeframe');
-      return [];
-    }
-    if (config.func === 'TIME_SERIES_INTRADAY') {
-      url = `https://www.alphavantage.co/query?function=${config.func}&symbol=${symbol}&interval=${config.interval}&apikey=${API_KEY}`;
-    } else {
-      url = `https://www.alphavantage.co/query?function=${config.func}&symbol=${symbol}&apikey=${API_KEY}`;
-    }
-
-    try {
-      const res = await fetch(url);
-      const json = await res.json();
-
-      if (json['Note']) {
-        alert('API call frequency exceeded. Please wait a minute and try again.');
-        return [];
-      }
-      if (json['Error Message']) {
-        alert('Error from API: ' + json['Error Message']);
-        return [];
-      }
-
-      let dataKey = null;
-      if (config.func === 'TIME_SERIES_INTRADAY') dataKey = 'Time Series (' + config.interval + ')';
-      else if (config.func === 'TIME_SERIES_DAILY') dataKey = 'Time Series (Daily)';
-      else if (config.func === 'TIME_SERIES_WEEKLY') dataKey = 'Weekly Time Series';
-      else if (config.func === 'TIME_SERIES_MONTHLY') dataKey = 'Monthly Time Series';
-
-      const data = json[dataKey];
-      if (!data) {
-        alert('No data found');
-        return [];
-      }
-
-      let result = Object.entries(data).map(([dateStr, val]) => {
-        // Alpha Vantage date format is "YYYY-MM-DD" or "YYYY-MM-DD HH:mm:ss" for intraday
-        const date = new Date(dateStr);
-        const time = Math.floor(date.getTime() / 1000);
-
-        return {
-          time,
-          open: parseFloat(val['1. open']),
-          high: parseFloat(val['2. high']),
-          low: parseFloat(val['3. low']),
-          close: parseFloat(val['4. close']),
-        };
-      });
-
-      // Sort ascending by time
-      result = result.sort((a, b) => a.time - b.time);
-
-      // Limit data based on timeframe:
-      const now = new Date();
-      let cutoffDate = new Date();
-      switch (timeframe) {
-        case '1D': cutoffDate.setDate(now.getDate() - 1); break;
-        case '1W': cutoffDate.setDate(now.getDate() - 7); break;
-        case '1M': cutoffDate.setMonth(now.getMonth() - 1); break;
-        case '3M': cutoffDate.setMonth(now.getMonth() - 3); break;
-        case '6M': cutoffDate.setMonth(now.getMonth() - 6); break;
-        case '1Y': cutoffDate.setFullYear(now.getFullYear() - 1); break;
-        case '5Y': cutoffDate.setFullYear(now.getFullYear() - 5); break;
-        default: cutoffDate = new Date(0); // All data
-      }
-      result = result.filter(d => d.time >= Math.floor(cutoffDate.getTime() / 1000));
-
-      return result;
-    } catch (err) {
-      alert('Failed to fetch data: ' + err.message);
-      return [];
-    }
-  }
-
-  async function updateChart(timeframe) {
-    candleSeries.setData([]);
-    const data = await fetchData(timeframe);
-    if (data.length === 0) return;
-    candleSeries.setData(data);
-  }
-
-  // Setup buttons
-  const buttons = document.querySelectorAll('header button');
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      buttons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      updateChart(btn.dataset.timeframe);
+  <script>
+    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+      layout: {
+        background: { color: '#000000' },
+        textColor: '#d1d4dc'
+      },
+      grid: {
+        vertLines: { color: '#334158' },
+        horzLines: { color: '#334158' }
+      },
+      crosshair: { mode: 0 },
+      rightPriceScale: { borderColor: '#485c7b' },
+      timeScale: {
+        borderColor: '#485c7b',
+        timeVisible: true,
+        secondsVisible: false
+      },
+      width: document.getElementById('chart').clientWidth,
+      height: document.getElementById('chart').clientHeight
     });
-  });
 
-  // Load default timeframe data
-  updateChart('1W');
+    const candleSeries = chart.addCandlestickSeries();
+    const API_KEY = 'S0CBS8L9QUAVNI6W';
 
-</script>
+    async function fetchStock(symbol, timeframe) {
+      const intervalMap = {
+        '1D': ['60min', 'TIME_SERIES_INTRADAY'],
+        '1W': ['60min', 'TIME_SERIES_INTRADAY'],
+        '1M': ['daily', 'TIME_SERIES_DAILY'],
+        '3M': ['daily', 'TIME_SERIES_DAILY'],
+        '6M': ['daily', 'TIME_SERIES_DAILY'],
+        '1Y': ['weekly', 'TIME_SERIES_WEEKLY'],
+        '5Y': ['monthly', 'TIME_SERIES_MONTHLY']
+      };
+
+      const [interval, func] = intervalMap[timeframe] || ['daily', 'TIME_SERIES_DAILY'];
+      const url = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&interval=${interval}&apikey=${API_KEY}`;
+
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        const key = Object.keys(json).find(k => k.includes('Time Series'));
+
+        if (!key || !json[key]) {
+          throw new Error(json['Note'] || json['Error Message'] || 'No data returned');
+        }
+
+        const data = json[key];
+        return Object.entries(data).slice(0, 100).reverse().map(([date, val]) => {
+          const t = new Date(date).getTime() / 1000;
+          return {
+            time: t,
+            open: +val['1. open'],
+            high: +val['2. high'],
+            low: +val['3. low'],
+            close: +val['4. close']
+          };
+        });
+      } catch (err) {
+        console.error('Stock fetch error:', err.message);
+        return [];
+      }
+    }
+
+    async function renderChart(symbol = 'AAPL', timeframe = '1M') {
+      const seriesData = await fetchStock(symbol, timeframe);
+      if (seriesData.length === 0) {
+        alert('Failed to load data. Please check the asset symbol or try again later.');
+        return;
+      }
+      candleSeries.setData(seriesData);
+    }
+
+    renderChart();
+  </script>
 </body>
 </html>
