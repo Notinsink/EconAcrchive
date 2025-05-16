@@ -1,168 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trading Simulator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Simulator</title>
   <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #0d1117;
-      color: #c9d1d9;
+      background-color: #121212;
+      color: #f1f1f1;
       display: flex;
-      flex-direction: column;
       height: 100vh;
     }
-    #app {
-      display: flex;
-      flex: 1;
-      flex-direction: row;
-    }
     #sidebar {
-      width: 200px;
-      padding: 10px;
-      background-color: #161b22;
+      width: 220px;
+      background: #1e1e1e;
+      padding: 1rem;
       overflow-y: auto;
-    }
-    #sidebar h2 {
-      margin-top: 0;
-      font-size: 16px;
-    }
-    .category {
-      margin-bottom: 20px;
-    }
-    .asset {
-      cursor: pointer;
-      margin: 5px 0;
-      color: #58a6ff;
-    }
-    .asset:hover {
-      text-decoration: underline;
     }
     #main {
       flex: 1;
       display: flex;
       flex-direction: column;
     }
+    #header {
+      background: #181818;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
     #chart {
       flex: 1;
+      min-height: 300px;
     }
-    #profile {
-      background-color: #161b22;
-      padding: 10px;
-      font-size: 14px;
+    button, select {
+      background: #333;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      margin: 3px;
+      cursor: pointer;
     }
-    select {
-      background: #0d1117;
-      color: #c9d1d9;
-      border: 1px solid #30363d;
+    .asset-btn {
+      display: block;
+      width: 100%;
+      margin-bottom: 8px;
+      background: #2d2d2d;
+    }
+    #balance {
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      #sidebar {
+        width: 100px;
+      }
+      #header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="app">
-    <div id="sidebar">
-      <h2>Forex</h2>
-      <div class="asset" onclick="renderChart('USDNGN')">USD/NGN</div>
-      <div class="asset" onclick="renderChart('EURUSD')">EUR/USD</div>
-      <h2>Commodities</h2>
-      <div class="asset" onclick="renderChart('XAUUSD')">Gold</div>
-      <div class="asset" onclick="renderChart('XAGUSD')">Silver</div>
-      <h2>Crypto</h2>
-      <div class="asset" onclick="renderChart('BTCUSD')">Bitcoin</div>
-      <div class="asset" onclick="renderChart('ETHUSD')">Ethereum</div>
-      <h2>Stocks</h2>
-      <div class="asset" onclick="renderChart('AAPL')">Apple</div>
-      <div class="asset" onclick="renderChart('TSLA')">Tesla</div>
-    </div>
-    <div id="main">
-      <div style="padding: 10px; background-color: #21262d;">
-        Timeframe: 
-        <select onchange="renderChart(currentSymbol, this.value)">
-          <option value="1D">1 Day</option>
-          <option value="1W">1 Week</option>
-          <option value="1M" selected>1 Month</option>
-          <option value="3M">3 Months</option>
-          <option value="6M">6 Months</option>
-          <option value="1Y">1 Year</option>
-          <option value="5Y">5 Years</option>
+  <div id="sidebar">
+    <h3>Assets</h3>
+    <button class="asset-btn" onclick="renderChart('XAUUSD')">Gold</button>
+    <button class="asset-btn" onclick="renderChart('XAGUSD')">Silver</button>
+    <button class="asset-btn" onclick="renderChart('BTCUSD')">Bitcoin</button>
+    <button class="asset-btn" onclick="renderChart('EURUSD')">EUR/USD</button>
+    <button class="asset-btn" onclick="renderChart('AAPL')">Apple</button>
+    <button class="asset-btn" onclick="renderChart('TSLA')">Tesla</button>
+  </div>
+
+  <div id="main">
+    <div id="header">
+      <div>
+        Balance: <span id="balance">₦50,000</span>
+        <select id="timeframe" onchange="updateTimeframe()">
+          <option value="1D">1D</option>
+          <option value="1W">1W</option>
+          <option value="1M" selected>1M</option>
+          <option value="3M">3M</option>
+          <option value="6M">6M</option>
+          <option value="1Y">1Y</option>
+          <option value="5Y">5Y</option>
         </select>
       </div>
-      <div id="chart"></div>
-      <div id="profile">
-        Balance: ₦<span id="balance">50000</span>
+      <div>
+        <button onclick="mockBuy()">Buy</button>
       </div>
     </div>
+    <div id="chart"></div>
   </div>
 
   <script>
+    const API_KEY = 'S0CBS8L9QUAVNI6W';
     let currentSymbol = 'AAPL';
+    let currentTimeframe = '1M';
     let balance = 50000;
-    const API_KEY = 'S0CBS8L9QUAVNI6W'; // Your Alpha Vantage key
+    const chartContainer = document.getElementById('chart');
+    const balanceDisplay = document.getElementById('balance');
 
-    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-      layout: {
-        background: { color: '#0d1117' },
-        textColor: '#c9d1d9'
-      },
+    const chart = LightweightCharts.createChart(chartContainer, {
+      width: chartContainer.clientWidth,
+      height: chartContainer.clientHeight,
+      layout: { background: { color: '#121212' }, textColor: '#d1d4dc' },
       grid: {
-        vertLines: { color: '#30363d' },
-        horzLines: { color: '#30363d' }
+        vertLines: { color: '#2b2b2b' },
+        horzLines: { color: '#2b2b2b' }
       },
+      crosshair: { mode: 1 },
       timeScale: {
+        borderColor: '#485c7b',
         timeVisible: true,
         secondsVisible: false
-      },
+      }
     });
 
     const candleSeries = chart.addCandlestickSeries();
 
-    async function fetchData(symbol, timeframe = '1M') {
-      const intervalMap = {
-        '1D': '60min',
-        '1W': '60min',
-        '1M': 'DAILY',
-        '3M': 'DAILY',
-        '6M': 'DAILY',
-        '1Y': 'WEEKLY',
-        '5Y': 'MONTHLY'
+    async function fetchData(symbol, timeframe) {
+      const map = {
+        '1D': { func: 'TIME_SERIES_INTRADAY', interval: '60min' },
+        '1W': { func: 'TIME_SERIES_INTRADAY', interval: '60min' },
+        '1M': { func: 'TIME_SERIES_DAILY' },
+        '3M': { func: 'TIME_SERIES_DAILY' },
+        '6M': { func: 'TIME_SERIES_DAILY' },
+        '1Y': { func: 'TIME_SERIES_WEEKLY' },
+        '5Y': { func: 'TIME_SERIES_MONTHLY' }
       };
-      const func = intervalMap[timeframe] === '60min' ? 'TIME_SERIES_INTRADAY' : `TIME_SERIES_${intervalMap[timeframe]}`;
-      const interval = intervalMap[timeframe] === '60min' ? '&interval=60min' : '';
 
-      const url = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&apikey=${API_KEY}${interval}`;
+      const { func, interval } = map[timeframe] || {};
+      let url = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&apikey=${API_KEY}`;
+      if (interval) url += `&interval=${interval}`;
 
-      try {
-        const res = await fetch(url);
-        const json = await res.json();
-        const key = Object.keys(json).find(k => k.includes('Time Series'));
-        if (!key || !json[key]) throw new Error(json['Note'] || 'No data');
+      const res = await fetch(url);
+      const json = await res.json();
+      const key = Object.keys(json).find(k => k.includes('Time Series'));
 
-        const data = json[key];
-        return Object.entries(data).slice(0, 100).reverse().map(([time, d]) => ({
-          time: Math.floor(new Date(time).getTime() / 1000),
-          open: +d['1. open'],
-          high: +d['2. high'],
-          low: +d['3. low'],
-          close: +d['4. close']
-        }));
-      } catch (err) {
-        console.error('API error:', err.message);
-        return [];
-      }
+      if (!json[key]) throw new Error(json['Note'] || json['Error Message'] || 'Data unavailable');
+
+      return Object.entries(json[key]).slice(0, 100).reverse().map(([date, ohlc]) => ({
+        time: Math.floor(new Date(date).getTime() / 1000),
+        open: +ohlc['1. open'],
+        high: +ohlc['2. high'],
+        low: +ohlc['3. low'],
+        close: +ohlc['4. close']
+      }));
     }
 
     async function renderChart(symbol = 'AAPL', timeframe = '1M') {
       currentSymbol = symbol;
-      const data = await fetchData(symbol, timeframe);
-      if (!data.length) {
-        alert('No data available');
-        return;
+      currentTimeframe = timeframe;
+      try {
+        const data = await fetchData(symbol, timeframe);
+        candleSeries.setData(data);
+      } catch (err) {
+        alert('Error fetching data. Try again.');
+        console.error(err.message);
       }
-      candleSeries.setData(data);
     }
+
+    function updateTimeframe() {
+      const tf = document.getElementById('timeframe').value;
+      renderChart(currentSymbol, tf);
+    }
+
+    function mockBuy() {
+      const amount = Math.floor(Math.random() * 10000);
+      balance -= amount;
+      balanceDisplay.textContent = `₦${balance.toLocaleString()}`;
+    }
+
+    window.addEventListener('resize', () => {
+      chart.resize(chartContainer.clientWidth, chartContainer.clientHeight);
+    });
 
     renderChart();
   </script>
