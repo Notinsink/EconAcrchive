@@ -1,264 +1,433 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trading Simulation Platform</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    /* --- Reset and base styles --- */
-    body, html {
-      margin: 0; padding: 0; height: 100%;
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: #eee;
-      display: flex;
-      overflow: hidden;
-    }
-    /* Sidebar */
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trading Simulator</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0;
+    background: #121212;
+    color: #ddd;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Sidebar */
+  #sidebar {
+    width: 260px;
+    background: #1f1f1f;
+    border-right: 1px solid #333;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  #sidebar h2 {
+    margin-top: 0;
+    font-size: 22px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+  }
+  .category {
+    cursor: pointer;
+    padding: 10px 5px;
+    user-select: none;
+    border-bottom: 1px solid #333;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .category:hover {
+    background: #333;
+  }
+  .assets-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding-left: 15px;
+    font-size: 14px;
+  }
+  .assets-list.open {
+    max-height: 500px; /* enough for list */
+    overflow-y: auto;
+  }
+  .asset {
+    padding: 6px 5px;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .asset:hover {
+    background: #444;
+  }
+
+  /* Main panel */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  /* Balance & Trade Panel */
+  #balance {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  #tradePanel {
+    margin-top: 15px;
+    background: #222;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  #tradePanel label {
+    display: inline-block;
+    margin-right: 10px;
+    font-weight: 600;
+  }
+  #tradePanel input[type="number"] {
+    width: 100px;
+    padding: 5px;
+    margin-right: 15px;
+    border-radius: 3px;
+    border: none;
+    font-size: 16px;
+  }
+  #tradePanel button {
+    background: #00b894;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #tradePanel button:hover {
+    background: #019876;
+  }
+
+  /* Timeframe selector */
+  #timeframes {
+    margin-bottom: 10px;
+  }
+  #timeframes button {
+    background: #2d2d2d;
+    border: none;
+    margin-right: 8px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: #ddd;
+    cursor: pointer;
+  }
+  #timeframes button.active, #timeframes button:hover {
+    background: #00b894;
+    color: #fff;
+  }
+
+  /* Chart container */
+  #chart-container {
+    flex: 1;
+    position: relative;
+  }
+  canvas {
+    background: #0a0a0a;
+    border-radius: 8px;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 600px) {
     #sidebar {
-      width: 240px;
-      background: #222;
-      padding: 15px;
-      box-sizing: border-box;
-      overflow-y: auto;
+      width: 100%;
+      max-height: 180px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding: 5px;
+      border-right: none;
+      border-bottom: 1px solid #333;
+    }
+    #sidebar .category {
+      display: inline-block;
+      padding: 10px 15px;
+      border-bottom: none;
       border-right: 1px solid #333;
     }
-    h3 {
-      margin-top: 0;
-      margin-bottom: 15px;
-      color: #0ff;
-      text-align: center;
-    }
-    .category {
-      margin-bottom: 18px;
-    }
-    .category-btn {
-      width: 100%;
-      background-color: #333;
-      color: #0ff;
-      border: none;
-      padding: 12px 15px;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: left;
-      user-select: none;
-      transition: background 0.3s;
-    }
-    .category-btn:hover {
-      background-color: #0ff;
-      color: #121212;
-    }
     .assets-list {
-      margin-top: 8px;
-      display: none;
-      padding-left: 10px;
+      padding-left: 0;
+      max-height: none !important;
+      overflow: visible !important;
+      white-space: nowrap;
     }
-    .assets-list button {
-      display: block;
-      width: 100%;
-      background-color: #444;
-      border: none;
-      color: #ddd;
-      padding: 8px 10px;
-      margin-top: 6px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-size: 14px;
+    .asset {
+      display: inline-block;
+      padding: 6px 15px;
     }
-    .assets-list button:hover {
-      background-color: #0ff;
-      color: #121212;
-    }
-
-    /* Main content */
     #main {
-      flex-grow: 1;
-      padding: 25px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      background-color: #121212;
+      padding: 10px 5px;
     }
-    #balance {
-      font-size: 20px;
-      font-weight: bold;
-      color: #0ff;
-      margin-bottom: 12px;
-      user-select: none;
-    }
-    #chartContainer {
-      flex-grow: 1;
-      position: relative;
-    }
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
-      max-height: 500px;
-      user-select: none;
-    }
-
-    /* Scrollbar styling for sidebar */
-    #sidebar::-webkit-scrollbar {
-      width: 8px;
-    }
-    #sidebar::-webkit-scrollbar-thumb {
-      background: #0ff;
-      border-radius: 4px;
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <div id="sidebar">
-    <h3>Assets</h3>
 
-    <div class="category">
-      <button class="category-btn" onclick="toggleCategory('forex')">Forex</button>
-      <div class="assets-list" id="forex">
-        <button onclick="renderChart('EUR/USD', 'forex')">EUR/USD</button>
-        <button onclick="renderChart('USD/JPY', 'forex')">USD/JPY</button>
-      </div>
-    </div>
+<div id="sidebar">
+  <h2>Assets</h2>
+  <div class="category" data-category="forex">Forex <span>+</span></div>
+  <div class="assets-list" id="forex-list"></div>
 
-    <div class="category">
-      <button class="category-btn" onclick="toggleCategory('commodities')">Commodities</button>
-      <div class="assets-list" id="commodities">
-        <button onclick="renderChart('XAUUSD', 'commodities')">Gold (XAUUSD)</button>
-        <button onclick="renderChart('WTI', 'commodities')">Oil (WTI)</button>
-      </div>
-    </div>
+  <div class="category" data-category="commodities">Commodities <span>+</span></div>
+  <div class="assets-list" id="commodities-list"></div>
 
-    <div class="category">
-      <button class="category-btn" onclick="toggleCategory('crypto')">Crypto</button>
-      <div class="assets-list" id="crypto">
-        <button onclick="renderChart('BTC', 'crypto')">Bitcoin (BTC)</button>
-        <button onclick="renderChart('ETH', 'crypto')">Ethereum (ETH)</button>
-      </div>
-    </div>
+  <div class="category" data-category="crypto">Crypto <span>+</span></div>
+  <div class="assets-list" id="crypto-list"></div>
 
-    <div class="category">
-      <button class="category-btn" onclick="toggleCategory('stocks')">Stocks</button>
-      <div class="assets-list" id="stocks">
-        <button onclick="renderChart('AAPL', 'stocks')">Apple (AAPL)</button>
-        <button onclick="renderChart('TSLA', 'stocks')">Tesla (TSLA)</button>
-      </div>
-    </div>
+  <div class="category" data-category="stocks">Stocks <span>+</span></div>
+  <div class="assets-list" id="stocks-list"></div>
+</div>
+
+<div id="main">
+  <div id="balance">Balance: ₦50,000.00</div>
+  <div id="timeframes">
+    <button data-time="1D" class="active">1D</button>
+    <button data-time="1W">1W</button>
+    <button data-time="1M">1M</button>
+    <button data-time="3M">3M</button>
+    <button data-time="1Y">1Y</button>
+  </div>
+  <div id="chart-container">
+    <canvas id="chart"></canvas>
   </div>
 
-  <div id="main">
-    <div id="balance">Balance: ₦50,000</div>
-    <div id="chartContainer">
-      <canvas id="chartCanvas"></canvas>
-    </div>
+  <div id="tradePanel">
+    <label>Quantity:</label>
+    <input type="number" id="tradeQty" min="1" value="1" />
+    <button id="buyBtn">Buy</button>
+    <button id="sellBtn">Sell</button>
+    <div id="tradeMsg" style="margin-top:8px; color:#0f0;"></div>
   </div>
+</div>
 
-  <script>
-    const ctx = document.getElementById('chartCanvas').getContext('2d');
-    let chart = null;
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script>
+  // Your Alpha Vantage API Key
+  const API_KEY = 'S0CBS8L9QUAVNI6W';
 
-    // Toggle asset category list
-    function toggleCategory(id) {
-      const el = document.getElementById(id);
-      el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+  // Starting balance and portfolio
+  let balance = 50000;
+  const portfolio = {}; // {symbol: qty}
+
+  // DOM refs
+  const balanceEl = document.getElementById('balance');
+  const tradeMsg = document.getElementById('tradeMsg');
+  const tradeQtyInput = document.getElementById('tradeQty');
+  const buyBtn = document.getElementById('buyBtn');
+  const sellBtn = document.getElementById('sellBtn');
+  const timeButtons = document.querySelectorAll('#timeframes button');
+
+  // Assets data
+  const assets = {
+    forex: [
+      {symbol: 'EURUSD', name: 'EUR/USD'},
+      {symbol: 'USDJPY', name: 'USD/JPY'},
+      {symbol: 'GBPUSD', name: 'GBP/USD'},
+      {symbol: 'USDCHF', name: 'USD/CHF'},
+      {symbol: 'AUDUSD', name: 'AUD/USD'},
+    ],
+    commodities: [
+      {symbol: 'GC=F', name: 'Gold'},
+      {symbol: 'SI=F', name: 'Silver'},
+      {symbol: 'CL=F', name: 'Crude Oil'},
+      {symbol: 'NG=F', name: 'Natural Gas'},
+    ],
+    crypto: [
+      {symbol: 'BTC-USD', name: 'Bitcoin'},
+      {symbol: 'ETH-USD', name: 'Ethereum'},
+      {symbol: 'DOGE-USD', name: 'Dogecoin'},
+      {symbol: 'BNB-USD', name: 'Binance Coin'},
+    ],
+    stocks: [
+      {symbol: 'AAPL', name: 'Apple'},
+      {symbol: 'MSFT', name: 'Microsoft'},
+      {symbol: 'GOOGL', name: 'Alphabet'},
+      {symbol: 'AMZN', name: 'Amazon'},
+      {symbol: 'TSLA', name: 'Tesla'},
+    ],
+  };
+      {symbol: 'CL=F', name: 'Crude Oil'},
+    ],
+    crypto: [
+      {symbol: 'BTCUSD', name: 'Bitcoin'},
+      {symbol: 'ETHUSD', name: 'Ethereum'},
+      {symbol: 'XRPUSD', name: 'Ripple'},
+    ],
+    stocks: [
+      {symbol: 'AAPL', name: 'Apple'},
+      {symbol: 'TSLA', name: 'Tesla'},
+      {symbol: 'GOOGL', name: 'Google'},
+    ],
+  };
+
+  // Current selected asset and timeframe
+  let currentSymbol = 'AAPL';
+  let currentTimeframe = '1D';
+  let chart;
+  
+  // Load assets into sidebar
+  Object.keys(assets).forEach(cat => {
+    const list = document.getElementById(`${cat}-list`);
+    assets[cat].forEach(a => {
+      const div = document.createElement('div');
+      div.className = 'asset';
+      div.innerText = a.name;
+      div.onclick = () => {
+        currentSymbol = a.symbol;
+        fetchDataAndRender();
+      };
+      list.appendChild(div);
+    });
+  });
+
+  // Category toggle
+  document.querySelectorAll('.category').forEach(el => {
+    el.onclick = () => {
+      const cat = el.getAttribute('data-category');
+      const list = document.getElementById(`${cat}-list`);
+      list.classList.toggle('open');
+      el.querySelector('span').innerText = list.classList.contains('open') ? '-' : '+';
+    };
+  });
+
+  // Timeframe buttons
+  timeButtons.forEach(btn => {
+    btn.onclick = () => {
+      timeButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTimeframe = btn.dataset.time;
+      fetchDataAndRender();
+    };
+  });
+
+  // Trade functions
+  function updateBalanceDisplay() {
+    balanceEl.innerText = `Balance: ₦${balance.toFixed(2)}`;
+  }
+
+  function showMessage(msg, error=false) {
+    tradeMsg.style.color = error ? '#f55' : '#0f0';
+    tradeMsg.innerText = msg;
+    setTimeout(() => tradeMsg.innerText = '', 3000);
+  }
+
+  buyBtn.onclick = () => {
+    const qty = parseInt(tradeQtyInput.value);
+    const price = latestPrice;
+    const cost = qty * price;
+    if (cost > balance) {
+      showMessage('Insufficient balance!', true);
+      return;
     }
+    balance -= cost;
+    portfolio[currentSymbol] = (portfolio[currentSymbol] || 0) + qty;
+    updateBalanceDisplay();
+    showMessage(`Bought ${qty} ${currentSymbol}`);
+  };
 
-    // Render chart for selected asset
-    async function renderChart(symbol, assetClass) {
-      const apiKey = 'YOUR_API_KEY'; // <-- Replace with your Alpha Vantage API key
+  sellBtn.onclick = () => {
+    const qty = parseInt(tradeQtyInput.value);
+    if ((portfolio[currentSymbol] || 0) < qty) {
+      showMessage('Not enough asset to sell!', true);
+      return;
+    }
+    const price = latestPrice;
+    const gain = qty * price;
+    balance += gain;
+    portfolio[currentSymbol] -= qty;
+    updateBalanceDisplay();
+    showMessage(`Sold ${qty} ${currentSymbol}`);
+  };
 
-      let url = '';
-      let timeSeriesKey = '';
-      let market = 'USD';
+  // Chart rendering
+  let latestPrice = 0;
 
-      if (assetClass === 'forex') {
-        // Forex API
-        const [fromSymbol, toSymbol] = symbol.split('/');
-        url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=${fromSymbol}&to_symbol=${toSymbol}&apikey=${apiKey}`;
-        timeSeriesKey = 'Time Series FX (Daily)';
-      } else if (assetClass === 'crypto') {
-        url = `https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=${symbol}&market=${market}&apikey=${apiKey}`;
-        timeSeriesKey = 'Time Series (Digital Currency Daily)';
-      } else {
-        // Stocks and Commodities share TIME_SERIES_DAILY (Note: commodities may need other APIs)
-        url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${apiKey}`;
-        timeSeriesKey = 'Time Series (Daily)';
-      }
+  async function fetchDataAndRender() {
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${currentSymbol}&apikey=${API_KEY}`;
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      const timeseries = data['Time Series (Daily)'];
+      if (!timeseries) throw new Error("Invalid API response");
 
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
+      const labels = [];
+      const prices = [];
+      const ohlc = [];
 
-        const timeSeries = data[timeSeriesKey];
+      Object.entries(timeseries).slice(0, 100).reverse().forEach(([date, values]) => {
+        labels.push(date);
+        const close = parseFloat(values['4. close']);
+        latestPrice = close;
+        prices.push(close);
+        ohlc.push({
+          x: date,
+          o: parseFloat(values['1. open']),
+          h: parseFloat(values['2. high']),
+          l: parseFloat(values['3. low']),
+          c: close
+        });
+      });
 
-        if (!timeSeries) {
-          alert('Data unavailable or API call limit reached. Try again later.');
-          return;
-        }
+      if (chart) chart.destroy();
 
-        const labels = [];
-        const prices = [];
-
-        for (const date in timeSeries) {
-          labels.unshift(date);
-          if (assetClass === 'crypto') {
-            prices.unshift(parseFloat(timeSeries[date]['4a. close (USD)']));
-          } else {
-            prices.unshift(parseFloat(timeSeries[date]['4. close']));
-          }
-        }
-
-        if (chart) chart.destroy();
-        chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels.slice(-30), // last 30 days
-            datasets: [{
-              label: `${symbol} Price`,
-              data: prices.slice(-30),
-              borderColor: '#0ff',
-              backgroundColor: 'rgba(0, 255, 255, 0.2)',
-              borderWidth: 2,
-              pointRadius: 2,
-              fill: true,
-            }]
+      const ctx = document.getElementById('chart').getContext('2d');
+      const isMobile = window.innerWidth <= 600;
+      chart = new Chart(ctx, {
+        type: isMobile ? 'line' : 'candlestick',
+        data: {
+          labels,
+          datasets: isMobile ? [{
+            label: `${currentSymbol} Price`,
+            data: prices,
+            borderColor: '#00b894',
+            fill: false
+          }] : [{
+            label: currentSymbol,
+            data: ohlc,
+            borderColor: '#00b894',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            zoom: {
+              pan: {enabled: true, mode: 'x'},
+              zoom: {enabled: true, mode: 'x'}
+            }
           },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: {
-                ticks: { color: '#aaa' },
-                grid: { color: '#333' }
-              },
-              y: {
-                ticks: { color: '#aaa' },
-                grid: { color: '#333' },
-                beginAtZero: false
-              }
+          scales: isMobile ? {} : {
+            x: {
+              ticks: {color: '#ccc'}
             },
-            plugins: {
-              legend: {
-                labels: { color: '#0ff' }
-              },
-              tooltip: {
-                mode: 'index',
-                intersect: false,
-              }
-            },
-            interaction: {
-              mode: 'nearest',
-              intersect: false
+            y: {
+              ticks: {color: '#ccc'}
             }
           }
-        });
-
-      } catch (error) {
-        alert('Failed to fetch or render data. Check console for errors.');
-        console.error(error);
-      }
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      showMessage('Error loading data', true);
     }
-  </script>
+  }
+
+  // Initial load
+  fetchDataAndRender();
+  updateBalanceDisplay();
+</script>
 </body>
 </html>
+  //
