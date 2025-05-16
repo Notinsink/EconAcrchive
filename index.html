@@ -2,36 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Market Simulator</title>
-  <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Offline Market Simulator</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0e0e0e;
-      color: #fff;
       display: flex;
-      flex-direction: row;
       height: 100vh;
-      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
     }
     #sidebar {
-      width: 220px;
-      background: #1b1b1b;
-      padding: 1rem;
+      width: 200px;
+      background: #1e1e1e;
+      padding: 10px;
       overflow-y: auto;
-      border-right: 1px solid #333;
-    }
-    #sidebar h2 {
-      font-size: 1.1rem;
-      margin-top: 1rem;
     }
     .asset {
+      padding: 8px;
+      margin: 4px 0;
+      background: #2e2e2e;
       cursor: pointer;
-      padding: 5px;
-      margin: 2px 0;
-      background: #2a2a2a;
       border-radius: 5px;
     }
     .asset:hover {
@@ -42,88 +35,57 @@
       display: flex;
       flex-direction: column;
     }
-    #top-bar {
+    #topbar {
+      background: #1a1a1a;
+      padding: 10px;
       display: flex;
       justify-content: space-between;
-      padding: 1rem;
-      background: #111;
       border-bottom: 1px solid #333;
     }
     #chart {
       flex: 1;
     }
-    #controls {
+    #trade {
+      padding: 10px;
+      background: #1a1a1a;
+      border-top: 1px solid #333;
       display: flex;
       gap: 10px;
       align-items: center;
-      padding: 0.5rem;
-      background: #111;
-      justify-content: center;
-      flex-wrap: wrap;
     }
-    #controls button {
-      background: #333;
-      color: #fff;
+    input {
+      padding: 5px;
+      width: 80px;
+      background: #2a2a2a;
+      border: 1px solid #555;
+      color: white;
+    }
+    button {
       padding: 5px 10px;
+      background: #333;
       border: none;
-      border-radius: 5px;
+      color: white;
+      border-radius: 4px;
       cursor: pointer;
     }
-    #controls button:hover {
+    button:hover {
       background: #555;
-    }
-    #trade-panel {
-      padding: 1rem;
-      background: #111;
-      border-top: 1px solid #333;
-    }
-    #trade-panel input {
-      width: 80px;
-      padding: 5px;
-      margin: 0 5px;
-      background: #222;
-      border: 1px solid #444;
-      color: #fff;
-    }
-    @media(max-width: 768px) {
-      #sidebar {
-        display: none;
-      }
     }
   </style>
 </head>
 <body>
   <div id="sidebar">
-    <h2>Commodities</h2>
-    <div class="asset" onclick="renderChart('XAUUSD')">Gold</div>
-    <div class="asset" onclick="renderChart('XAGUSD')">Silver</div>
-    <h2>Stocks</h2>
-    <div class="asset" onclick="renderChart('AAPL')">Apple</div>
-    <div class="asset" onclick="renderChart('MSFT')">Microsoft</div>
-    <h2>Crypto</h2>
-    <div class="asset" onclick="renderChart('BTCUSD')">Bitcoin</div>
-    <div class="asset" onclick="renderChart('ETHUSD')">Ethereum</div>
-    <h2>Forex</h2>
-    <div class="asset" onclick="renderChart('EURUSD')">EUR/USD</div>
-    <div class="asset" onclick="renderChart('USDJPY')">USD/JPY</div>
+    <div class="asset" onclick="selectAsset('AAPL')">Apple</div>
+    <div class="asset" onclick="selectAsset('BTC')">Bitcoin</div>
+    <div class="asset" onclick="selectAsset('GOLD')">Gold</div>
   </div>
-
   <div id="main">
-    <div id="top-bar">
+    <div id="topbar">
+      <div>Asset: <span id="assetName">AAPL</span></div>
       <div>Balance: ₦<span id="balance">50000</span></div>
-      <div>Selected Asset: <span id="asset-name">AAPL</span></div>
     </div>
-
-    <div id="controls">
-      <button onclick="setTimeframe('1D')">1D</button>
-      <button onclick="setTimeframe('1W')">1W</button>
-      <button onclick="setTimeframe('1M')">1M</button>
-      <button onclick="setTimeframe('1Y')">1Y</button>
-    </div>
-
     <div id="chart"></div>
-
-    <div id="trade-panel">
+    <div id="trade">
       Amount: <input type="number" id="amount" value="1000" />
       <button onclick="buy()">Buy</button>
       <button onclick="sell()">Sell</button>
@@ -131,108 +93,78 @@
   </div>
 
   <script>
-    const API_KEY = 'S0CBS8L9QUAVNI6W';
+    let chart = LightweightCharts.createChart(document.getElementById("chart"), {
+      width: window.innerWidth - 220,
+      height: 400,
+      layout: {
+        background: { color: '#121212' },
+        textColor: '#DDD',
+      },
+      grid: {
+        vertLines: { color: '#333' },
+        horzLines: { color: '#333' },
+      }
+    });
+    let series = chart.addCandlestickSeries();
+
     let balance = 50000;
-    let currentSymbol = 'AAPL';
-    let currentTimeframe = '1D';
-    let chart, series;
+    let currentAsset = "AAPL";
 
-    function initChart() {
-      chart = LightweightCharts.createChart(document.getElementById('chart'), {
-        layout: {
-          background: { color: '#0e0e0e' },
-          textColor: '#d1d4dc'
-        },
-        width: window.innerWidth - 220,
-        height: 400,
-        grid: {
-          vertLines: { color: '#333' },
-          horzLines: { color: '#333' }
-        },
-        crosshair: {
-          mode: 0,
-        },
-        timeScale: {
-          timeVisible: true,
-          secondsVisible: false,
-        }
-      });
-      series = chart.addCandlestickSeries();
-    }
+    const mockData = {
+      AAPL: [...Array(50)].map((_, i) => ({
+        time: 1640995200 + i * 86400,
+        open: 140 + i * 0.5,
+        high: 142 + i * 0.5,
+        low: 138 + i * 0.5,
+        close: 141 + i * 0.5,
+      })),
+      BTC: [...Array(50)].map((_, i) => ({
+        time: 1640995200 + i * 86400,
+        open: 30000 + i * 100,
+        high: 31000 + i * 100,
+        low: 29500 + i * 100,
+        close: 30500 + i * 100,
+      })),
+      GOLD: [...Array(50)].map((_, i) => ({
+        time: 1640995200 + i * 86400,
+        open: 1800 + i * 2,
+        high: 1820 + i * 2,
+        low: 1780 + i * 2,
+        close: 1810 + i * 2,
+      })),
+    };
 
-    async function fetchData(symbol, timeframe) {
-      const intervalMap = {
-        '1D': '60min',
-        '1W': '60min',
-        '1M': 'daily',
-        '1Y': 'weekly'
-      };
-      const func = intervalMap[timeframe] === '60min'
-        ? 'TIME_SERIES_INTRADAY'
-        : 'TIME_SERIES_' + intervalMap[timeframe].toUpperCase();
-
-      const interval = intervalMap[timeframe];
-      const url = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&interval=${interval}&apikey=${API_KEY}`;
-      try {
-        const res = await fetch(url);
-        const json = await res.json();
-        const key = Object.keys(json).find(k => k.includes('Time Series'));
-
-        if (!key) throw new Error('No data key found');
-
-        return Object.entries(json[key]).slice(0, 100).reverse().map(([time, d]) => ({
-          time: Math.floor(new Date(time).getTime() / 1000),
-          open: +d['1. open'],
-          high: +d['2. high'],
-          low: +d['3. low'],
-          close: +d['4. close'],
-        }));
-      } catch (e) {
-        console.error('Fetch failed:', e.message);
-        return [];
-      }
-    }
-
-    async function renderChart(symbol = currentSymbol) {
-      currentSymbol = symbol;
-      document.getElementById('asset-name').innerText = symbol;
-      const data = await fetchData(symbol, currentTimeframe);
-      if (data.length > 0) {
-        series.setData(data);
-      }
-    }
-
-    function setTimeframe(tf) {
-      currentTimeframe = tf;
-      renderChart(currentSymbol);
-    }
-
-    function buy() {
-      const amt = +document.getElementById('amount').value;
-      if (amt <= balance) {
-        balance -= amt;
-        updateBalance();
-        alert(`Bought ₦${amt} of ${currentSymbol}`);
-      } else {
-        alert("Not enough balance");
-      }
-    }
-
-    function sell() {
-      const amt = +document.getElementById('amount').value;
-      balance += amt;
-      updateBalance();
-      alert(`Sold ₦${amt} of ${currentSymbol}`);
+    function selectAsset(symbol) {
+      currentAsset = symbol;
+      document.getElementById("assetName").innerText = symbol;
+      series.setData(mockData[symbol]);
     }
 
     function updateBalance() {
-      document.getElementById('balance').innerText = balance.toFixed(2);
+      document.getElementById("balance").innerText = balance.toFixed(2);
     }
 
-    window.onload = () => {
-      initChart();
-      renderChart();
-    };
+    function buy() {
+      const amt = parseFloat(document.getElementById("amount").value);
+      if (amt > balance) {
+        alert("Insufficient funds");
+        return;
+      }
+      balance -= amt;
+      updateBalance();
+      alert(`Bought ₦${amt} of ${currentAsset}`);
+    }
+
+    function sell() {
+      const amt = parseFloat(document.getElementById("amount").value);
+      balance += amt;
+      updateBalance();
+      alert(`Sold ₦${amt} of ${currentAsset}`);
+    }
+
+    // Init with AAPL
+    selectAsset("AAPL");
+    updateBalance();
   </script>
 </body>
 </html>
