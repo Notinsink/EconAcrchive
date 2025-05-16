@@ -1,140 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Market Simulator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trading Simulator</title>
   <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     body {
       margin: 0;
-      background-color: #000;
-      color: #fff;
       font-family: Arial, sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
+      height: 100vh;
     }
-    #controls {
-      margin: 10px;
+    #app {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
+      flex: 1;
+      flex-direction: row;
     }
-    button {
-      background-color: #222;
-      color: white;
-      padding: 8px 16px;
-      border: 1px solid #444;
-      border-radius: 5px;
+    #sidebar {
+      width: 200px;
+      padding: 10px;
+      background-color: #161b22;
+      overflow-y: auto;
+    }
+    #sidebar h2 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+    .category {
+      margin-bottom: 20px;
+    }
+    .asset {
       cursor: pointer;
+      margin: 5px 0;
+      color: #58a6ff;
     }
-    button:hover {
-      background-color: #333;
+    .asset:hover {
+      text-decoration: underline;
+    }
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
     #chart {
-      width: 100%;
-      max-width: 1000px;
-      height: 600px;
+      flex: 1;
     }
-    @media screen and (max-width: 600px) {
-      #chart {
-        height: 400px;
-      }
-      button {
-        padding: 10px;
-        font-size: 16px;
-      }
+    #profile {
+      background-color: #161b22;
+      padding: 10px;
+      font-size: 14px;
+    }
+    select {
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
     }
   </style>
 </head>
 <body>
-  <h2>Market Simulator</h2>
-  <div id="controls">
-    <button onclick="renderChart('AAPL', '1D')">1D</button>
-    <button onclick="renderChart('AAPL', '1W')">1W</button>
-    <button onclick="renderChart('AAPL', '1M')">1M</button>
-    <button onclick="renderChart('AAPL', '3M')">3M</button>
-    <button onclick="renderChart('AAPL', '6M')">6M</button>
-    <button onclick="renderChart('AAPL', '1Y')">1Y</button>
-    <button onclick="renderChart('AAPL', '5Y')">5Y</button>
+  <div id="app">
+    <div id="sidebar">
+      <h2>Forex</h2>
+      <div class="asset" onclick="renderChart('USDNGN')">USD/NGN</div>
+      <div class="asset" onclick="renderChart('EURUSD')">EUR/USD</div>
+      <h2>Commodities</h2>
+      <div class="asset" onclick="renderChart('XAUUSD')">Gold</div>
+      <div class="asset" onclick="renderChart('XAGUSD')">Silver</div>
+      <h2>Crypto</h2>
+      <div class="asset" onclick="renderChart('BTCUSD')">Bitcoin</div>
+      <div class="asset" onclick="renderChart('ETHUSD')">Ethereum</div>
+      <h2>Stocks</h2>
+      <div class="asset" onclick="renderChart('AAPL')">Apple</div>
+      <div class="asset" onclick="renderChart('TSLA')">Tesla</div>
+    </div>
+    <div id="main">
+      <div style="padding: 10px; background-color: #21262d;">
+        Timeframe: 
+        <select onchange="renderChart(currentSymbol, this.value)">
+          <option value="1D">1 Day</option>
+          <option value="1W">1 Week</option>
+          <option value="1M" selected>1 Month</option>
+          <option value="3M">3 Months</option>
+          <option value="6M">6 Months</option>
+          <option value="1Y">1 Year</option>
+          <option value="5Y">5 Years</option>
+        </select>
+      </div>
+      <div id="chart"></div>
+      <div id="profile">
+        Balance: ₦<span id="balance">50000</span>
+      </div>
+    </div>
   </div>
-  <div id="chart"></div>
 
   <script>
+    let currentSymbol = 'AAPL';
+    let balance = 50000;
+    const API_KEY = 'S0CBS8L9QUAVNI6W'; // Your Alpha Vantage key
+
     const chart = LightweightCharts.createChart(document.getElementById('chart'), {
       layout: {
-        background: { color: '#000000' },
-        textColor: '#d1d4dc'
+        background: { color: '#0d1117' },
+        textColor: '#c9d1d9'
       },
       grid: {
-        vertLines: { color: '#334158' },
-        horzLines: { color: '#334158' }
+        vertLines: { color: '#30363d' },
+        horzLines: { color: '#30363d' }
       },
-      crosshair: { mode: 0 },
-      rightPriceScale: { borderColor: '#485c7b' },
       timeScale: {
-        borderColor: '#485c7b',
         timeVisible: true,
         secondsVisible: false
       },
-      width: document.getElementById('chart').clientWidth,
-      height: document.getElementById('chart').clientHeight
     });
 
     const candleSeries = chart.addCandlestickSeries();
-    const API_KEY = 'S0CBS8L9QUAVNI6W';
 
-    async function fetchStock(symbol, timeframe) {
+    async function fetchData(symbol, timeframe = '1M') {
       const intervalMap = {
-        '1D': ['60min', 'TIME_SERIES_INTRADAY'],
-        '1W': ['60min', 'TIME_SERIES_INTRADAY'],
-        '1M': ['daily', 'TIME_SERIES_DAILY'],
-        '3M': ['daily', 'TIME_SERIES_DAILY'],
-        '6M': ['daily', 'TIME_SERIES_DAILY'],
-        '1Y': ['weekly', 'TIME_SERIES_WEEKLY'],
-        '5Y': ['monthly', 'TIME_SERIES_MONTHLY']
+        '1D': '60min',
+        '1W': '60min',
+        '1M': 'DAILY',
+        '3M': 'DAILY',
+        '6M': 'DAILY',
+        '1Y': 'WEEKLY',
+        '5Y': 'MONTHLY'
       };
+      const func = intervalMap[timeframe] === '60min' ? 'TIME_SERIES_INTRADAY' : `TIME_SERIES_${intervalMap[timeframe]}`;
+      const interval = intervalMap[timeframe] === '60min' ? '&interval=60min' : '';
 
-      const [interval, func] = intervalMap[timeframe] || ['daily', 'TIME_SERIES_DAILY'];
-      const url = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&interval=${interval}&apikey=${API_KEY}`;
+      const url = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&apikey=${API_KEY}${interval}`;
 
       try {
         const res = await fetch(url);
         const json = await res.json();
         const key = Object.keys(json).find(k => k.includes('Time Series'));
-
-        if (!key || !json[key]) {
-          throw new Error(json['Note'] || json['Error Message'] || 'No data returned');
-        }
+        if (!key || !json[key]) throw new Error(json['Note'] || 'No data');
 
         const data = json[key];
-        return Object.entries(data).slice(0, 100).reverse().map(([date, val]) => {
-          const t = new Date(date).getTime() / 1000;
-          return {
-            time: t,
-            open: +val['1. open'],
-            high: +val['2. high'],
-            low: +val['3. low'],
-            close: +val['4. close']
-          };
-        });
+        return Object.entries(data).slice(0, 100).reverse().map(([time, d]) => ({
+          time: Math.floor(new Date(time).getTime() / 1000),
+          open: +d['1. open'],
+          high: +d['2. high'],
+          low: +d['3. low'],
+          close: +d['4. close']
+        }));
       } catch (err) {
-        console.error('Stock fetch error:', err.message);
+        console.error('API error:', err.message);
         return [];
       }
     }
 
     async function renderChart(symbol = 'AAPL', timeframe = '1M') {
-      const seriesData = await fetchStock(symbol, timeframe);
-      if (seriesData.length === 0) {
-        alert('Failed to load data. Please check the asset symbol or try again later.');
+      currentSymbol = symbol;
+      const data = await fetchData(symbol, timeframe);
+      if (!data.length) {
+        alert('No data available');
         return;
       }
-      candleSeries.setData(seriesData);
+      candleSeries.setData(data);
     }
 
     renderChart();
